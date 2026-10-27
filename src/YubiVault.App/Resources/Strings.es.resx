@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  
+  <data name="AppTagline" xml:space="preserve">
+    <value>Archivos y carpetas cifrados con AES-256 y XChaCha20, que solo se abren con tu llave de seguridad.</value>
+  </data>
+  <data name="OpenVault" xml:space="preserve">
+    <value>Abrir una bóveda...</value>
+  </data>
+  <data name="CreateVault" xml:space="preserve">
+    <value>Crear una bóveda nueva...</value>
+  </data>
+  <data name="RecentVaults" xml:space="preserve">
+    <value>Bóvedas recientes</value>
+  </data>
+  <data name="AssociateFiles" xml:space="preserve">
+    <value>Abrir archivos .yvault con YubiVault</value>
+  </data>
+  <data name="AssociateDone" xml:space="preserve">
+    <value>Ahora, al hacer doble clic en un archivo .yvault, se abrirá en YubiVault.
+
+Si mueves YubiVault, vuelve a hacer clic en esta opción desde la nueva ubicación.</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="LanguageSystem" xml:space="preserve">
+    <value>Predeterminado del sistema</value>
+  </data>
+  <data name="ChooseVaultTitle" xml:space="preserve">
+    <value>Elige la bóveda</value>
+  </data>
+  <data name="VaultFileType" xml:space="preserve">
+    <value>Bóvedas de YubiVault</value>
+  </data>
+  <data name="NotAVault" xml:space="preserve">
+    <value>{0} no es una bóveda de YubiVault.</value>
+  </data>
+  <data name="CouldNotOpen" xml:space="preserve">
+    <value>No se pudo abrir la bóveda</value>
+  </data>
+  <data name="UnlockHintFido2Windows" xml:space="preserve">
+    <value>Conecta tu llave de seguridad y haz clic en Desbloquear. Windows te pedirá el PIN de la llave y que la toques.</value>
+  </data>
+  <data name="UnlockHintFido2" xml:space="preserve">
+    <value>Conecta tu llave de seguridad y haz clic en Desbloquear. Se te pedirá el PIN de la llave y que la toques.</value>
+  </data>
+  <data name="UnlockHintOtp" xml:space="preserve">
+    <value>Conecta tu YubiKey y haz clic en Desbloquear; después toca la llave cuando parpadee.</value>
+  </data>
+  <data name="UnlockHintRecovery" xml:space="preserve">
+    <value>Escribe el código de recuperación que guardaste al crear la bóveda.</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Contraseña</value>
+  </data>
+  <data name="Unlock" xml:space="preserve">
+    <value>Desbloquear</value>
+  </data>
+  <data name="UseRecoveryCode" xml:space="preserve">
+    <value>¿Perdiste tu llave? Usa el código de recuperación</value>
+  </data>
+  <data name="UseKeyInstead" xml:space="preserve">
+    <value>Usar mi llave</value>
+  </data>
+  <data name="InvalidRecoveryCode" xml:space="preserve">
+    <value>Ese no es un código de recuperación válido.</value>
+  </data>
+  <data name="UnlockingRecovery" xml:space="preserve">
+    <value>Desbloqueando con el código de recuperación...</value>
+  </data>
+  <data name="WaitingForKey" xml:space="preserve">
+    <value>Esperando tu llave de seguridad...</value>
+  </data>
+  <data name="Unlocking" xml:space="preserve">
+    <value>Desbloqueando...</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Atrás</value>
+  </data>
+  <data name="CreateTitle" xml:space="preserve">
+    <value>Crear una bóveda nueva</value>
+  </data>
+  <data name="CreateIntro" xml:space="preserve">
+    <value>Una bóveda es un único archivo .yvault. Guárdalo en una memoria USB, un disco o una carpeta en la nube: desde fuera nadie ve nombres, tamaños ni contenido.</value>
+  </data>
+  <data name="Where" xml:space="preserve">
+    <value>Ubicación</value>
+  </data>
+  <data name="WherePlaceholder" xml:space="preserve">
+    <value>Carpeta donde se guardará el archivo de la bóveda</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Examinar...</value>
+  </data>
+  <data name="VaultNamePlaceholder" xml:space="preserve">
+    <value>Nombre de la bóveda</value>
+  </data>
+  <data name="DefaultVaultName" xml:space="preserve">
+    <value>Mi bóveda</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>Llave</value>
+  </data>
+  <data name="KeyFido2Title" xml:space="preserve">
+    <value>Llave de seguridad (FIDO2), recomendado</value>
+  </data>
+  <data name="KeyFido2Detail" xml:space="preserve">
+    <value>Cualquier YubiKey 5 o Security Key by Yubico, con su PIN y un toque.</value>
+  </data>
+  <data name="KeyOtpTitle" xml:space="preserve">
+    <value>Desafío-respuesta de YubiKey 5 (ranura OTP 2)</value>
+  </data>
+  <data name="KeyOtpDetail" xml:space="preserve">
+    <value>Solo un toque, con contraseña opcional.</value>
+  </data>
+  <data name="PasswordOptional" xml:space="preserve">
+    <value>Contraseña (opcional, recomendada)</value>
+  </data>
+  <data name="RepeatPassword" xml:space="preserve">
+    <value>Repite la contraseña</value>
+  </data>
+  <data name="ReplaceSlot" xml:space="preserve">
+    <value>Programar la ranura 2 con un secreto nuevo (borra lo que haya)</value>
+  </data>
+  <data name="RecoveryNoticeTitle" xml:space="preserve">
+    <value>Recibirás un código de recuperación</value>
+  </data>
+  <data name="RecoveryNoticeText" xml:space="preserve">
+    <value>Abre la bóveda si pierdes tu llave. Lo verás una sola vez, justo después de crear la bóveda.</value>
+  </data>
+  <data name="CreateButton" xml:space="preserve">
+    <value>Crear bóveda</value>
+  </data>
+  <data name="CouldNotCreate" xml:space="preserve">
+    <value>No se pudo crear la bóveda</value>
+  </data>
+  <data name="ChooseLocation" xml:space="preserve">
+    <value>Elige dónde crear la bóveda.</value>
+  </data>
+  <data name="ChooseLocationTitle" xml:space="preserve">
+    <value>Elige dónde crear la bóveda</value>
+  </data>
+  <data name="InvalidName" xml:space="preserve">
+    <value>Ponle a la bóveda un nombre que sea válido como nombre de archivo.</value>
+  </data>
+  <data name="PasswordsDiffer" xml:space="preserve">
+    <value>Las contraseñas no coinciden.</value>
+  </data>
+  <data name="CreatingVault" xml:space="preserve">
+    <value>Creando la bóveda...</value>
+  </data>
+  <data name="RegisteringKey" xml:space="preserve">
+    <value>Registrando tu llave de seguridad...</value>
+  </data>
+  <data name="Keys" xml:space="preserve">
+    <value>Llaves</value>
+  </data>
+  <data name="Lock" xml:space="preserve">
+    <value>Bloquear</value>
+  </data>
+  <data name="UpOneFolder" xml:space="preserve">
+    <value>Subir una carpeta</value>
+  </data>
+  <data name="AddFiles" xml:space="preserve">
+    <value>Añadir archivos</value>
+  </data>
+  <data name="AddFolder" xml:space="preserve">
+    <value>Añadir carpeta</value>
+  </data>
+  <data name="Extract" xml:space="preserve">
+    <value>Extraer</value>
+  </data>
+  <data name="Rename" xml:space="preserve">
+    <value>Renombrar</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="ColumnName" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="ColumnSize" xml:space="preserve">
+    <value>Tamaño</value>
+  </data>
+  <data name="ColumnModified" xml:space="preserve">
+    <value>Modificado</value>
+  </data>
+  <data name="DropHere" xml:space="preserve">
+    <value>Suelta archivos o carpetas aquí para cifrarlos</value>
+  </data>
+  <data name="DropHereDetail" xml:space="preserve">
+    <value>o usa Añadir archivos / Añadir carpeta arriba</value>
+  </data>
+  <data name="AllFiles" xml:space="preserve">
+    <value>Todos los archivos</value>
+  </data>
+  <data name="StatusFiles" xml:space="preserve">
+    <value>{0} archivos, {1} cifrados</value>
+  </data>
+  <data name="AutoLockAfter" xml:space="preserve">
+    <value>Se bloquea tras {0} min sin uso</value>
+  </data>
+  <data name="AutoLockOff" xml:space="preserve">
+    <value>Bloqueo automático desactivado</value>
+  </data>
+  <data name="ChooseFilesTitle" xml:space="preserve">
+    <value>Elige los archivos que quieres cifrar</value>
+  </data>
+  <data name="ChooseFoldersTitle" xml:space="preserve">
+    <value>Elige las carpetas que quieres cifrar</value>
+  </data>
+  <data name="Encrypting" xml:space="preserve">
+    <value>Cifrando...</value>
+  </data>
+  <data name="EncryptedInfo" xml:space="preserve">
+    <value>Se cifraron {0} archivo(s). Los originales no se modificaron; elimínalos tú mismo si ya no los necesitas.</value>
+  </data>
+  <data name="Decrypting" xml:space="preserve">
+    <value>Descifrando...</value>
+  </data>
+  <data name="ExtractSelectedTitle" xml:space="preserve">
+    <value>Extraer los elementos seleccionados en...</value>
+  </data>
+  <data name="ExtractAllTitle" xml:space="preserve">
+    <value>Extraer todo el contenido de esta carpeta en...</value>
+  </data>
+  <data name="ReplaceExisting" xml:space="preserve">
+    <value>{0}
+
+¿Reemplazar los archivos existentes?</value>
+  </data>
+  <data name="ExtractedInfo" xml:space="preserve">
+    <value>Se extrajeron {0} archivo(s) en {1}.</value>
+  </data>
+  <data name="RenameTitle" xml:space="preserve">
+    <value>Renombrar</value>
+  </data>
+  <data name="RenamePrompt" xml:space="preserve">
+    <value>Nuevo nombre para «{0}»</value>
+  </data>
+  <data name="Renaming" xml:space="preserve">
+    <value>Renombrando...</value>
+  </data>
+  <data name="DeleteOne" xml:space="preserve">
+    <value>¿Eliminar «{0}» de la bóveda? Esta acción no se puede deshacer.</value>
+  </data>
+  <data name="DeleteMany" xml:space="preserve">
+    <value>¿Eliminar {0} elementos de la bóveda? Esta acción no se puede deshacer.</value>
+  </data>
+  <data name="Deleting" xml:space="preserve">
+    <value>Eliminando...</value>
+  </data>
+  <data name="TouchKeyTitle" xml:space="preserve">
+    <value>Toca tu llave de seguridad</value>
+  </data>
+  <data name="TouchKeyDetail" xml:space="preserve">
+    <value>La llave está parpadeando y espera que la toques.</value>
+  </data>
+  <data name="KeysTitle" xml:space="preserve">
+    <value>Llaves y configuración</value>
+  </data>
+  <data name="KeysIntro" xml:space="preserve">
+    <value>Cada una de las llaves de abajo puede abrir esta bóveda por sí sola. Registra una segunda llave como respaldo; no se vuelve a cifrar nada.</value>
+  </data>
+  <data name="ColumnKey" xml:space="preserve">
+    <value>Llave</value>
+  </data>
+  <data name="ColumnType" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="ColumnAdded" xml:space="preserve">
+    <value>Añadida</value>
+  </data>
+  <data name="KindFido2" xml:space="preserve">
+    <value>FIDO2 + PIN</value>
+  </data>
+  <data name="KindOtp" xml:space="preserve">
+    <value>OTP</value>
+  </data>
+  <data name="KindOtpPassword" xml:space="preserve">
+    <value>OTP + contraseña</value>
+  </data>
+  <data name="KindRecovery" xml:space="preserve">
+    <value>Código de recuperación</value>
+  </data>
+  <data name="AddSecurityKey" xml:space="preserve">
+    <value>Añadir llave de seguridad</value>
+  </data>
+  <data name="AddOtpKey" xml:space="preserve">
+    <value>Añadir YubiKey (OTP)</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Quitar</value>
+  </data>
+  <data name="NewRecoveryCode" xml:space="preserve">
+    <value>Nuevo código de recuperación</value>
+  </data>
+  <data name="LockAfter" xml:space="preserve">
+    <value>Bloquear automáticamente tras</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>Nunca</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Algo salió mal</value>
+  </data>
+  <data name="ConfirmAddSecurityKey" xml:space="preserve">
+    <value>Conecta la nueva llave de seguridad y desconecta las demás. Se te pedirá el PIN de la nueva llave y que la toques, dos veces.</value>
+  </data>
+  <data name="ConfirmAddOtpKey" xml:space="preserve">
+    <value>Conecta la nueva YubiKey 5 y desconecta las demás. Si su ranura 2 está vacía, se programará para desafío-respuesta.</value>
+  </data>
+  <data name="OtpPasswordPrompt" xml:space="preserve">
+    <value>Contraseña opcional para usar junto con esta YubiKey (déjala vacía si no quieres ninguna):</value>
+  </data>
+  <data name="RegisteringYubiKey" xml:space="preserve">
+    <value>Registrando la YubiKey...</value>
+  </data>
+  <data name="ConfirmRemoveKey" xml:space="preserve">
+    <value>¿Quitar «{0}»? Ya no podrá abrir esta bóveda.</value>
+  </data>
+  <data name="Removing" xml:space="preserve">
+    <value>Quitando...</value>
+  </data>
+  <data name="ConfirmNewRecovery" xml:space="preserve">
+    <value>¿Crear un nuevo código de recuperación? El anterior dejará de funcionar.</value>
+  </data>
+  <data name="CreatingRecovery" xml:space="preserve">
+    <value>Creando un nuevo código de recuperación...</value>
+  </data>
+  <data name="RecoveryTitle" xml:space="preserve">
+    <value>Guarda tu código de recuperación</value>
+  </data>
+  <data name="RecoveryText" xml:space="preserve">
+    <value>Este código abre la bóveda si pierdes tu llave. Anótalo o imprímelo y guárdalo en un lugar seguro y sin conexión. Cualquiera que lo tenga puede abrir la bóveda. No se volverá a mostrar.</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copiar</value>
+  </data>
+  <data name="RecoverySaved" xml:space="preserve">
+    <value>He guardado el código de recuperación</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continuar</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>Aceptar</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Sí</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="PinTitle" xml:space="preserve">
+    <value>PIN de la llave de seguridad</value>
+  </data>
+  <data name="PinPrompt" xml:space="preserve">
+    <value>Introduce el PIN de tu llave de seguridad.</value>
+  </data>
+  <data name="PinRetry" xml:space="preserve">
+    <value>PIN incorrecto. Quedan {0} intentos.</value>
+  </data>
+  <data name="NoOtpKey" xml:space="preserve">
+    <value>No se encontró ninguna YubiKey con OTP. Los modelos Security Key no tienen OTP; usa una llave de seguridad FIDO2.</value>
+  </data>
+  <data name="MoreThanOneKey" xml:space="preserve">
+    <value>Hay más de una YubiKey conectada. Deja solo una.</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>Error inesperado</value>
+  </data>
+</root>

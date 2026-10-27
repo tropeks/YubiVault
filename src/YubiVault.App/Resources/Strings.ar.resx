@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  
+  <data name="AppTagline" xml:space="preserve">
+    <value>ملفات ومجلدات مشفّرة بـ AES-256 وXChaCha20، لا تُفتح إلا بمفتاح الأمان الخاص بك.</value>
+  </data>
+  <data name="OpenVault" xml:space="preserve">
+    <value>فتح خزنة...</value>
+  </data>
+  <data name="CreateVault" xml:space="preserve">
+    <value>إنشاء خزنة جديدة...</value>
+  </data>
+  <data name="RecentVaults" xml:space="preserve">
+    <value>الخزنات الأخيرة</value>
+  </data>
+  <data name="AssociateFiles" xml:space="preserve">
+    <value>فتح ملفات .yvault باستخدام YubiVault</value>
+  </data>
+  <data name="AssociateDone" xml:space="preserve">
+    <value>أصبح النقر المزدوج على ملف .yvault يفتحه الآن في YubiVault.
+
+إذا نقلت YubiVault، فانقر على هذا الخيار مرة أخرى من الموقع الجديد.</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>اللغة</value>
+  </data>
+  <data name="LanguageSystem" xml:space="preserve">
+    <value>لغة النظام</value>
+  </data>
+  <data name="ChooseVaultTitle" xml:space="preserve">
+    <value>اختر الخزنة</value>
+  </data>
+  <data name="VaultFileType" xml:space="preserve">
+    <value>خزنات YubiVault</value>
+  </data>
+  <data name="NotAVault" xml:space="preserve">
+    <value>{0} ليس خزنة YubiVault.</value>
+  </data>
+  <data name="CouldNotOpen" xml:space="preserve">
+    <value>تعذّر فتح الخزنة</value>
+  </data>
+  <data name="UnlockHintFido2Windows" xml:space="preserve">
+    <value>أدخل مفتاح الأمان وانقر على «فتح القفل». سيطلب Windows رمز PIN الخاص بالمفتاح ولمسة.</value>
+  </data>
+  <data name="UnlockHintFido2" xml:space="preserve">
+    <value>أدخل مفتاح الأمان وانقر على «فتح القفل». سيُطلب منك رمز PIN الخاص بالمفتاح ولمسة.</value>
+  </data>
+  <data name="UnlockHintOtp" xml:space="preserve">
+    <value>أدخل YubiKey وانقر على «فتح القفل»، ثم المس المفتاح عندما يومض.</value>
+  </data>
+  <data name="UnlockHintRecovery" xml:space="preserve">
+    <value>اكتب رمز الاسترداد الذي حفظته عند إنشاء الخزنة.</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>كلمة المرور</value>
+  </data>
+  <data name="Unlock" xml:space="preserve">
+    <value>فتح القفل</value>
+  </data>
+  <data name="UseRecoveryCode" xml:space="preserve">
+    <value>فقدت مفتاحك؟ استخدم رمز الاسترداد</value>
+  </data>
+  <data name="UseKeyInstead" xml:space="preserve">
+    <value>استخدام مفتاحي بدلاً من ذلك</value>
+  </data>
+  <data name="InvalidRecoveryCode" xml:space="preserve">
+    <value>هذا ليس رمز استرداد صالحاً.</value>
+  </data>
+  <data name="UnlockingRecovery" xml:space="preserve">
+    <value>جارٍ فتح القفل برمز الاسترداد...</value>
+  </data>
+  <data name="WaitingForKey" xml:space="preserve">
+    <value>في انتظار مفتاح الأمان...</value>
+  </data>
+  <data name="Unlocking" xml:space="preserve">
+    <value>جارٍ فتح القفل...</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>رجوع</value>
+  </data>
+  <data name="CreateTitle" xml:space="preserve">
+    <value>إنشاء خزنة جديدة</value>
+  </data>
+  <data name="CreateIntro" xml:space="preserve">
+    <value>الخزنة ملف واحد بامتداد .yvault. احفظها على ذاكرة USB أو قرص أو مجلد سحابي: لا يرى أحد من الخارج الأسماء أو الأحجام أو المحتوى.</value>
+  </data>
+  <data name="Where" xml:space="preserve">
+    <value>الموقع</value>
+  </data>
+  <data name="WherePlaceholder" xml:space="preserve">
+    <value>المجلد الذي سيُحفظ فيه ملف الخزنة</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>استعراض...</value>
+  </data>
+  <data name="VaultNamePlaceholder" xml:space="preserve">
+    <value>اسم الخزنة</value>
+  </data>
+  <data name="DefaultVaultName" xml:space="preserve">
+    <value>خزنتي</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>المفتاح</value>
+  </data>
+  <data name="KeyFido2Title" xml:space="preserve">
+    <value>مفتاح أمان (FIDO2)، موصى به</value>
+  </data>
+  <data name="KeyFido2Detail" xml:space="preserve">
+    <value>أي YubiKey 5 أو Security Key by Yubico، مع رمز PIN ولمسة.</value>
+  </data>
+  <data name="KeyOtpTitle" xml:space="preserve">
+    <value>التحدي والاستجابة في YubiKey 5 (فتحة OTP رقم 2)</value>
+  </data>
+  <data name="KeyOtpDetail" xml:space="preserve">
+    <value>لمسة فقط، مع كلمة مرور اختيارية.</value>
+  </data>
+  <data name="PasswordOptional" xml:space="preserve">
+    <value>كلمة المرور (اختيارية، موصى بها)</value>
+  </data>
+  <data name="RepeatPassword" xml:space="preserve">
+    <value>أعد كتابة كلمة المرور</value>
+  </data>
+  <data name="ReplaceSlot" xml:space="preserve">
+    <value>برمجة الفتحة 2 بسرّ جديد (يمسح ما فيها)</value>
+  </data>
+  <data name="RecoveryNoticeTitle" xml:space="preserve">
+    <value>ستحصل على رمز استرداد</value>
+  </data>
+  <data name="RecoveryNoticeText" xml:space="preserve">
+    <value>يفتح الخزنة إذا فقدت مفتاحك. سيظهر لك مرة واحدة فقط، بعد إنشاء الخزنة مباشرة.</value>
+  </data>
+  <data name="CreateButton" xml:space="preserve">
+    <value>إنشاء الخزنة</value>
+  </data>
+  <data name="CouldNotCreate" xml:space="preserve">
+    <value>تعذّر إنشاء الخزنة</value>
+  </data>
+  <data name="ChooseLocation" xml:space="preserve">
+    <value>اختر مكان إنشاء الخزنة.</value>
+  </data>
+  <data name="ChooseLocationTitle" xml:space="preserve">
+    <value>اختر مكان إنشاء الخزنة</value>
+  </data>
+  <data name="InvalidName" xml:space="preserve">
+    <value>أعطِ الخزنة اسماً صالحاً كاسم ملف.</value>
+  </data>
+  <data name="PasswordsDiffer" xml:space="preserve">
+    <value>كلمتا المرور غير متطابقتين.</value>
+  </data>
+  <data name="CreatingVault" xml:space="preserve">
+    <value>جارٍ إنشاء الخزنة...</value>
+  </data>
+  <data name="RegisteringKey" xml:space="preserve">
+    <value>جارٍ تسجيل مفتاح الأمان...</value>
+  </data>
+  <data name="Keys" xml:space="preserve">
+    <value>المفاتيح</value>
+  </data>
+  <data name="Lock" xml:space="preserve">
+    <value>قفل</value>
+  </data>
+  <data name="UpOneFolder" xml:space="preserve">
+    <value>مجلد واحد للأعلى</value>
+  </data>
+  <data name="AddFiles" xml:space="preserve">
+    <value>إضافة ملفات</value>
+  </data>
+  <data name="AddFolder" xml:space="preserve">
+    <value>إضافة مجلد</value>
+  </data>
+  <data name="Extract" xml:space="preserve">
+    <value>استخراج</value>
+  </data>
+  <data name="Rename" xml:space="preserve">
+    <value>إعادة تسمية</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="ColumnName" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="ColumnSize" xml:space="preserve">
+    <value>الحجم</value>
+  </data>
+  <data name="ColumnModified" xml:space="preserve">
+    <value>تاريخ التعديل</value>
+  </data>
+  <data name="DropHere" xml:space="preserve">
+    <value>أفلت الملفات أو المجلدات هنا لتشفيرها</value>
+  </data>
+  <data name="DropHereDetail" xml:space="preserve">
+    <value>أو استخدم «إضافة ملفات» / «إضافة مجلد» في الأعلى</value>
+  </data>
+  <data name="AllFiles" xml:space="preserve">
+    <value>كل الملفات</value>
+  </data>
+  <data name="StatusFiles" xml:space="preserve">
+    <value>{0} ملفات، {1} مشفّرة</value>
+  </data>
+  <data name="AutoLockAfter" xml:space="preserve">
+    <value>تُقفل بعد {0} دقيقة من عدم الاستخدام</value>
+  </data>
+  <data name="AutoLockOff" xml:space="preserve">
+    <value>القفل التلقائي متوقف</value>
+  </data>
+  <data name="ChooseFilesTitle" xml:space="preserve">
+    <value>اختر الملفات المراد تشفيرها</value>
+  </data>
+  <data name="ChooseFoldersTitle" xml:space="preserve">
+    <value>اختر المجلدات المراد تشفيرها</value>
+  </data>
+  <data name="Encrypting" xml:space="preserve">
+    <value>جارٍ التشفير...</value>
+  </data>
+  <data name="EncryptedInfo" xml:space="preserve">
+    <value>تم تشفير {0} ملف(ات). لم تُعدَّل الملفات الأصلية؛ احذفها بنفسك إذا لم تعد بحاجة إليها.</value>
+  </data>
+  <data name="Decrypting" xml:space="preserve">
+    <value>جارٍ فك التشفير...</value>
+  </data>
+  <data name="ExtractSelectedTitle" xml:space="preserve">
+    <value>استخراج العناصر المحددة إلى...</value>
+  </data>
+  <data name="ExtractAllTitle" xml:space="preserve">
+    <value>استخراج كل محتوى هذا المجلد إلى...</value>
+  </data>
+  <data name="ReplaceExisting" xml:space="preserve">
+    <value>{0}
+
+هل تريد استبدال الملفات الموجودة؟</value>
+  </data>
+  <data name="ExtractedInfo" xml:space="preserve">
+    <value>تم استخراج {0} ملف(ات) إلى {1}.</value>
+  </data>
+  <data name="RenameTitle" xml:space="preserve">
+    <value>إعادة تسمية</value>
+  </data>
+  <data name="RenamePrompt" xml:space="preserve">
+    <value>اسم جديد لـ «{0}»</value>
+  </data>
+  <data name="Renaming" xml:space="preserve">
+    <value>جارٍ إعادة التسمية...</value>
+  </data>
+  <data name="DeleteOne" xml:space="preserve">
+    <value>هل تريد حذف «{0}» من الخزنة؟ لا يمكن التراجع عن ذلك.</value>
+  </data>
+  <data name="DeleteMany" xml:space="preserve">
+    <value>هل تريد حذف {0} عنصر من الخزنة؟ لا يمكن التراجع عن ذلك.</value>
+  </data>
+  <data name="Deleting" xml:space="preserve">
+    <value>جارٍ الحذف...</value>
+  </data>
+  <data name="TouchKeyTitle" xml:space="preserve">
+    <value>المس مفتاح الأمان</value>
+  </data>
+  <data name="TouchKeyDetail" xml:space="preserve">
+    <value>المفتاح يومض وينتظر لمستك.</value>
+  </data>
+  <data name="KeysTitle" xml:space="preserve">
+    <value>المفاتيح والإعدادات</value>
+  </data>
+  <data name="KeysIntro" xml:space="preserve">
+    <value>كل مفتاح أدناه يمكنه فتح هذه الخزنة بمفرده. سجّل مفتاحاً ثانياً كنسخة احتياطية؛ لا يُعاد تشفير أي شيء.</value>
+  </data>
+  <data name="ColumnKey" xml:space="preserve">
+    <value>المفتاح</value>
+  </data>
+  <data name="ColumnType" xml:space="preserve">
+    <value>النوع</value>
+  </data>
+  <data name="ColumnAdded" xml:space="preserve">
+    <value>تاريخ الإضافة</value>
+  </data>
+  <data name="KindFido2" xml:space="preserve">
+    <value>FIDO2 + PIN</value>
+  </data>
+  <data name="KindOtp" xml:space="preserve">
+    <value>OTP</value>
+  </data>
+  <data name="KindOtpPassword" xml:space="preserve">
+    <value>OTP + كلمة مرور</value>
+  </data>
+  <data name="KindRecovery" xml:space="preserve">
+    <value>رمز الاسترداد</value>
+  </data>
+  <data name="AddSecurityKey" xml:space="preserve">
+    <value>إضافة مفتاح أمان</value>
+  </data>
+  <data name="AddOtpKey" xml:space="preserve">
+    <value>إضافة YubiKey (OTP)</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>إزالة</value>
+  </data>
+  <data name="NewRecoveryCode" xml:space="preserve">
+    <value>رمز استرداد جديد</value>
+  </data>
+  <data name="LockAfter" xml:space="preserve">
+    <value>القفل تلقائياً بعد</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>أبداً</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>{0} دقيقة</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>حدث خطأ ما</value>
+  </data>
+  <data name="ConfirmAddSecurityKey" xml:space="preserve">
+    <value>أدخل مفتاح الأمان الجديد وانزع المفاتيح الأخرى. سيُطلب منك رمز PIN الخاص بالمفتاح الجديد ولمسة، مرتين.</value>
+  </data>
+  <data name="ConfirmAddOtpKey" xml:space="preserve">
+    <value>أدخل YubiKey 5 الجديد وانزع المفاتيح الأخرى. إذا كانت الفتحة 2 فارغة، فستُبرمج للتحدي والاستجابة.</value>
+  </data>
+  <data name="OtpPasswordPrompt" xml:space="preserve">
+    <value>كلمة مرور اختيارية لاستخدامها مع هذا YubiKey (اتركها فارغة إذا لم ترغب في ذلك):</value>
+  </data>
+  <data name="RegisteringYubiKey" xml:space="preserve">
+    <value>جارٍ تسجيل YubiKey...</value>
+  </data>
+  <data name="ConfirmRemoveKey" xml:space="preserve">
+    <value>هل تريد إزالة «{0}»؟ لن يتمكن بعد ذلك من فتح هذه الخزنة.</value>
+  </data>
+  <data name="Removing" xml:space="preserve">
+    <value>جارٍ الإزالة...</value>
+  </data>
+  <data name="ConfirmNewRecovery" xml:space="preserve">
+    <value>هل تريد إنشاء رمز استرداد جديد؟ سيتوقف الرمز القديم عن العمل.</value>
+  </data>
+  <data name="CreatingRecovery" xml:space="preserve">
+    <value>جارٍ إنشاء رمز استرداد جديد...</value>
+  </data>
+  <data name="RecoveryTitle" xml:space="preserve">
+    <value>احفظ رمز الاسترداد</value>
+  </data>
+  <data name="RecoveryText" xml:space="preserve">
+    <value>يفتح هذا الرمز الخزنة إذا فقدت مفتاحك. اكتبه أو اطبعه واحتفظ به في مكان آمن وغير متصل بالإنترنت. أي شخص يملكه يمكنه فتح الخزنة. لن يُعرض مرة أخرى.</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>نسخ</value>
+  </data>
+  <data name="RecoverySaved" xml:space="preserve">
+    <value>لقد حفظت رمز الاسترداد</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>متابعة</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>موافق</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>نعم</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>لا</value>
+  </data>
+  <data name="PinTitle" xml:space="preserve">
+    <value>رمز PIN لمفتاح الأمان</value>
+  </data>
+  <data name="PinPrompt" xml:space="preserve">
+    <value>أدخل رمز PIN الخاص بمفتاح الأمان.</value>
+  </data>
+  <data name="PinRetry" xml:space="preserve">
+    <value>رمز PIN غير صحيح. المحاولات المتبقية: {0}.</value>
+  </data>
+  <data name="NoOtpKey" xml:space="preserve">
+    <value>لم يُعثر على YubiKey يدعم OTP. طرازات Security Key لا تدعم OTP؛ استخدم مفتاح أمان FIDO2 بدلاً من ذلك.</value>
+  </data>
+  <data name="MoreThanOneKey" xml:space="preserve">
+    <value>يوجد أكثر من YubiKey متصل. اترك مفتاحاً واحداً فقط.</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>خطأ غير متوقع</value>
+  </data>
+</root>
