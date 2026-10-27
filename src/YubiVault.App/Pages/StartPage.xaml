@@ -1,0 +1,76 @@
+<UserControl x:Class="YubiVault.App.Pages.StartPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <Grid Margin="40,8,40,32">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MaxWidth="440" />
+            <ColumnDefinition Width="40" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Left: brand and actions -->
+        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+            <ui:SymbolIcon Symbol="ShieldKeyhole24" FontSize="56" HorizontalAlignment="Left"
+                           Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+            <TextBlock Text="YubiVault" FontSize="32" FontWeight="SemiBold" Margin="0,12,0,0"
+                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+            <TextBlock Margin="0,6,0,24" TextWrapping="Wrap" FontSize="14"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       Text="Files and folders encrypted with AES-256 and XChaCha20, opened only with your security key." />
+
+            <ui:Button x:Name="OpenButton" Appearance="Primary" Icon="{ui:SymbolIcon FolderOpen24}"
+                       Content="Open a vault..." HorizontalAlignment="Stretch" Padding="12,10" Click="OnOpenVault" />
+            <ui:Button Icon="{ui:SymbolIcon FolderAdd24}" Content="Create a new vault..." Margin="0,8,0,0"
+                       HorizontalAlignment="Stretch" Padding="12,10" Click="OnCreateVault" />
+
+            <TextBlock Text="Recent vaults" Margin="0,28,0,8" FontWeight="SemiBold"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" x:Name="RecentHeader" />
+            <ItemsControl x:Name="RecentList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <ui:CardAction Margin="0,0,0,6" Padding="12,8" Click="OnRecentClick" Tag="{Binding}"
+                                       Icon="{ui:SymbolIcon LockClosed24}">
+                            <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
+                        </ui:CardAction>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+
+        <!-- Right: unlock panel for the chosen vault -->
+        <Border x:Name="UnlockPanel" Grid.Column="2" VerticalAlignment="Center" Visibility="Collapsed"
+                Padding="28" CornerRadius="8" BorderThickness="1"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="LockClosed24" FontSize="28" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                    <TextBlock x:Name="VaultName" FontSize="20" FontWeight="SemiBold" Margin="12,0,0,0"
+                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                </StackPanel>
+                <TextBlock x:Name="VaultLocation" Margin="0,6,0,20" TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+
+                <TextBlock x:Name="UnlockHint" TextWrapping="Wrap" Margin="0,0,0,16"
+                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+                <ui:PasswordBox x:Name="PasswordInput" PlaceholderText="Password" Margin="0,0,0,12"
+                                Visibility="Collapsed" KeyDown="OnUnlockKeyDown" />
+
+                <ui:TextBox x:Name="RecoveryInput" PlaceholderText="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX"
+                            FontFamily="Consolas" Margin="0,0,0,12" Visibility="Collapsed" KeyDown="OnUnlockKeyDown" />
+
+                <ui:Button x:Name="UnlockButton" Appearance="Primary" Icon="{ui:SymbolIcon LockOpen24}"
+                           Content="Unlock" HorizontalAlignment="Stretch" Padding="12,10" Click="OnUnlock" />
+
+                <ui:HyperlinkButton x:Name="RecoveryToggle" Content="Lost your key? Use the recovery code"
+                                    Margin="0,12,0,0" Padding="0" Click="OnToggleRecovery" />
+
+                <ui:InfoBar x:Name="ErrorBar" Severity="Error" IsClosable="True" Margin="0,16,0,0" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

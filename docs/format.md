@@ -1,12 +1,26 @@
 # Vault format (version 1)
 
-A vault is a folder:
+A vault is a single file, `<name>.yvault`:
 
-| Path | Contents |
+| Offset | Contents |
 | --- | --- |
-| `vault.yv` | JSON header: format, version, vault id and key slots. Nothing secret in the clear. |
-| `index.yv` | Encrypted JSON list of files: path, blob id, size, modification time. |
-| `data/xx/<blob-id>.yvb` | One encrypted blob per file. Blob ids are 128 random bits in hex. |
+| 0 | Superblock A (512-byte slot) |
+| 512 | Superblock B (512-byte slot) |
+| 4096 | Records, appended one after another |
+
+Records are never changed in place. There are three kinds:
+
+- **Header:** JSON with format, version, vault id and key slots. Nothing secret in the clear.
+- **Index:** an encrypted stream (see below) holding a JSON list of files: path, blob id, offset and length of the blob in the vault file, size and modification time.
+- **Blob:** one encrypted stream per file. Blob ids are 128 random bits in hex; they appear only inside the encrypted index.
+
+A superblock is `magic "YVAULT\0\x01" | generation | header offset | header length | index offset | index length | end of data | SHA-256 of the previous 56 bytes`, all integers 64-bit little-endian. The valid superblock with the highest generation is current; anything after its end of data is ignored and dropped on the next write.
+
+**Writing.** New blobs, then a new header (only if the key slots changed) and a new index are appended and flushed to disk. Only then is the next generation written into the older superblock slot and flushed. A crash or power loss at any point leaves the previous generation intact.
+
+**Compaction.** Deleted or replaced files leave unused records behind. When at least 1 MiB and a quarter of the file is unused, the live records are copied into a new file next to the vault (`<name>.yvault.compacting`), which then replaces the vault. `yubivault compact` does it on demand. Blobs are copied as they are: they are bound to their blob id, not to their position.
+
+**Locking.** While a vault is unlocked, its file is open for writing and other programs can only read it, so two windows cannot change the same vault.
 
 ## Keys
 
@@ -29,4 +43,4 @@ chunk_i = XChaCha20-Poly1305(k_x, n_x(i), AES-256-GCM(k_aes, n_aes(i), plaintext
 - Nonces are the chunk counter (64-bit big-endian), zero padding and a final flag in the last byte (1 for the last chunk). A plaintext that ends on a chunk boundary is followed by an empty final chunk.
 - The associated data `ad` is the header followed by a context: `blob:<blob-id>` for files and `index` for the index. Blobs therefore cannot be swapped or renamed, and truncation, reordering or duplication of chunks is detected.
 
-Known limits of version 1: empty folders are not stored, and an attacker with write access to the vault folder can roll the whole vault back to an older consistent copy.
+Known limits of version 1: empty folders are not stored, and an attacker with write access to the vault file can roll the whole vault back to an older consistent copy, and can see the approximate total size of the files stored in it.

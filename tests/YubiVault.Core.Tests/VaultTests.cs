@@ -10,13 +10,13 @@ public class VaultTests : IDisposable
 
     public void Dispose() => _temp.Dispose();
 
-    string VaultFolder => _temp["vault"];
+    string VaultFilePath => _temp["test.yvault"];
 
     (Vault Vault, string Recovery) CreateVault(string? password = null) =>
-        Vault.Create(VaultFolder, _key, password, Fast.Options);
+        Vault.Create(VaultFilePath, _key, password, Fast.Options);
 
     Vault Open(FakeYubiKey? key = null, string? password = null) =>
-        Vault.OpenWithYubiKey(VaultFolder, key ?? _key, () => password ?? throw new Exception("No password expected"), Fast.Options);
+        Vault.OpenWithYubiKey(VaultFilePath, key ?? _key, () => password ?? throw new Exception("No password expected"), Fast.Options);
 
     [Fact]
     public void FilesSurviveCloseAndReopen()
@@ -44,13 +44,10 @@ public class VaultTests : IDisposable
         using (vault)
             vault.Add(source);
 
-        foreach (var file in Directory.EnumerateFiles(VaultFolder, "*", SearchOption.AllDirectories))
-        {
-            Assert.DoesNotContain("secret-plans", file);
-            string bytes = System.Text.Encoding.Latin1.GetString(File.ReadAllBytes(file));
-            Assert.DoesNotContain("TOP SECRET", bytes);
-            Assert.DoesNotContain("secret-plans", bytes);
-        }
+        Assert.Equal([VaultFilePath], Directory.EnumerateFiles(_temp.Path));
+        string bytes = System.Text.Encoding.Latin1.GetString(File.ReadAllBytes(VaultFilePath));
+        Assert.DoesNotContain("TOP SECRET", bytes);
+        Assert.DoesNotContain("secret-plans", bytes);
     }
 
     [Fact]
@@ -85,10 +82,13 @@ public class VaultTests : IDisposable
             File.WriteAllBytes(source, "version 2"u8.ToArray());
             vault.Add(source);
             Assert.Single(vault.Entries);
-            vault.Extract("notes.txt", _temp["out"]);
+            Assert.True(vault.WastedBytes > 0);
+            vault.Compact();
+            Assert.Equal(0, vault.WastedBytes);
         }
+        using var reopened = Open();
+        reopened.Extract("notes.txt", _temp["out"]);
         Assert.Equal("version 2", File.ReadAllText(_temp["out/notes.txt"]));
-        Assert.Single(Directory.EnumerateFiles(Path.Combine(VaultFolder, "data"), "*.yvb", SearchOption.AllDirectories));
     }
 
     [Fact]
@@ -103,7 +103,78 @@ public class VaultTests : IDisposable
             Assert.Equal(2, vault.Remove("docs"));
             Assert.Empty(vault.Entries);
         }
-        Assert.Empty(Directory.EnumerateFiles(Path.Combine(VaultFolder, "data"), "*", SearchOption.AllDirectories));
+        using var reopened = Open();
+        Assert.Empty(reopened.Entries);
+    }
+
+    [Fact]
+    public void LargeDeletionsCompactTheFile()
+    {
+        string big = _temp.WriteFile("in/big.bin", RandomNumberGenerator.GetBytes(3 << 20));
+        string small = _temp.WriteFile("in/small.txt", "keep me"u8.ToArray());
+        var (vault, _) = CreateVault();
+        using (vault)
+        {
+            vault.Add(big);
+            vault.Add(small);
+            Assert.True(vault.FileSize > 3 << 20);
+            vault.Remove("big.bin");
+            Assert.True(vault.FileSize < 1 << 20);
+            Assert.Equal(0, vault.WastedBytes);
+        }
+        Assert.False(File.Exists(VaultFilePath + ".compacting"));
+        using var reopened = Open();
+        reopened.Extract("small.txt", _temp["out"]);
+        Assert.Equal("keep me", File.ReadAllText(_temp["out/small.txt"]));
+    }
+
+    [Fact]
+    public void AnInterruptedWriteLeavesThePreviousState()
+    {
+        string source = _temp.WriteFile("in/a.txt", [1, 2, 3]);
+        var (vault, _) = CreateVault();
+        using (vault)
+            vault.Add(source);
+        // Bytes written after the last commit (e.g. power loss mid-add) are ignored and dropped.
+        using (var file = new FileStream(VaultFilePath, FileMode.Append))
+            file.Write(RandomNumberGenerator.GetBytes(5000));
+        using (var reopened = Open())
+        {
+            Assert.Single(reopened.Entries);
+            reopened.Add(_temp.WriteFile("in/b.txt", [4]));
+        }
+        using var again = Open();
+        Assert.Equal(2, again.Entries.Count);
+    }
+
+    [Fact]
+    public void ADamagedSuperblockFallsBackToThePreviousCommit()
+    {
+        string source = _temp.WriteFile("in/a.txt", [1]);
+        var (vault, _) = CreateVault();
+        using (vault)
+            vault.Add(source); // second commit, written to the first superblock
+        using (var file = new FileStream(VaultFilePath, FileMode.Open))
+        {
+            file.Position = 20;
+            file.WriteByte(0xFF);
+        }
+        using var reopened = Open();
+        Assert.Empty(reopened.Entries);
+    }
+
+    [Fact]
+    public void AnOpenVaultCannotBeOpenedTwice()
+    {
+        if (!OperatingSystem.IsWindows())
+            return; // file sharing modes are only enforced on Windows
+        var (vault, _) = CreateVault();
+        using (vault)
+        {
+            Assert.NotEmpty(Vault.ReadKeySlots(VaultFilePath));
+            var e = Assert.Throws<VaultException>(() => Open());
+            Assert.Contains("open in another", e.Message);
+        }
     }
 
     [Fact]
@@ -167,7 +238,7 @@ public class VaultTests : IDisposable
         using (vault)
             vault.Add(source);
 
-        using var recovered = Vault.OpenWithRecoveryCode(VaultFolder, recovery.ToLowerInvariant(), Fast.Options);
+        using var recovered = Vault.OpenWithRecoveryCode(VaultFilePath, recovery.ToLowerInvariant(), Fast.Options);
         recovered.Extract("a.txt", _temp["out"]);
         Assert.Equal([42], File.ReadAllBytes(_temp["out/a.txt"]));
     }
@@ -177,7 +248,7 @@ public class VaultTests : IDisposable
     {
         CreateVault().Vault.Dispose();
         string other = Keys.RecoveryCode.Format(Keys.RecoveryCode.Generate());
-        Assert.Throws<WrongKeyException>(() => Vault.OpenWithRecoveryCode(VaultFolder, other, Fast.Options));
+        Assert.Throws<WrongKeyException>(() => Vault.OpenWithRecoveryCode(VaultFilePath, other, Fast.Options));
     }
 
     [Fact]
@@ -188,8 +259,8 @@ public class VaultTests : IDisposable
         using (vault)
             newCode = vault.RegenerateRecoveryCode();
 
-        Assert.Throws<WrongKeyException>(() => Vault.OpenWithRecoveryCode(VaultFolder, oldCode, Fast.Options));
-        using var reopened = Vault.OpenWithRecoveryCode(VaultFolder, newCode, Fast.Options);
+        Assert.Throws<WrongKeyException>(() => Vault.OpenWithRecoveryCode(VaultFilePath, oldCode, Fast.Options));
+        using var reopened = Vault.OpenWithRecoveryCode(VaultFilePath, newCode, Fast.Options);
     }
 
     [Fact]
@@ -241,13 +312,16 @@ public class VaultTests : IDisposable
     {
         string source = _temp.WriteFile("in/a.txt", RandomNumberGenerator.GetBytes(3000));
         var (vault, _) = CreateVault();
+        long offset;
         using (vault)
+        {
             vault.Add(source);
+            offset = vault.Entries.Single().Offset;
+        }
 
-        string blob = Directory.EnumerateFiles(Path.Combine(VaultFolder, "data"), "*.yvb", SearchOption.AllDirectories).Single();
-        var bytes = File.ReadAllBytes(blob);
-        bytes[100] ^= 0xFF;
-        File.WriteAllBytes(blob, bytes);
+        var bytes = File.ReadAllBytes(VaultFilePath);
+        bytes[offset + 100] ^= 0xFF;
+        File.WriteAllBytes(VaultFilePath, bytes);
 
         using var reopened = Open();
         Assert.Throws<VaultException>(() => reopened.Extract("a.txt", _temp["out"]));
@@ -261,13 +335,19 @@ public class VaultTests : IDisposable
         _temp.WriteFile("in/x/a.txt", RandomNumberGenerator.GetBytes(100));
         _temp.WriteFile("in/x/b.txt", RandomNumberGenerator.GetBytes(100));
         var (vault, _) = CreateVault();
+        VaultEntry a, b;
         using (vault)
+        {
             vault.Add(_temp["in/x"]);
+            (a, b) = (vault.Entries[0], vault.Entries[1]);
+        }
 
-        var blobs = Directory.EnumerateFiles(Path.Combine(VaultFolder, "data"), "*.yvb", SearchOption.AllDirectories).ToList();
-        var first = File.ReadAllBytes(blobs[0]);
-        File.Copy(blobs[1], blobs[0], overwrite: true);
-        File.WriteAllBytes(blobs[1], first);
+        var bytes = File.ReadAllBytes(VaultFilePath);
+        Assert.Equal(a.Length, b.Length);
+        var first = bytes.AsSpan((int)a.Offset, (int)a.Length).ToArray();
+        bytes.AsSpan((int)b.Offset, (int)b.Length).CopyTo(bytes.AsSpan((int)a.Offset));
+        first.CopyTo(bytes.AsSpan((int)b.Offset));
+        File.WriteAllBytes(VaultFilePath, bytes);
 
         using var reopened = Open();
         Assert.Throws<VaultException>(() => reopened.Extract("x", _temp["out"]));
@@ -277,9 +357,10 @@ public class VaultTests : IDisposable
     public void TamperedHeaderSlotIsRejected()
     {
         CreateVault().Vault.Dispose();
-        string headerPath = Path.Combine(VaultFolder, Vault.HeaderFileName);
-        // Changing a slot's type or password flag invalidates its wrapped key.
-        File.WriteAllText(headerPath, File.ReadAllText(headerPath).Replace("\"k1\"", "\"k9\""));
+        // Changing a slot's id, type or password flag invalidates its wrapped key.
+        var text = System.Text.Encoding.Latin1.GetString(File.ReadAllBytes(VaultFilePath));
+        Assert.Contains("\"k1\"", text);
+        File.WriteAllBytes(VaultFilePath, System.Text.Encoding.Latin1.GetBytes(text.Replace("\"k1\"", "\"k9\"")));
         Assert.Throws<WrongKeyException>(() => Open());
     }
 
@@ -296,10 +377,11 @@ public class VaultTests : IDisposable
     }
 
     [Fact]
-    public void CreateRefusesNonEmptyFolder()
+    public void CreateRefusesAnExistingFile()
     {
-        _temp.WriteFile("vault/existing.txt", [1]);
+        _temp.WriteFile("test.yvault", [1]);
         Assert.Throws<VaultException>(() => CreateVault());
+        Assert.Equal([1], File.ReadAllBytes(VaultFilePath));
     }
 
     [Fact]
@@ -318,21 +400,21 @@ public class Fido2VaultTests : IDisposable
 
     public void Dispose() => _temp.Dispose();
 
-    string VaultFolder => _temp["vault"];
+    string VaultFilePath => _temp["test.yvault"];
 
     [Fact]
     public void SecurityKeyCreatesAndOpensTheVault()
     {
         string source = _temp.WriteFile("in/a.txt", [5, 6]);
-        var (vault, _) = Vault.Create(VaultFolder, _key, Fast.Options);
+        var (vault, _) = Vault.Create(VaultFilePath, _key, Fast.Options);
         using (vault)
             vault.Add(source);
 
-        var slot = Assert.Single(Vault.ReadKeySlots(VaultFolder), s => s.Type == KeySlotType.Fido2);
+        var slot = Assert.Single(Vault.ReadKeySlots(VaultFilePath), s => s.Type == KeySlotType.Fido2);
         Assert.NotNull(slot.CredentialId);
         Assert.Equal(Vault.Fido2SaltSize, slot.Challenge!.Length);
 
-        using var reopened = Vault.OpenWithFido2(VaultFolder, _key, Fast.Options);
+        using var reopened = Vault.OpenWithFido2(VaultFilePath, _key, Fast.Options);
         reopened.Extract("a.txt", _temp["out"]);
         Assert.Equal([5, 6], File.ReadAllBytes(_temp["out/a.txt"]));
     }
@@ -340,45 +422,100 @@ public class Fido2VaultTests : IDisposable
     [Fact]
     public void OpeningAsksTheKeyOnce()
     {
-        Vault.Create(VaultFolder, _key, Fast.Options).Vault.Dispose();
+        Vault.Create(VaultFilePath, _key, Fast.Options).Vault.Dispose();
         var key = new FakeSecurityKey("security-key-1");
-        using (Vault.OpenWithFido2(VaultFolder, key, Fast.Options)) { }
+        using (Vault.OpenWithFido2(VaultFilePath, key, Fast.Options)) { }
         Assert.Equal(1, key.Requests);
     }
 
     [Fact]
     public void AnotherSecurityKeyCannotOpen()
     {
-        Vault.Create(VaultFolder, _key, Fast.Options).Vault.Dispose();
-        Assert.ThrowsAny<VaultException>(() => Vault.OpenWithFido2(VaultFolder, new FakeSecurityKey("other"), Fast.Options));
+        Vault.Create(VaultFilePath, _key, Fast.Options).Vault.Dispose();
+        Assert.ThrowsAny<VaultException>(() => Vault.OpenWithFido2(VaultFilePath, new FakeSecurityKey("other"), Fast.Options));
     }
 
     [Fact]
     public void RecoveryCodeOpensASecurityKeyVault()
     {
-        var (vault, recovery) = Vault.Create(VaultFolder, _key, Fast.Options);
+        var (vault, recovery) = Vault.Create(VaultFilePath, _key, Fast.Options);
         vault.Dispose();
-        using var opened = Vault.OpenWithRecoveryCode(VaultFolder, recovery, Fast.Options);
+        using var opened = Vault.OpenWithRecoveryCode(VaultFilePath, recovery, Fast.Options);
     }
 
     [Fact]
     public void SecondSecurityKeyAndYubiKeyOtpCanBeAdded()
     {
-        var (vault, _) = Vault.Create(VaultFolder, _key, Fast.Options);
+        var (vault, _) = Vault.Create(VaultFilePath, _key, Fast.Options);
         using (vault)
         {
             vault.AddSecurityKey(new FakeSecurityKey("security-key-2"));
             vault.AddYubiKey(new FakeYubiKey("otp", serial: 7), null);
         }
-        using (Vault.OpenWithFido2(VaultFolder, new FakeSecurityKey("security-key-2"), Fast.Options)) { }
-        using (Vault.OpenWithYubiKey(VaultFolder, new FakeYubiKey("otp", serial: 7), () => "", Fast.Options)) { }
+        using (Vault.OpenWithFido2(VaultFilePath, new FakeSecurityKey("security-key-2"), Fast.Options)) { }
+        using (Vault.OpenWithYubiKey(VaultFilePath, new FakeYubiKey("otp", serial: 7), () => "", Fast.Options)) { }
     }
 
     [Fact]
     public void OnlySecurityKeyCannotBeRemoved()
     {
-        var (vault, _) = Vault.Create(VaultFolder, _key, Fast.Options);
+        var (vault, _) = Vault.Create(VaultFilePath, _key, Fast.Options);
         using (vault)
             Assert.Throws<VaultException>(() => vault.RemoveSlot(vault.Slots.First(s => s.Type == KeySlotType.Fido2).Id));
+    }
+}
+
+public class VaultMoveTests : IDisposable
+{
+    readonly TempFolder _temp = new();
+    readonly FakeYubiKey _key = new("primary", serial: 1001);
+
+    public void Dispose() => _temp.Dispose();
+
+    Vault NewVaultWith(params string[] files)
+    {
+        foreach (var file in files)
+            _temp.WriteFile(Path.Combine("in", file), [1]);
+        var (vault, _) = Vault.Create(_temp["test.yvault"], _key, null, Fast.Options);
+        foreach (var top in files.Select(f => f.Split('/')[0]).Distinct())
+            vault.Add(_temp[Path.Combine("in", top)]);
+        return vault;
+    }
+
+    [Fact]
+    public void RenamesAFileAndKeepsItAfterReopen()
+    {
+        using (var vault = NewVaultWith("a.txt"))
+            Assert.Equal(1, vault.Move("a.txt", "b.txt"));
+        using var reopened = Vault.OpenWithYubiKey(_temp["test.yvault"], _key, () => "", Fast.Options);
+        Assert.Equal("b.txt", Assert.Single(reopened.Entries).Path);
+        reopened.Extract("b.txt", _temp["out"]);
+        Assert.True(File.Exists(_temp["out/b.txt"]));
+    }
+
+    [Fact]
+    public void MovesAWholeFolder()
+    {
+        using var vault = NewVaultWith("docs/x.txt", "docs/sub/y.txt", "other.txt");
+        Assert.Equal(2, vault.Move("docs", "Archive/docs"));
+        Assert.Equal(["Archive/docs/sub/y.txt", "Archive/docs/x.txt", "other.txt"], vault.Entries.Select(e => e.Path).Order());
+    }
+
+    [Fact]
+    public void RefusesToOverwriteOrNestIntoItself()
+    {
+        using var vault = NewVaultWith("a.txt", "b.txt", "docs/x.txt");
+        Assert.Throws<VaultException>(() => vault.Move("a.txt", "b.txt"));
+        Assert.Throws<VaultException>(() => vault.Move("docs", "docs/inner"));
+        Assert.Throws<VaultException>(() => vault.Move("missing", "z"));
+    }
+
+    [Fact]
+    public void KeySlotsCanBeReadWhileLocked()
+    {
+        using (Vault.Create(_temp["test.yvault"], _key, "pw", Fast.Options).Vault) { }
+        var slots = Vault.ReadKeySlots(_temp["test.yvault"]);
+        Assert.Contains(slots, s => s.Type == KeySlotType.YubiKey && s.RequiresPassword && s.Serial == 1001);
+        Assert.Contains(slots, s => s.Type == KeySlotType.Recovery);
     }
 }
