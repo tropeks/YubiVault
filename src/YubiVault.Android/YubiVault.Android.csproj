@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>26</SupportedOSPlatformVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>YubiVault.Android</RootNamespace>
+    <AssemblyName>YubiVault.Android</AssemblyName>
+    <ApplicationId>io.github.tropeks.yubivault</ApplicationId>
+    <ApplicationTitle>YubiVault</ApplicationTitle>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+    <RunAOTCompilation>false</RunAOTCompilation>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AndroidResource Include="..\..\assets\yubivault.png" Link="Resources\mipmap\yubivault.png" />
+    <AvaloniaResource Include="..\..\assets\yubivault.png" Link="Assets\yubivault.png" />
+  </ItemGroup>
+
+  <!-- The desktop app's texts are shared; texts only the phone needs live in MobileStrings*.resx. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\YubiVault.App\Resources\Strings.resx" Link="Resources\Strings.resx">
+      <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>YubiVault.Android.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Strings</StronglyTypedClassName>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\YubiVault.App\Resources\Strings.*.resx" LinkBase="Resources">
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\MobileStrings.resx">
+      <StronglyTypedFileName>$(IntermediateOutputPath)MobileStrings.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>YubiVault.Android.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>MobileStrings</StronglyTypedClassName>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Android's implicit usings clash with Avalonia names (Application, Button); files import Android namespaces themselves. -->
+  <ItemGroup>
+    <Using Remove="Android.App" />
+    <Using Remove="Android.Widget" />
+    <Using Remove="Android.OS.Bundle" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Android" Version="11.3.22" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <!-- SkiaSharp 3 and HarfBuzzSharp 8 ship 16 KB-aligned native libraries, which Android 15+ devices may require. -->
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
+    <PackageReference Include="HarfBuzzSharp" Version="8.3.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YubiVault.Core\YubiVault.Core.csproj" />
+    <ProjectReference Include="..\YubiVault.Fido2\YubiVault.Fido2.csproj" />
+  </ItemGroup>
+
+</Project>

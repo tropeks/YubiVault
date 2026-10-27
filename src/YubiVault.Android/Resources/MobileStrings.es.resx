@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ConnectKeyTitle" xml:space="preserve">
+    <value>Conecta tu llave de seguridad</value>
+  </data>
+  <data name="ConnectKeyDetail" xml:space="preserve">
+    <value>Conecta la llave al puerto USB del teléfono o apóyala en la parte trasera del teléfono.</value>
+  </data>
+  <data name="ConnectKeyDetailUsb" xml:space="preserve">
+    <value>Conecta la llave al puerto USB del teléfono (USB-C o con un adaptador OTG).</value>
+  </data>
+  <data name="KeepHolding" xml:space="preserve">
+    <value>Mantén la llave apoyada en el teléfono...</value>
+  </data>
+  <data name="KeyWorking" xml:space="preserve">
+    <value>Comunicando con tu llave de seguridad...</value>
+  </data>
+  <data name="UnlockHintMobile" xml:space="preserve">
+    <value>Toca Desbloquear y escribe el PIN de la llave. Luego conecta la llave o acércala al teléfono, y tócala si parpadea.</value>
+  </data>
+  <data name="OtpNotSupported" xml:space="preserve">
+    <value>Esta bóveda se abre con la ranura OTP de una YubiKey, que el teléfono no puede usar. Usa el código de recuperación o registra una llave de seguridad FIDO2 en esta bóveda desde un ordenador.</value>
+  </data>
+  <data name="EmptyFolder" xml:space="preserve">
+    <value>Esta carpeta está vacía. Toca Añadir archivos para cifrar archivos en ella.</value>
+  </data>
+  <data name="CreateIntroMobile" xml:space="preserve">
+    <value>Una bóveda es un único archivo .yvault. A continuación eliges dónde guardarlo: en el teléfono, en una tarjeta de memoria o en una carpeta en la nube. Desde fuera nadie ve nombres, tamaños ni contenido.</value>
+  </data>
+  <data name="OpeningVault" xml:space="preserve">
+    <value>Abriendo la bóveda...</value>
+  </data>
+  <data name="SavingVault" xml:space="preserve">
+    <value>Guardando la bóveda...</value>
+  </data>
+  <data name="CouldNotSave" xml:space="preserve">
+    <value>No se pudo guardar la bóveda. Tus cambios se conservan en este teléfono; bloquea la bóveda para volver a intentarlo.</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>Copiado al portapapeles.</value>
+  </data>
+  <data name="FileSaved" xml:space="preserve">
+    <value>Archivo guardado.</value>
+  </data>
+  <data name="SaveToDevice" xml:space="preserve">
+    <value>Guardar en el dispositivo</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Abrir</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>Más opciones</value>
+  </data>
+  <data name="RemoveFromList" xml:space="preserve">
+    <value>Quitar de la lista</value>
+  </data>
+</root>

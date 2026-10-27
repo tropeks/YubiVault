@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ConnectKeyTitle" xml:space="preserve">
+    <value>Connectez votre clé de sécurité</value>
+  </data>
+  <data name="ConnectKeyDetail" xml:space="preserve">
+    <value>Branchez la clé sur le port USB du téléphone, ou posez-la à plat contre le dos du téléphone.</value>
+  </data>
+  <data name="ConnectKeyDetailUsb" xml:space="preserve">
+    <value>Branchez la clé sur le port USB du téléphone (USB-C, ou avec un adaptateur OTG).</value>
+  </data>
+  <data name="KeepHolding" xml:space="preserve">
+    <value>Gardez la clé contre le téléphone...</value>
+  </data>
+  <data name="KeyWorking" xml:space="preserve">
+    <value>Communication avec votre clé de sécurité...</value>
+  </data>
+  <data name="UnlockHintMobile" xml:space="preserve">
+    <value>Touchez Déverrouiller et saisissez le PIN de la clé. Branchez ensuite la clé ou approchez-la du téléphone, et touchez-la si elle clignote.</value>
+  </data>
+  <data name="OtpNotSupported" xml:space="preserve">
+    <value>Ce coffre s'ouvre avec l'emplacement OTP d'une YubiKey, que le téléphone ne peut pas utiliser. Utilisez le code de récupération, ou enregistrez une clé de sécurité FIDO2 dans ce coffre depuis un ordinateur.</value>
+  </data>
+  <data name="EmptyFolder" xml:space="preserve">
+    <value>Ce dossier est vide. Touchez Ajouter des fichiers pour y chiffrer des fichiers.</value>
+  </data>
+  <data name="CreateIntroMobile" xml:space="preserve">
+    <value>Un coffre est un fichier .yvault unique. Vous choisissez ensuite où l'enregistrer : sur le téléphone, sur une carte mémoire ou dans un dossier cloud. De l'extérieur, personne ne voit les noms, les tailles ni le contenu.</value>
+  </data>
+  <data name="OpeningVault" xml:space="preserve">
+    <value>Ouverture du coffre...</value>
+  </data>
+  <data name="SavingVault" xml:space="preserve">
+    <value>Enregistrement du coffre...</value>
+  </data>
+  <data name="CouldNotSave" xml:space="preserve">
+    <value>Impossible d'enregistrer le coffre. Vos modifications sont conservées sur ce téléphone ; verrouillez le coffre pour réessayer.</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>Copié dans le presse-papiers.</value>
+  </data>
+  <data name="FileSaved" xml:space="preserve">
+    <value>Fichier enregistré.</value>
+  </data>
+  <data name="SaveToDevice" xml:space="preserve">
+    <value>Enregistrer sur l'appareil</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Ouvrir</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>Plus d'options</value>
+  </data>
+  <data name="RemoveFromList" xml:space="preserve">
+    <value>Retirer de la liste</value>
+  </data>
+</root>

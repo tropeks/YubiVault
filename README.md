@@ -17,6 +17,10 @@ Optional: click **Open .yvault files with YubiVault** on the start screen so tha
 
 The zip also has `yubivault-cli.exe`, a command-line version (`yubivault-cli help`).
 
+### Android (preview)
+
+The Android app opens and creates the same `.yvault` files. Plug the security key into the phone's USB port (USB-C, or an OTG adapter) or hold an NFC key to the back of the phone, then type the key's PIN. Vaults are picked with Android's file picker, so they can live in Downloads, on an SD card or in Google Drive; the app works on a private copy and writes it back after each change and when it locks. Requires Android 8 or later. Each CI run builds a test APK (`YubiVault-android` artifact).
+
 ## How it works
 
 - **Your security key is the key.** YubiVault uses the FIDO2 hmac-secret (PRF) extension through Windows' own security key dialog: the secret never leaves the key, and every unlock asks for the key's PIN and a touch. Works with any YubiKey 5 or Security Key by Yubico, without administrator rights.

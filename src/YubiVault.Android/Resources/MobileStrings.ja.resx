@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ConnectKeyTitle" xml:space="preserve">
+    <value>セキュリティキーを接続してください</value>
+  </data>
+  <data name="ConnectKeyDetail" xml:space="preserve">
+    <value>キーをスマートフォンの USB ポートに差し込むか、スマートフォンの背面に平らに当ててください。</value>
+  </data>
+  <data name="ConnectKeyDetailUsb" xml:space="preserve">
+    <value>キーをスマートフォンの USB ポートに差し込んでください（USB-C、または OTG アダプター経由）。</value>
+  </data>
+  <data name="KeepHolding" xml:space="preserve">
+    <value>キーをスマートフォンに当てたままにしてください...</value>
+  </data>
+  <data name="KeyWorking" xml:space="preserve">
+    <value>セキュリティキーと通信しています...</value>
+  </data>
+  <data name="UnlockHintMobile" xml:space="preserve">
+    <value>「ロック解除」をタップしてキーの PIN を入力します。次にキーを差し込むかスマートフォンに当て、点滅したらタッチしてください。</value>
+  </data>
+  <data name="OtpNotSupported" xml:space="preserve">
+    <value>この金庫は YubiKey の OTP スロットで開きますが、スマートフォンでは使用できません。回復コードを使うか、パソコンでこの金庫に FIDO2 セキュリティキーを登録してください。</value>
+  </data>
+  <data name="EmptyFolder" xml:space="preserve">
+    <value>このフォルダーは空です。「ファイルを追加」をタップすると、ファイルを暗号化してここに入れられます。</value>
+  </data>
+  <data name="CreateIntroMobile" xml:space="preserve">
+    <value>金庫は 1 つの .yvault ファイルです。次に保存先を選びます：スマートフォン、メモリーカード、またはクラウドのフォルダー。外からは名前もサイズも中身も見えません。</value>
+  </data>
+  <data name="OpeningVault" xml:space="preserve">
+    <value>金庫を開いています...</value>
+  </data>
+  <data name="SavingVault" xml:space="preserve">
+    <value>金庫を保存しています...</value>
+  </data>
+  <data name="CouldNotSave" xml:space="preserve">
+    <value>金庫を保存できませんでした。変更はこのスマートフォンに残っています。金庫をロックすると再試行します。</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>クリップボードにコピーしました。</value>
+  </data>
+  <data name="FileSaved" xml:space="preserve">
+    <value>ファイルを保存しました。</value>
+  </data>
+  <data name="SaveToDevice" xml:space="preserve">
+    <value>デバイスに保存</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>開く</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>その他のオプション</value>
+  </data>
+  <data name="RemoveFromList" xml:space="preserve">
+    <value>リストから削除</value>
+  </data>
+</root>

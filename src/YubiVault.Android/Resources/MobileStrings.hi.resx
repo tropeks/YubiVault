@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ConnectKeyTitle" xml:space="preserve">
+    <value>अपनी सुरक्षा कुंजी कनेक्ट करें</value>
+  </data>
+  <data name="ConnectKeyDetail" xml:space="preserve">
+    <value>कुंजी को फ़ोन के USB पोर्ट में लगाएँ, या उसे फ़ोन के पीछे सपाट रखें।</value>
+  </data>
+  <data name="ConnectKeyDetailUsb" xml:space="preserve">
+    <value>कुंजी को फ़ोन के USB पोर्ट में लगाएँ (USB-C, या OTG एडाप्टर के साथ)।</value>
+  </data>
+  <data name="KeepHolding" xml:space="preserve">
+    <value>कुंजी को फ़ोन से लगाए रखें...</value>
+  </data>
+  <data name="KeyWorking" xml:space="preserve">
+    <value>आपकी सुरक्षा कुंजी से बात हो रही है...</value>
+  </data>
+  <data name="UnlockHintMobile" xml:space="preserve">
+    <value>अनलॉक पर टैप करें और कुंजी का PIN लिखें। फिर कुंजी लगाएँ या उसे फ़ोन के पास रखें, और अगर वह झपके तो उसे छुएँ।</value>
+  </data>
+  <data name="OtpNotSupported" xml:space="preserve">
+    <value>यह तिजोरी YubiKey के OTP स्लॉट से खुलती है, जिसे फ़ोन इस्तेमाल नहीं कर सकता। रिकवरी कोड का उपयोग करें, या किसी कंप्यूटर पर इस तिजोरी में FIDO2 सुरक्षा कुंजी पंजीकृत करें।</value>
+  </data>
+  <data name="EmptyFolder" xml:space="preserve">
+    <value>यह फ़ोल्डर खाली है। इसमें फ़ाइलें एन्क्रिप्ट करने के लिए फ़ाइलें जोड़ें पर टैप करें।</value>
+  </data>
+  <data name="CreateIntroMobile" xml:space="preserve">
+    <value>तिजोरी एक अकेली .yvault फ़ाइल होती है। आगे आप चुनेंगे कि उसे कहाँ सहेजना है: फ़ोन पर, मेमोरी कार्ड पर या किसी क्लाउड फ़ोल्डर में। बाहर से कोई भी नाम, आकार या सामग्री नहीं देख सकता।</value>
+  </data>
+  <data name="OpeningVault" xml:space="preserve">
+    <value>तिजोरी खोली जा रही है...</value>
+  </data>
+  <data name="SavingVault" xml:space="preserve">
+    <value>तिजोरी सहेजी जा रही है...</value>
+  </data>
+  <data name="CouldNotSave" xml:space="preserve">
+    <value>तिजोरी सहेजी नहीं जा सकी। आपके बदलाव इस फ़ोन पर सुरक्षित हैं; फिर से कोशिश करने के लिए तिजोरी लॉक करें।</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>क्लिपबोर्ड पर कॉपी किया गया।</value>
+  </data>
+  <data name="FileSaved" xml:space="preserve">
+    <value>फ़ाइल सहेजी गई।</value>
+  </data>
+  <data name="SaveToDevice" xml:space="preserve">
+    <value>डिवाइस पर सहेजें</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>खोलें</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>और विकल्प</value>
+  </data>
+  <data name="RemoveFromList" xml:space="preserve">
+    <value>सूची से हटाएँ</value>
+  </data>
+</root>

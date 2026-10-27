@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ConnectKeyTitle" xml:space="preserve">
+    <value>Connect your security key</value>
+  </data>
+  <data name="ConnectKeyDetail" xml:space="preserve">
+    <value>Plug the key into the phone's USB port, or hold it flat against the back of the phone.</value>
+  </data>
+  <data name="ConnectKeyDetailUsb" xml:space="preserve">
+    <value>Plug the key into the phone's USB port (USB-C, or with an OTG adapter).</value>
+  </data>
+  <data name="KeepHolding" xml:space="preserve">
+    <value>Keep holding the key against the phone...</value>
+  </data>
+  <data name="KeyWorking" xml:space="preserve">
+    <value>Talking to your security key...</value>
+  </data>
+  <data name="UnlockHintMobile" xml:space="preserve">
+    <value>Tap Unlock and type your key's PIN. Then plug in the key or hold it to the phone, and touch it if it blinks.</value>
+  </data>
+  <data name="OtpNotSupported" xml:space="preserve">
+    <value>This vault opens with a YubiKey OTP slot, which the phone cannot use. Use the recovery code, or register a FIDO2 security key in this vault on a computer.</value>
+  </data>
+  <data name="EmptyFolder" xml:space="preserve">
+    <value>This folder is empty. Tap Add files to encrypt files into it.</value>
+  </data>
+  <data name="CreateIntroMobile" xml:space="preserve">
+    <value>A vault is a single .yvault file. Next you choose where to save it: on the phone, on a memory card or in a cloud folder. From the outside nobody sees names, sizes or contents.</value>
+  </data>
+  <data name="OpeningVault" xml:space="preserve">
+    <value>Opening the vault...</value>
+  </data>
+  <data name="SavingVault" xml:space="preserve">
+    <value>Saving the vault...</value>
+  </data>
+  <data name="CouldNotSave" xml:space="preserve">
+    <value>Could not save the vault. Your changes are kept on this phone; lock the vault to try again.</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>Copied to the clipboard.</value>
+  </data>
+  <data name="FileSaved" xml:space="preserve">
+    <value>File saved.</value>
+  </data>
+  <data name="SaveToDevice" xml:space="preserve">
+    <value>Save to device</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>More options</value>
+  </data>
+  <data name="RemoveFromList" xml:space="preserve">
+    <value>Remove from list</value>
+  </data>
+</root>

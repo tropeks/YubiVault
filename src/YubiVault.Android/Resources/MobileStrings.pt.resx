@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ConnectKeyTitle" xml:space="preserve">
+    <value>Conecte sua chave de segurança</value>
+  </data>
+  <data name="ConnectKeyDetail" xml:space="preserve">
+    <value>Conecte a chave na porta USB do celular ou encoste-a na parte de trás do celular.</value>
+  </data>
+  <data name="ConnectKeyDetailUsb" xml:space="preserve">
+    <value>Conecte a chave na porta USB do celular (USB-C ou com um adaptador OTG).</value>
+  </data>
+  <data name="KeepHolding" xml:space="preserve">
+    <value>Mantenha a chave encostada no celular...</value>
+  </data>
+  <data name="KeyWorking" xml:space="preserve">
+    <value>Conversando com sua chave de segurança...</value>
+  </data>
+  <data name="UnlockHintMobile" xml:space="preserve">
+    <value>Toque em Desbloquear e digite o PIN da chave. Depois conecte a chave ou encoste-a no celular, e toque nela se ela piscar.</value>
+  </data>
+  <data name="OtpNotSupported" xml:space="preserve">
+    <value>Este cofre abre com o slot OTP de uma YubiKey, que o celular não consegue usar. Use o código de recuperação ou registre uma chave de segurança FIDO2 neste cofre em um computador.</value>
+  </data>
+  <data name="EmptyFolder" xml:space="preserve">
+    <value>Esta pasta está vazia. Toque em Adicionar arquivos para criptografar arquivos nela.</value>
+  </data>
+  <data name="CreateIntroMobile" xml:space="preserve">
+    <value>Um cofre é um único arquivo .yvault. Em seguida você escolhe onde salvá-lo: no celular, em um cartão de memória ou em uma pasta na nuvem. De fora, ninguém vê nomes, tamanhos nem conteúdo.</value>
+  </data>
+  <data name="OpeningVault" xml:space="preserve">
+    <value>Abrindo o cofre...</value>
+  </data>
+  <data name="SavingVault" xml:space="preserve">
+    <value>Salvando o cofre...</value>
+  </data>
+  <data name="CouldNotSave" xml:space="preserve">
+    <value>Não foi possível salvar o cofre. Suas alterações continuam neste celular; tranque o cofre para tentar de novo.</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>Copiado para a área de transferência.</value>
+  </data>
+  <data name="FileSaved" xml:space="preserve">
+    <value>Arquivo salvo.</value>
+  </data>
+  <data name="SaveToDevice" xml:space="preserve">
+    <value>Salvar no dispositivo</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>Abrir</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>Mais opções</value>
+  </data>
+  <data name="RemoveFromList" xml:space="preserve">
+    <value>Remover da lista</value>
+  </data>
+</root>
