@@ -37,8 +37,8 @@ sealed class Arguments
     public string? Option(string name) => _options.GetValueOrDefault(name);
 
     public string Positional(int index, string name) =>
-        index < _positional.Count ? _positional[index] : throw new ArgumentException($"Missing <{name}>. Run \"yubivault help\".");
+        index < _positional.Count ? _positional[index] : throw new ArgumentException($"Missing <{name}>. Run \"yubivault-cli help\".");
 
     public IReadOnlyList<string> PositionalFrom(int index, string name) =>
-        index < _positional.Count ? _positional.Skip(index).ToList() : throw new ArgumentException($"Missing <{name}>. Run \"yubivault help\".");
+        index < _positional.Count ? _positional.Skip(index).ToList() : throw new ArgumentException($"Missing <{name}>. Run \"yubivault-cli help\".");
 }

@@ -1,8 +1,21 @@
+<img src="assets/yubivault.png" width="96" align="right" alt="" />
+
 # YubiVault
 
 A portable vault for Windows that encrypts files and folders and only opens them with your **YubiKey** or other FIDO2 security key. A single `.exe`: no installation and no administrator rights, so it can live on a USB stick.
 
-> **Status:** in development. There is no release ready for use yet.
+> **Status:** early preview (0.x). Keep a copy of anything important outside the vault until 1.0.
+
+## Getting started
+
+1. Download `YubiVault-<version>-win-x64.zip` from [Releases](../../releases) and unzip it anywhere, even a USB stick.
+2. Run `YubiVault.exe`, click **Create a new vault...**, pick a folder and a name, and follow Windows' prompts for your security key's PIN and a touch.
+3. Print or write down the recovery code it shows. It is the only way in if you lose your key.
+4. Drag files and folders into the window to encrypt them. Double-click to open, or select and **Extract**.
+
+Optional: click **Open .yvault files with YubiVault** on the start screen so that double-clicking a vault opens it. It is registered for your user only and needs no administrator rights.
+
+The zip also has `yubivault-cli.exe`, a command-line version (`yubivault-cli help`).
 
 ## How it works
 
@@ -15,9 +28,9 @@ A portable vault for Windows that encrypts files and folders and only opens them
 ## Roadmap
 
 1. [x] Technical design
-2. [ ] Encryption core and command-line tool, with tests
-3. [ ] Vault desktop app (WPF)
-4. [ ] Single portable executable for Windows x64
+2. [x] Encryption core and command-line tool, with tests
+3. [x] Vault desktop app (WPF)
+4. [x] Single portable executable for Windows x64, released from tags by GitHub Actions
 
 ## Requirements
 

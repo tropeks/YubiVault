@@ -18,7 +18,7 @@ A superblock is `magic "YVAULT\0\x01" | generation | header offset | header leng
 
 **Writing.** New blobs, then a new header (only if the key slots changed) and a new index are appended and flushed to disk. Only then is the next generation written into the older superblock slot and flushed. A crash or power loss at any point leaves the previous generation intact.
 
-**Compaction.** Deleted or replaced files leave unused records behind. When at least 1 MiB and a quarter of the file is unused, the live records are copied into a new file next to the vault (`<name>.yvault.compacting`), which then replaces the vault. `yubivault compact` does it on demand. Blobs are copied as they are: they are bound to their blob id, not to their position.
+**Compaction.** Deleted or replaced files leave unused records behind. When at least 1 MiB and a quarter of the file is unused, the live records are copied into a new file next to the vault (`<name>.yvault.compacting`), which then replaces the vault. `yubivault-cli compact` does it on demand. Blobs are copied as they are: they are bound to their blob id, not to their position.
 
 **Locking.** While a vault is unlocked, its file is open for writing and other programs can only read it, so two windows cannot change the same vault.
 

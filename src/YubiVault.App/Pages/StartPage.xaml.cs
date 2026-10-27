@@ -21,8 +21,25 @@ public partial class StartPage : UserControl
         var recent = main.Settings.RecentVaults.Where(File.Exists).ToList();
         RecentList.ItemsSource = recent;
         RecentHeader.Visibility = recent.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+        AssociateButton.Visibility = FileAssociation.IsRegistered ? Visibility.Collapsed : Visibility.Visible;
         if (vaultFile is not null)
             SelectVault(vaultFile);
+    }
+
+    void OnAssociate(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            FileAssociation.Register();
+            AssociateButton.Visibility = Visibility.Collapsed;
+            MessageBox.Show(_main, "Double-clicking a .yvault file now opens it in YubiVault.\n\n" +
+                "If you move YubiVault.exe, click this option again from the new location.",
+                "YubiVault", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException)
+        {
+            ShowError(ex.Message);
+        }
     }
 
     void OnOpenVault(object sender, RoutedEventArgs e)

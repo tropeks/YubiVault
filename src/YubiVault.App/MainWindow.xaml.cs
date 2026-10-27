@@ -6,6 +6,7 @@ using Microsoft.Win32;
 using Yubico.YubiKey;
 using YubiVault.App.Pages;
 using YubiVault.Core;
+using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
 namespace YubiVault.App;
@@ -21,6 +22,9 @@ public partial class MainWindow : FluentWindow
     public MainWindow()
     {
         InitializeComponent();
+        // Light or dark and the accent color follow Windows, also when they change while running.
+        ApplicationThemeManager.ApplySystemTheme(updateAccent: true);
+        SystemThemeWatcher.Watch(this, WindowBackdropType.Mica, updateAccents: true);
         Settings = AppSettings.Load();
         // A vault passed on the command line (e.g. a double-clicked .yvault file) is selected right away.
         string? argument = Environment.GetCommandLineArgs().Skip(1).FirstOrDefault();
