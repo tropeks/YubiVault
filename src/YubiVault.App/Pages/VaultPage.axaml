@@ -1,0 +1,120 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:r="using:YubiVault.App.Resources"
+             xmlns:p="using:YubiVault.App.Pages"
+             x:Class="YubiVault.App.Pages.VaultPage"
+             DragDrop.AllowDrop="True">
+    <Grid Margin="24,16,24,16" RowDefinitions="Auto,Auto,*,Auto">
+        <!-- Header: vault name and lock -->
+        <Grid Grid.Row="0" Margin="0,0,0,12" ColumnDefinitions="Auto,*,Auto,Auto">
+            <PathIcon Data="{StaticResource LockOpenIcon}" Width="26" Height="26" VerticalAlignment="Center"
+                      Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                <TextBlock x:Name="VaultName" FontSize="20" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                <TextBlock x:Name="VaultLocation" TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+            </StackPanel>
+            <Button Grid.Column="2" Margin="0,0,8,0" Click="OnKeys">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <PathIcon Data="{StaticResource KeyIcon}" Width="16" Height="16" />
+                    <TextBlock Text="{x:Static r:Strings.Keys}" />
+                </StackPanel>
+            </Button>
+            <Button Grid.Column="3" Classes="accent" Click="OnLock">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <PathIcon Data="{StaticResource LockClosedIcon}" Width="16" Height="16" />
+                    <TextBlock Text="{x:Static r:Strings.Lock}" />
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Toolbar -->
+        <Grid Grid.Row="1" Margin="0,0,0,8" ColumnDefinitions="Auto,*,Auto">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="8">
+                <Button x:Name="UpButton" Classes="transparent" Padding="6" Click="OnUp"
+                        ToolTip.Tip="{x:Static r:Strings.UpOneFolder}">
+                    <ui:SymbolIcon Symbol="Up" />
+                </Button>
+                <TextBlock x:Name="FolderText" VerticalAlignment="Center" FontWeight="SemiBold"
+                           TextTrimming="CharacterEllipsis" MaxWidth="320" />
+            </StackPanel>
+            <WrapPanel Grid.Column="2" HorizontalAlignment="Right">
+                <Button Margin="0,0,6,0" Click="OnAddFiles">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ui:SymbolIcon Symbol="Add" />
+                        <TextBlock Text="{x:Static r:Strings.AddFiles}" />
+                    </StackPanel>
+                </Button>
+                <Button Margin="0,0,6,0" Click="OnAddFolder">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ui:SymbolIcon Symbol="NewFolder" />
+                        <TextBlock Text="{x:Static r:Strings.AddFolder}" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="ExtractButton" Margin="0,0,6,0" Click="OnExtract">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ui:SymbolIcon Symbol="Download" />
+                        <TextBlock Text="{x:Static r:Strings.Extract}" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="RenameButton" Margin="0,0,6,0" Click="OnRename" ToolTip.Tip="{x:Static r:Strings.Rename}">
+                    <ui:SymbolIcon Symbol="Rename" />
+                </Button>
+                <Button x:Name="DeleteButton" Click="OnDelete" ToolTip.Tip="{x:Static r:Strings.Delete}">
+                    <ui:SymbolIcon Symbol="Delete" />
+                </Button>
+            </WrapPanel>
+        </Grid>
+
+        <!-- Contents -->
+        <Border Grid.Row="2" CornerRadius="8" BorderThickness="1"
+                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+            <Grid RowDefinitions="Auto,*">
+                <Grid Margin="16,8,16,6" ColumnDefinitions="*,110,170">
+                    <TextBlock Text="{x:Static r:Strings.ColumnName}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="1" Text="{x:Static r:Strings.ColumnSize}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Grid.Column="2" Text="{x:Static r:Strings.ColumnModified}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </Grid>
+                <ListBox x:Name="ItemsList" Grid.Row="1" SelectionMode="Multiple" Background="Transparent"
+                         DoubleTapped="OnItemDoubleTapped" SelectionChanged="OnSelectionChanged" KeyDown="OnListKeyDown">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="p:VaultItem">
+                            <Grid ColumnDefinitions="*,110,170">
+                                <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <ui:SymbolIcon Symbol="{Binding Icon}"
+                                                   Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                                    <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding SizeText}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2" Text="{Binding ModifiedText}" VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <StackPanel x:Name="EmptyState" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            IsHitTestVisible="False" Spacing="6">
+                    <ui:SymbolIcon Symbol="Download" FontSize="40" HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                    <TextBlock Text="{x:Static r:Strings.DropHere}" FontSize="15" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock Text="{x:Static r:Strings.DropHereDetail}" HorizontalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Status -->
+        <Grid Grid.Row="3" Margin="2,10,2,0" ColumnDefinitions="*,Auto">
+            <TextBlock x:Name="StatusText" TextTrimming="CharacterEllipsis"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+            <TextBlock x:Name="AutoLockText" Grid.Column="1" Margin="12,0,0,0"
+                       Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+        </Grid>
+    </Grid>
+</UserControl>

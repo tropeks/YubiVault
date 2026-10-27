@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="AppTagline" xml:space="preserve">
+    <value>Files and folders encrypted with AES-256 and XChaCha20, opened only with your security key.</value>
+  </data>
+  <data name="OpenVault" xml:space="preserve">
+    <value>Open a vault...</value>
+  </data>
+  <data name="CreateVault" xml:space="preserve">
+    <value>Create a new vault...</value>
+  </data>
+  <data name="RecentVaults" xml:space="preserve">
+    <value>Recent vaults</value>
+  </data>
+  <data name="AssociateFiles" xml:space="preserve">
+    <value>Open .yvault files with YubiVault</value>
+  </data>
+  <data name="AssociateDone" xml:space="preserve">
+    <value>Double-clicking a .yvault file now opens it in YubiVault.
+
+If you move YubiVault, click this option again from the new location.</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="LanguageSystem" xml:space="preserve">
+    <value>System default</value>
+    <comment>First entry of the language list: follow the operating system's language.</comment>
+  </data>
+  <data name="ChooseVaultTitle" xml:space="preserve">
+    <value>Choose the vault</value>
+    <comment>File picker title.</comment>
+  </data>
+  <data name="VaultFileType" xml:space="preserve">
+    <value>YubiVault vaults</value>
+    <comment>File type name in file pickers.</comment>
+  </data>
+  <data name="NotAVault" xml:space="preserve">
+    <value>{0} is not a YubiVault vault.</value>
+    <comment>{0} is a file path.</comment>
+  </data>
+  <data name="CouldNotOpen" xml:space="preserve">
+    <value>Could not open the vault</value>
+  </data>
+  <data name="UnlockHintFido2Windows" xml:space="preserve">
+    <value>Plug in your security key and click Unlock. Windows will ask for the key's PIN and a touch.</value>
+  </data>
+  <data name="UnlockHintFido2" xml:space="preserve">
+    <value>Plug in your security key and click Unlock. You will be asked for the key's PIN and a touch.</value>
+  </data>
+  <data name="UnlockHintOtp" xml:space="preserve">
+    <value>Plug in your YubiKey and click Unlock, then touch the key when it blinks.</value>
+  </data>
+  <data name="UnlockHintRecovery" xml:space="preserve">
+    <value>Type the recovery code you saved when the vault was created.</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Unlock" xml:space="preserve">
+    <value>Unlock</value>
+    <comment>Button.</comment>
+  </data>
+  <data name="UseRecoveryCode" xml:space="preserve">
+    <value>Lost your key? Use the recovery code</value>
+  </data>
+  <data name="UseKeyInstead" xml:space="preserve">
+    <value>Use my key instead</value>
+  </data>
+  <data name="InvalidRecoveryCode" xml:space="preserve">
+    <value>That is not a valid recovery code.</value>
+  </data>
+  <data name="UnlockingRecovery" xml:space="preserve">
+    <value>Unlocking with the recovery code...</value>
+  </data>
+  <data name="WaitingForKey" xml:space="preserve">
+    <value>Waiting for your security key...</value>
+  </data>
+  <data name="Unlocking" xml:space="preserve">
+    <value>Unlocking...</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="CreateTitle" xml:space="preserve">
+    <value>Create a new vault</value>
+  </data>
+  <data name="CreateIntro" xml:space="preserve">
+    <value>A vault is a single .yvault file. Keep it on a USB stick, a disk or a cloud folder: from the outside nobody sees names, sizes or contents.</value>
+  </data>
+  <data name="Where" xml:space="preserve">
+    <value>Where</value>
+    <comment>Label for the folder where the vault is saved.</comment>
+  </data>
+  <data name="WherePlaceholder" xml:space="preserve">
+    <value>Folder where the vault file will be saved</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Browse...</value>
+  </data>
+  <data name="VaultNamePlaceholder" xml:space="preserve">
+    <value>Vault name</value>
+  </data>
+  <data name="DefaultVaultName" xml:space="preserve">
+    <value>My Vault</value>
+    <comment>Suggested file name for a new vault.</comment>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>Key</value>
+  </data>
+  <data name="KeyFido2Title" xml:space="preserve">
+    <value>Security key (FIDO2), recommended</value>
+  </data>
+  <data name="KeyFido2Detail" xml:space="preserve">
+    <value>Any YubiKey 5 or Security Key by Yubico, with its PIN and a touch.</value>
+    <comment>Product names stay in English.</comment>
+  </data>
+  <data name="KeyOtpTitle" xml:space="preserve">
+    <value>YubiKey 5 challenge-response (OTP slot 2)</value>
+  </data>
+  <data name="KeyOtpDetail" xml:space="preserve">
+    <value>Touch only, with an optional password.</value>
+  </data>
+  <data name="PasswordOptional" xml:space="preserve">
+    <value>Password (optional, recommended)</value>
+  </data>
+  <data name="RepeatPassword" xml:space="preserve">
+    <value>Repeat password</value>
+  </data>
+  <data name="ReplaceSlot" xml:space="preserve">
+    <value>Program slot 2 with a new secret (erases what is there)</value>
+  </data>
+  <data name="RecoveryNoticeTitle" xml:space="preserve">
+    <value>You will get a recovery code</value>
+  </data>
+  <data name="RecoveryNoticeText" xml:space="preserve">
+    <value>It opens the vault if you lose your key. You will see it once, right after the vault is created.</value>
+  </data>
+  <data name="CreateButton" xml:space="preserve">
+    <value>Create vault</value>
+  </data>
+  <data name="CouldNotCreate" xml:space="preserve">
+    <value>Could not create the vault</value>
+  </data>
+  <data name="ChooseLocation" xml:space="preserve">
+    <value>Choose where to create the vault.</value>
+  </data>
+  <data name="ChooseLocationTitle" xml:space="preserve">
+    <value>Choose where to create the vault</value>
+    <comment>Folder picker title.</comment>
+  </data>
+  <data name="InvalidName" xml:space="preserve">
+    <value>Give the vault a name that is valid as a file name.</value>
+  </data>
+  <data name="PasswordsDiffer" xml:space="preserve">
+    <value>The passwords do not match.</value>
+  </data>
+  <data name="CreatingVault" xml:space="preserve">
+    <value>Creating the vault...</value>
+  </data>
+  <data name="RegisteringKey" xml:space="preserve">
+    <value>Registering your security key...</value>
+  </data>
+  <data name="Keys" xml:space="preserve">
+    <value>Keys</value>
+    <comment>Button that opens the keys and settings window.</comment>
+  </data>
+  <data name="Lock" xml:space="preserve">
+    <value>Lock</value>
+    <comment>Button (verb).</comment>
+  </data>
+  <data name="UpOneFolder" xml:space="preserve">
+    <value>Up one folder</value>
+  </data>
+  <data name="AddFiles" xml:space="preserve">
+    <value>Add files</value>
+  </data>
+  <data name="AddFolder" xml:space="preserve">
+    <value>Add folder</value>
+  </data>
+  <data name="Extract" xml:space="preserve">
+    <value>Extract</value>
+    <comment>Button: decrypt and copy out of the vault.</comment>
+  </data>
+  <data name="Rename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="ColumnName" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ColumnSize" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="ColumnModified" xml:space="preserve">
+    <value>Modified</value>
+  </data>
+  <data name="DropHere" xml:space="preserve">
+    <value>Drop files or folders here to encrypt them</value>
+  </data>
+  <data name="DropHereDetail" xml:space="preserve">
+    <value>or use Add files / Add folder above</value>
+    <comment>Refers to the AddFiles and AddFolder buttons.</comment>
+  </data>
+  <data name="AllFiles" xml:space="preserve">
+    <value>All files</value>
+    <comment>Shown as the folder name at the root of the vault.</comment>
+  </data>
+  <data name="StatusFiles" xml:space="preserve">
+    <value>{0} files, {1} encrypted</value>
+    <comment>{0} is a count, {1} a size such as 12.3 MB.</comment>
+  </data>
+  <data name="AutoLockAfter" xml:space="preserve">
+    <value>Locks after {0} min without use</value>
+    <comment>{0} is a number of minutes.</comment>
+  </data>
+  <data name="AutoLockOff" xml:space="preserve">
+    <value>Auto-lock off</value>
+  </data>
+  <data name="ChooseFilesTitle" xml:space="preserve">
+    <value>Choose files to encrypt</value>
+  </data>
+  <data name="ChooseFoldersTitle" xml:space="preserve">
+    <value>Choose folders to encrypt</value>
+  </data>
+  <data name="Encrypting" xml:space="preserve">
+    <value>Encrypting...</value>
+  </data>
+  <data name="EncryptedInfo" xml:space="preserve">
+    <value>Encrypted {0} file(s). The originals were not changed; delete them yourself if you no longer need them.</value>
+    <comment>{0} is a count.</comment>
+  </data>
+  <data name="Decrypting" xml:space="preserve">
+    <value>Decrypting...</value>
+  </data>
+  <data name="ExtractSelectedTitle" xml:space="preserve">
+    <value>Extract the selected items to...</value>
+  </data>
+  <data name="ExtractAllTitle" xml:space="preserve">
+    <value>Extract everything in this folder to...</value>
+  </data>
+  <data name="ReplaceExisting" xml:space="preserve">
+    <value>{0}
+
+Replace existing files?</value>
+    <comment>{0} is an error message naming the file.</comment>
+  </data>
+  <data name="ExtractedInfo" xml:space="preserve">
+    <value>Extracted {0} file(s) to {1}.</value>
+    <comment>{0} is a count, {1} a folder path.</comment>
+  </data>
+  <data name="RenameTitle" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="RenamePrompt" xml:space="preserve">
+    <value>New name for "{0}"</value>
+    <comment>{0} is a file or folder name.</comment>
+  </data>
+  <data name="Renaming" xml:space="preserve">
+    <value>Renaming...</value>
+  </data>
+  <data name="DeleteOne" xml:space="preserve">
+    <value>Delete "{0}" from the vault? This cannot be undone.</value>
+    <comment>{0} is a file or folder name.</comment>
+  </data>
+  <data name="DeleteMany" xml:space="preserve">
+    <value>Delete {0} items from the vault? This cannot be undone.</value>
+    <comment>{0} is a count.</comment>
+  </data>
+  <data name="Deleting" xml:space="preserve">
+    <value>Deleting...</value>
+  </data>
+  <data name="TouchKeyTitle" xml:space="preserve">
+    <value>Touch your security key</value>
+  </data>
+  <data name="TouchKeyDetail" xml:space="preserve">
+    <value>The key is blinking and waiting for your touch.</value>
+  </data>
+  <data name="KeysTitle" xml:space="preserve">
+    <value>Keys and settings</value>
+    <comment>Window title.</comment>
+  </data>
+  <data name="KeysIntro" xml:space="preserve">
+    <value>Each key below can open this vault on its own. Register a second key as a backup; nothing is re-encrypted.</value>
+  </data>
+  <data name="ColumnKey" xml:space="preserve">
+    <value>Key</value>
+  </data>
+  <data name="ColumnType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="ColumnAdded" xml:space="preserve">
+    <value>Added</value>
+    <comment>Date the key was registered.</comment>
+  </data>
+  <data name="KindFido2" xml:space="preserve">
+    <value>FIDO2 + PIN</value>
+  </data>
+  <data name="KindOtp" xml:space="preserve">
+    <value>OTP</value>
+  </data>
+  <data name="KindOtpPassword" xml:space="preserve">
+    <value>OTP + password</value>
+  </data>
+  <data name="KindRecovery" xml:space="preserve">
+    <value>Recovery code</value>
+  </data>
+  <data name="AddSecurityKey" xml:space="preserve">
+    <value>Add security key</value>
+  </data>
+  <data name="AddOtpKey" xml:space="preserve">
+    <value>Add YubiKey (OTP)</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="NewRecoveryCode" xml:space="preserve">
+    <value>New recovery code</value>
+  </data>
+  <data name="LockAfter" xml:space="preserve">
+    <value>Lock automatically after</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>Never</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>{0} min</value>
+    <comment>{0} is a number of minutes.</comment>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Something went wrong</value>
+  </data>
+  <data name="ConfirmAddSecurityKey" xml:space="preserve">
+    <value>Plug in the new security key and remove the others. You will be asked for the new key's PIN and a touch, twice.</value>
+  </data>
+  <data name="ConfirmAddOtpKey" xml:space="preserve">
+    <value>Plug in the new YubiKey 5 and remove the others. If its slot 2 is empty, it will be programmed for challenge-response.</value>
+  </data>
+  <data name="OtpPasswordPrompt" xml:space="preserve">
+    <value>Optional password to use together with this YubiKey (leave empty for none):</value>
+  </data>
+  <data name="RegisteringYubiKey" xml:space="preserve">
+    <value>Registering the YubiKey...</value>
+  </data>
+  <data name="ConfirmRemoveKey" xml:space="preserve">
+    <value>Remove "{0}"? It will no longer open this vault.</value>
+    <comment>{0} is a key name.</comment>
+  </data>
+  <data name="Removing" xml:space="preserve">
+    <value>Removing...</value>
+  </data>
+  <data name="ConfirmNewRecovery" xml:space="preserve">
+    <value>Create a new recovery code? The old one will stop working.</value>
+  </data>
+  <data name="CreatingRecovery" xml:space="preserve">
+    <value>Creating a new recovery code...</value>
+  </data>
+  <data name="RecoveryTitle" xml:space="preserve">
+    <value>Save your recovery code</value>
+  </data>
+  <data name="RecoveryText" xml:space="preserve">
+    <value>This code opens the vault if you lose your key. Write it down or print it and keep it somewhere safe and offline. Anyone who has it can open the vault. It will not be shown again.</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="RecoverySaved" xml:space="preserve">
+    <value>I have saved the recovery code</value>
+    <comment>Checkbox.</comment>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="PinTitle" xml:space="preserve">
+    <value>Security key PIN</value>
+  </data>
+  <data name="PinPrompt" xml:space="preserve">
+    <value>Enter the PIN of your security key.</value>
+  </data>
+  <data name="PinRetry" xml:space="preserve">
+    <value>Wrong PIN. {0} tries left.</value>
+    <comment>{0} is a count.</comment>
+  </data>
+  <data name="NoOtpKey" xml:space="preserve">
+    <value>No YubiKey with OTP found. Security Key models have no OTP; use a FIDO2 security key instead.</value>
+  </data>
+  <data name="MoreThanOneKey" xml:space="preserve">
+    <value>More than one YubiKey is connected. Leave only one plugged in.</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>Unexpected error</value>
+  </data>
+</root>

@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="using:FluentAvalonia.UI.Controls"
+             xmlns:r="using:YubiVault.App.Resources"
+             x:Class="YubiVault.App.Pages.CreatePage">
+    <ScrollViewer>
+        <StackPanel Margin="40,16,40,32" MaxWidth="560" HorizontalAlignment="Left">
+            <Button Classes="transparent" Padding="8,4" Margin="-8,0,0,12" Click="OnBack">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <ui:SymbolIcon Symbol="Back" />
+                    <TextBlock Text="{x:Static r:Strings.Back}" />
+                </StackPanel>
+            </Button>
+            <TextBlock Text="{x:Static r:Strings.CreateTitle}" FontSize="26" FontWeight="SemiBold" />
+            <TextBlock Margin="0,6,0,24" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       Text="{x:Static r:Strings.CreateIntro}" />
+
+            <TextBlock Text="{x:Static r:Strings.Where}" FontWeight="SemiBold" Margin="0,0,0,6" />
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox x:Name="LocationInput" Watermark="{x:Static r:Strings.WherePlaceholder}" IsReadOnly="True" />
+                <Button Grid.Column="1" Content="{x:Static r:Strings.Browse}" Margin="8,0,0,0" Click="OnBrowse" />
+            </Grid>
+            <TextBox x:Name="NameInput" Watermark="{x:Static r:Strings.VaultNamePlaceholder}"
+                     Text="{x:Static r:Strings.DefaultVaultName}" Margin="0,8,0,0" />
+
+            <TextBlock Text="{x:Static r:Strings.Key}" FontWeight="SemiBold" Margin="0,24,0,6" />
+            <RadioButton x:Name="Fido2Option" GroupName="KeyType" IsChecked="True" IsCheckedChanged="OnKeyTypeChanged">
+                <StackPanel>
+                    <TextBlock Text="{x:Static r:Strings.KeyFido2Title}" />
+                    <TextBlock Text="{x:Static r:Strings.KeyFido2Detail}" TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </RadioButton>
+            <RadioButton x:Name="OtpOption" GroupName="KeyType" Margin="0,8,0,0" IsCheckedChanged="OnKeyTypeChanged">
+                <StackPanel>
+                    <TextBlock Text="{x:Static r:Strings.KeyOtpTitle}" />
+                    <TextBlock Text="{x:Static r:Strings.KeyOtpDetail}" TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </RadioButton>
+
+            <StackPanel x:Name="OtpPanel" IsVisible="False" Margin="28,12,0,0" Spacing="8">
+                <TextBox x:Name="PasswordInput" Watermark="{x:Static r:Strings.PasswordOptional}" PasswordChar="●"
+                         Classes="revealPasswordButton" />
+                <TextBox x:Name="PasswordRepeat" Watermark="{x:Static r:Strings.RepeatPassword}" PasswordChar="●" />
+                <CheckBox x:Name="ReplaceSlot" Content="{x:Static r:Strings.ReplaceSlot}" />
+            </StackPanel>
+
+            <ui:InfoBar Severity="Informational" IsOpen="True" IsClosable="False" Margin="0,24,0,0"
+                        Title="{x:Static r:Strings.RecoveryNoticeTitle}" Message="{x:Static r:Strings.RecoveryNoticeText}" />
+
+            <Button Classes="accent" Margin="0,20,0,0" Padding="16,10" Click="OnCreate">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <PathIcon Data="{StaticResource LockClosedIcon}" Width="16" Height="16" />
+                    <TextBlock Text="{x:Static r:Strings.CreateButton}" />
+                </StackPanel>
+            </Button>
+
+            <ui:InfoBar x:Name="ErrorBar" Severity="Error" IsClosable="True" Margin="0,16,0,0"
+                        Title="{x:Static r:Strings.CouldNotCreate}" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
