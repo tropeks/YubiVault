@@ -8,6 +8,8 @@ A portable vault for Windows that encrypts files and folders and only opens them
 
 ## Getting started
 
+### Windows
+
 1. Download `YubiVault-<version>-win-x64.zip` from [Releases](../../releases) and unzip it anywhere, even a USB stick.
 2. Run `YubiVault.exe`, click **Create a new vault...**, pick a folder and a name, and follow Windows' prompts for your security key's PIN and a touch.
 3. Print or write down the recovery code it shows. It is the only way in if you lose your key.
@@ -16,6 +18,23 @@ A portable vault for Windows that encrypts files and folders and only opens them
 Optional: click **Open .yvault files with YubiVault** on the start screen so that double-clicking a vault opens it. It is registered for your user only and needs no administrator rights.
 
 The zip also has `yubivault-cli.exe`, a command-line version (`yubivault-cli help`).
+
+### Linux
+
+1. Download `YubiVault-<version>-linux-x64.tar.gz` (or `linux-arm64`) and unpack it: `tar xzf YubiVault-*.tar.gz`.
+2. Run `./YubiVault` from that folder, or `./install.sh` to add it to your applications menu and open `.yvault` files with it. It installs for your user only, in `~/.local`, without root (`./install.sh --uninstall` removes it).
+3. **Security key access.** YubiVault reads the key through `/dev/hidraw*`. On systemd 244 or later (Ubuntu 20.04+, Debian 11+, Fedora 32+ and most current distributions) the `uaccess` tag in systemd's `60-fido-id.rules` already gives the logged-in user access, so there is nothing to do. On older or non-systemd systems, install the bundled rule and replug the key:
+
+   ```sh
+   sudo cp share/70-yubivault-fido.rules /etc/udev/rules.d/
+   sudo udevadm control --reload && sudo udevadm trigger
+   ```
+
+### macOS
+
+1. Download `YubiVault-<version>-osx-arm64.zip` for Apple Silicon or `osx-x64` for Intel Macs, unzip it and drag `YubiVault.app` to Applications (or keep it on a USB stick).
+2. YubiVault is free and not notarized by Apple, so the first launch is blocked: right-click the app, choose **Open**, then **Open** again. Or run `xattr -dr com.apple.quarantine YubiVault.app`.
+3. `.yvault` files open with YubiVault from Finder. `yubivault-cli` in the zip is the command-line version.
 
 ## How it works
 

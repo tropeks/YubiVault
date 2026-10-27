@@ -1,0 +1,5 @@
+# Only needed on distributions without systemd 244 or later (which already
+# gives the logged-in user access to FIDO keys through 60-fido-id.rules).
+# Lets the user at the console use Yubico FIDO2 keys without root.
+# Install: sudo cp 70-yubivault-fido.rules /etc/udev/rules.d/ && sudo udevadm control --reload && sudo udevadm trigger
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="1050", TAG+="uaccess"
