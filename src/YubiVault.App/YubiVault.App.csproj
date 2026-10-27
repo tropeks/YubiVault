@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Resource Include="..\..\assets\yubivault-64.png" Link="yubivault-64.png" />
+    <Resource Include="..\..\assets\yubivault-titlebar.png" Link="yubivault-titlebar.png" />
   </ItemGroup>
 
   <ItemGroup>
