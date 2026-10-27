@@ -2,7 +2,7 @@
 
 # YubiVault
 
-A portable vault for Windows that encrypts files and folders and only opens them with your **YubiKey** or other FIDO2 security key. A single `.exe`: no installation and no administrator rights, so it can live on a USB stick.
+A portable vault for Windows, Linux and macOS that encrypts files and folders and only opens them with your **YubiKey** or other FIDO2 security key. Each download is a single self-contained program: no installation and no administrator rights, so it can live on a USB stick. Linux also has `.deb` and `.rpm` packages, and macOS a ready-to-use `YubiVault.app`.
 
 > **Status:** early preview (0.x). Keep a copy of anything important outside the vault until 1.0.
 
@@ -42,7 +42,7 @@ sudo udevadm control --reload && sudo udevadm trigger
 
 ## How it works
 
-- **Your security key is the key.** YubiVault uses the FIDO2 hmac-secret (PRF) extension through Windows' own security key dialog: the secret never leaves the key, and every unlock asks for the key's PIN and a touch. Works with any YubiKey 5 or Security Key by Yubico, without administrator rights.
+- **Your security key is the key.** YubiVault uses the FIDO2 hmac-secret (PRF) extension (through Windows' own security key dialog on Windows, and directly over USB on Linux and macOS): the secret never leaves the key, and every unlock asks for the key's PIN and a touch. Works with any YubiKey 5 or Security Key by Yubico, without administrator rights.
 - **YubiKey 5 OTP mode (optional).** YubiKey 5 keys can instead use HMAC-SHA1 challenge-response (slot 2), optionally combined with a password.
 - **Recovery.** When a vault is created, YubiVault shows a recovery code to print and keep safe. A second YubiKey can be registered later without re-encrypting anything.
 - **Layered encryption.** Every file goes through AES-256-GCM and then XChaCha20-Poly1305, with independent keys derived by HKDF-SHA256. A future break in one algorithm is not enough to expose your data.
@@ -52,17 +52,20 @@ sudo udevadm control --reload && sudo udevadm trigger
 
 1. [x] Technical design
 2. [x] Encryption core and command-line tool, with tests
-3. [x] Vault desktop app (WPF)
+3. [x] Vault desktop app
 4. [x] Single portable executable for Windows x64, released from tags by GitHub Actions
+5. [x] Windows, Linux and macOS (Avalonia), in 11 languages, with `.deb`, `.rpm` and macOS `.app` packages
 
 ## Requirements
 
-- Windows 10 or 11, 64-bit (OTP mode also works on Windows 10)
-- A FIDO2 security key with hmac-secret and a PIN set (YubiKey 5 series, Security Key by Yubico, and others); FIDO2 needs Windows 11 22H2 or later
+- **Windows** 10 or 11, 64-bit; FIDO2 needs Windows 11 22H2 or later (OTP mode also works on Windows 10)
+- **Linux** x64 or ARM64 with a desktop session (X11, or Wayland through XWayland)
+- **macOS** 14 or later, Apple Silicon or Intel
+- A FIDO2 security key with hmac-secret and a PIN set (YubiKey 5 series, Security Key by Yubico, and others)
 
 ## Built with
 
-C# and .NET 10, the [official Yubico .NET SDK](https://github.com/Yubico/Yubico.NET.SDK), [NSec](https://nsec.rocks/) (libsodium) for XChaCha20-Poly1305 and Argon2id, and Windows' native cryptography for AES-256-GCM.
+C# and .NET 10, [Avalonia](https://avaloniaui.net/) with [FluentAvalonia](https://github.com/amwx/FluentAvalonia) for the interface, the [official Yubico .NET SDK](https://github.com/Yubico/Yubico.NET.SDK), [NSec](https://nsec.rocks/) (libsodium) for XChaCha20-Poly1305 and Argon2id, and the operating system's native cryptography for AES-256-GCM.
 
 ## License
 

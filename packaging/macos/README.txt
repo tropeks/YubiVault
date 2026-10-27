@@ -10,6 +10,6 @@ YubiVault is free and not notarized by Apple, so macOS blocks it the first time.
 Open it with right-click (or Control-click) > Open > Open, or in Terminal:
     xattr -dr com.apple.quarantine YubiVault.app yubivault-cli
 
-Your security key needs no drivers or setup. Requires macOS 12 or later.
+Your security key needs no drivers or setup. Requires macOS 14 or later.
 
 Full documentation: https://github.com/tropeks/YubiVault
