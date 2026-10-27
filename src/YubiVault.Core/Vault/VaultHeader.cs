@@ -17,6 +17,7 @@ public sealed class VaultHeader
 public static class KeySlotType
 {
     public const string YubiKey = "yubikey";
+    public const string Fido2 = "fido2";
     public const string Recovery = "recovery";
 }
 
@@ -31,7 +32,13 @@ public sealed class KeySlot
     /// <summary>YubiKey serial number, used to pick the right slot without extra touches.</summary>
     [JsonPropertyName("serial")] public int? Serial { get; set; }
 
-    /// <summary>HMAC-SHA1 challenge sent to the YubiKey (64 bytes).</summary>
+    /// <summary>FIDO2 credential id (fido2 slots).</summary>
+    [JsonPropertyName("credentialId")] public byte[]? CredentialId { get; set; }
+
+    /// <summary>FIDO2 relying party id the credential was created for (fido2 slots).</summary>
+    [JsonPropertyName("rpId")] public string? RelyingPartyId { get; set; }
+
+    /// <summary>Challenge sent to the key: the HMAC-SHA1 challenge (yubikey slots) or hmac-secret salt (fido2 slots).</summary>
     [JsonPropertyName("challenge")] public byte[]? Challenge { get; set; }
 
     /// <summary>Argon2id settings for the optional password (YubiKey slots) or the recovery code.</summary>
@@ -41,6 +48,8 @@ public sealed class KeySlot
     [JsonPropertyName("wrappedKey")] public byte[] WrappedKey { get; set; } = [];
 
     [JsonIgnore] public bool RequiresPassword => Type == KeySlotType.YubiKey && Argon2id is not null;
+
+    [JsonIgnore] public bool IsHardwareKey => Type is KeySlotType.YubiKey or KeySlotType.Fido2;
 }
 
 public sealed class Argon2Settings

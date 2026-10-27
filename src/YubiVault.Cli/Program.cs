@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using YubiVault.Core.Keys;
@@ -12,20 +13,24 @@ static class Program
         YubiVault: encrypt files and folders with your YubiKey.
 
         Usage:
-          yubivault init <vault> [--no-password] [--program-slot]
+          yubivault init <vault> [--otp [--no-password] [--program-slot]]
           yubivault add <vault> <file-or-folder>... [--to <vault-folder>]
           yubivault list <vault>
           yubivault extract <vault> <vault-path> <destination> [--overwrite]
           yubivault remove <vault> <vault-path>
           yubivault keys <vault>
-          yubivault add-key <vault> [--no-password] [--program-slot]
+          yubivault add-key <vault> [--otp [--no-password] [--program-slot]]
           yubivault remove-key <vault> <slot-id>
           yubivault new-recovery-code <vault>
 
+        By default the vault is protected by a FIDO2 security key (any YubiKey 5 or Security Key):
+        Windows asks for the key's PIN and a touch.
+
         Options:
-          --recovery       Unlock with the recovery code instead of a YubiKey.
-          --program-slot   Program YubiKey slot 2 with a new secret, even if it is in use.
-          --no-password    Use the YubiKey alone, without a password.
+          --recovery       Unlock with the recovery code instead of a key.
+          --otp            Use YubiKey 5 OTP challenge-response (slot 2) instead of FIDO2.
+          --program-slot   With --otp: program slot 2 with a new secret, even if it is in use.
+          --no-password    With --otp: use the YubiKey alone, without a password.
 
         Use "/" as <vault-path> to extract everything.
         """;
@@ -99,9 +104,17 @@ static class Program
                 return 0;
 
             case "add-key":
-                Console.WriteLine("Insert the new YubiKey (and remove the others).");
-                var key = PrepareYubiKey(cli);
-                var added2 = vault.AddYubiKey(key, AskNewPassword(cli));
+                Console.WriteLine("Insert the new key (and remove the others).");
+                KeySlot added2;
+                if (cli.Flags.Contains("--otp"))
+                {
+                    added2 = vault.AddYubiKey(PrepareYubiKey(cli), AskNewPassword(cli));
+                }
+                else
+                {
+                    Console.WriteLine("Windows will ask for the key's PIN and a touch, twice.");
+                    added2 = vault.AddSecurityKey(SecurityKey());
+                }
                 Console.WriteLine($"Registered {added2.Label} as {added2.Id}.");
                 return 0;
 
@@ -121,10 +134,21 @@ static class Program
 
     static int Init(string folder, Arguments cli)
     {
-        var key = PrepareYubiKey(cli);
-        string? password = AskNewPassword(cli);
-        Console.WriteLine("Creating the vault...");
-        var (vault, recoveryCode) = Vault.Create(folder, key, password);
+        Vault vault;
+        string recoveryCode;
+        if (cli.Flags.Contains("--otp"))
+        {
+            var key = PrepareYubiKey(cli);
+            string? password = AskNewPassword(cli);
+            Console.WriteLine("Creating the vault...");
+            (vault, recoveryCode) = Vault.Create(folder, key, password);
+        }
+        else
+        {
+            var securityKey = SecurityKey();
+            Console.WriteLine("Creating the vault. Windows will ask for your security key's PIN and a touch, twice.");
+            (vault, recoveryCode) = Vault.Create(folder, securityKey);
+        }
         using (vault)
         {
             Console.WriteLine($"Vault created in {vault.Folder}.");
@@ -142,9 +166,47 @@ static class Program
             Console.Write("Recovery code: ");
             return Vault.OpenWithRecoveryCode(folder, Console.ReadLine() ?? "");
         }
+        var slots = Vault.ReadKeySlots(folder);
+        bool hasFido2 = slots.Any(s => s.Type == KeySlotType.Fido2);
+        bool hasOtp = slots.Any(s => s.Type == KeySlotType.YubiKey);
+        if (hasFido2 && !(hasOtp && OtpKeyConnected()))
+        {
+            Console.WriteLine("Windows will ask for your security key's PIN and a touch.");
+            return Vault.OpenWithFido2(folder, SecurityKey());
+        }
         var key = FindYubiKey();
         return Vault.OpenWithYubiKey(folder, key, () => ReadSecret("Password: "));
     }
+
+    static bool OtpKeyConnected()
+    {
+        try
+        {
+            return YubiKeyResponder.FindAll().Count > 0;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    static IFido2Authenticator SecurityKey()
+    {
+#if DEBUG
+        if (Environment.GetEnvironmentVariable("YUBIVAULT_FAKE_YUBIKEY") is { Length: > 0 } fake)
+            return new FakeSecurityKey(fake);
+#endif
+        if (!WindowsSecurityKey.IsSupported(out string reason))
+            throw new VaultException(reason);
+        IntPtr window = GetConsoleWindow();
+        return new WindowsSecurityKey(window != IntPtr.Zero ? window : GetForegroundWindow());
+    }
+
+    [DllImport("kernel32.dll")]
+    static extern IntPtr GetConsoleWindow();
+
+    [DllImport("user32.dll")]
+    static extern IntPtr GetForegroundWindow();
 
     static IChallengeResponder FindYubiKey()
     {
@@ -163,9 +225,9 @@ static class Program
     }
 
     const string NoYubiKeyMessage = """
-        No YubiKey found. Plug in your YubiKey, or use --recovery.
-        If it is plugged in, its OTP interface may be turned off (FIDO-only keys are not visible to YubiVault).
-        Turn it on from an administrator PowerShell, then replug the key:
+        No YubiKey with OTP found. Plug in your YubiKey, or use --recovery.
+        Security Key and YubiKey Bio models have no OTP: create vaults without --otp to use FIDO2.
+        On a YubiKey 5, OTP may be turned off; turn it on from an administrator PowerShell and replug:
             ykman config usb --enable OTP
         """;
 
@@ -212,7 +274,7 @@ static class Program
         Console.WriteLine($"    {code}");
         Console.WriteLine();
         Console.WriteLine("Write it down or print it and keep it somewhere safe. It opens the vault");
-        Console.WriteLine("if you lose your YubiKey. Anyone who has it can open the vault.");
+        Console.WriteLine("if you lose your key. Anyone who has it can open the vault.");
     }
 
     static string ReadSecret(string prompt)
@@ -262,6 +324,20 @@ static class Program
     }
 
 #if DEBUG
+    sealed class FakeSecurityKey(string secret) : IFido2Authenticator
+    {
+        public string Description => "Fake security key (debug)";
+
+        public byte[] MakeCredential(string relyingPartyId, byte[] userId, string userName) =>
+            HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), userId);
+
+        public (byte[] CredentialId, byte[] Secret) GetSecret(string relyingPartyId, IReadOnlyList<(byte[] CredentialId, byte[] Salt)> credentials)
+        {
+            var (id, salt) = credentials[0];
+            return (id, HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret + Convert.ToBase64String(id)), salt));
+        }
+    }
+
     sealed class FakeYubiKey(string secret) : IChallengeResponder
     {
         public int? SerialNumber => null;

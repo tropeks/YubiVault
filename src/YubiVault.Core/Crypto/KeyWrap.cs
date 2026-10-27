@@ -11,6 +11,7 @@ static class KeyWrap
     public const int MasterKeySize = 32;
     const int TagSize = 16;
     static readonly byte[] YubiKeyKekInfo = "YubiVault v1 yubikey kek"u8.ToArray();
+    static readonly byte[] Fido2KekInfo = "YubiVault v1 fido2 kek"u8.ToArray();
     static readonly byte[] RecoveryKekInfo = "YubiVault v1 recovery kek"u8.ToArray();
 
     public static byte[] YubiKeyKek(ReadOnlySpan<byte> response, ReadOnlySpan<byte> challenge, string? password, Argon2Settings? argon2)
@@ -31,6 +32,9 @@ static class KeyWrap
             CryptographicOperations.ZeroMemory(passwordHash);
         }
     }
+
+    public static byte[] Fido2Kek(ReadOnlySpan<byte> secret, ReadOnlySpan<byte> salt) =>
+        HKDF.DeriveKey(HashAlgorithmName.SHA256, secret.ToArray(), 32, salt.ToArray(), Fido2KekInfo);
 
     public static byte[] RecoveryKek(ReadOnlySpan<byte> recoveryCode, Argon2Settings argon2)
     {

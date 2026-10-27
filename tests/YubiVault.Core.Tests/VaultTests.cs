@@ -310,3 +310,75 @@ public class VaultTests : IDisposable
         Assert.Throws<ObjectDisposedException>(() => vault.Extract("/", _temp["out"]));
     }
 }
+
+public class Fido2VaultTests : IDisposable
+{
+    readonly TempFolder _temp = new();
+    readonly FakeSecurityKey _key = new("security-key-1");
+
+    public void Dispose() => _temp.Dispose();
+
+    string VaultFolder => _temp["vault"];
+
+    [Fact]
+    public void SecurityKeyCreatesAndOpensTheVault()
+    {
+        string source = _temp.WriteFile("in/a.txt", [5, 6]);
+        var (vault, _) = Vault.Create(VaultFolder, _key, Fast.Options);
+        using (vault)
+            vault.Add(source);
+
+        var slot = Assert.Single(Vault.ReadKeySlots(VaultFolder), s => s.Type == KeySlotType.Fido2);
+        Assert.NotNull(slot.CredentialId);
+        Assert.Equal(Vault.Fido2SaltSize, slot.Challenge!.Length);
+
+        using var reopened = Vault.OpenWithFido2(VaultFolder, _key, Fast.Options);
+        reopened.Extract("a.txt", _temp["out"]);
+        Assert.Equal([5, 6], File.ReadAllBytes(_temp["out/a.txt"]));
+    }
+
+    [Fact]
+    public void OpeningAsksTheKeyOnce()
+    {
+        Vault.Create(VaultFolder, _key, Fast.Options).Vault.Dispose();
+        var key = new FakeSecurityKey("security-key-1");
+        using (Vault.OpenWithFido2(VaultFolder, key, Fast.Options)) { }
+        Assert.Equal(1, key.Requests);
+    }
+
+    [Fact]
+    public void AnotherSecurityKeyCannotOpen()
+    {
+        Vault.Create(VaultFolder, _key, Fast.Options).Vault.Dispose();
+        Assert.ThrowsAny<VaultException>(() => Vault.OpenWithFido2(VaultFolder, new FakeSecurityKey("other"), Fast.Options));
+    }
+
+    [Fact]
+    public void RecoveryCodeOpensASecurityKeyVault()
+    {
+        var (vault, recovery) = Vault.Create(VaultFolder, _key, Fast.Options);
+        vault.Dispose();
+        using var opened = Vault.OpenWithRecoveryCode(VaultFolder, recovery, Fast.Options);
+    }
+
+    [Fact]
+    public void SecondSecurityKeyAndYubiKeyOtpCanBeAdded()
+    {
+        var (vault, _) = Vault.Create(VaultFolder, _key, Fast.Options);
+        using (vault)
+        {
+            vault.AddSecurityKey(new FakeSecurityKey("security-key-2"));
+            vault.AddYubiKey(new FakeYubiKey("otp", serial: 7), null);
+        }
+        using (Vault.OpenWithFido2(VaultFolder, new FakeSecurityKey("security-key-2"), Fast.Options)) { }
+        using (Vault.OpenWithYubiKey(VaultFolder, new FakeYubiKey("otp", serial: 7), () => "", Fast.Options)) { }
+    }
+
+    [Fact]
+    public void OnlySecurityKeyCannotBeRemoved()
+    {
+        var (vault, _) = Vault.Create(VaultFolder, _key, Fast.Options);
+        using (vault)
+            Assert.Throws<VaultException>(() => vault.RemoveSlot(vault.Slots.First(s => s.Type == KeySlotType.Fido2).Id));
+    }
+}

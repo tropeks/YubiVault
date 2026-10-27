@@ -16,6 +16,8 @@ public sealed class Vault : IDisposable
     public const string IndexFileName = "index.yv";
     public const string DataFolderName = "data";
     public const int ChallengeSize = 64;
+    public const int Fido2SaltSize = 32;
+    public const string Fido2RelyingPartyId = "yubivault";
 
     static readonly byte[] IndexContext = "index"u8.ToArray();
     static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
@@ -42,10 +44,16 @@ public sealed class Vault : IDisposable
 
     public static bool Exists(string folder) => File.Exists(Path.Combine(folder, HeaderFileName));
 
+    /// <summary>Reads the key slots of a locked vault, e.g. to know which kind of key will open it.</summary>
+    public static IReadOnlyList<KeySlot> ReadKeySlots(string folder) => ReadHeader(folder).Slots;
+
     /// <summary>Creates an empty vault opened by <paramref name="yubiKey"/> (plus <paramref name="password"/>, if given).</summary>
     /// <returns>The open vault and the recovery code to show the user once.</returns>
     public static (Vault Vault, string RecoveryCode) Create(string folder, IChallengeResponder yubiKey, string? password,
-        VaultOptions? options = null)
+        VaultOptions? options = null) =>
+        CreateWith(folder, options, vault => vault.AddYubiKeySlot(yubiKey, password));
+
+    static (Vault Vault, string RecoveryCode) CreateWith(string folder, VaultOptions? options, Action<Vault> addFirstKey)
     {
         options ??= VaultOptions.Default;
         folder = Path.GetFullPath(folder);
@@ -59,7 +67,7 @@ public sealed class Vault : IDisposable
         var vault = new Vault(folder, header, masterKey, [], options);
         try
         {
-            vault.AddYubiKeySlot(yubiKey, password);
+            addFirstKey(vault);
             string recovery = vault.AddRecoverySlot();
             Directory.CreateDirectory(Path.Combine(folder, DataFolderName));
             vault.SaveIndex();
@@ -71,6 +79,39 @@ public sealed class Vault : IDisposable
             vault.Dispose();
             throw;
         }
+    }
+
+    /// <summary>Creates an empty vault opened by a FIDO2 security key (PIN and touch).</summary>
+    /// <returns>The open vault and the recovery code to show the user once.</returns>
+    public static (Vault Vault, string RecoveryCode) Create(string folder, IFido2Authenticator securityKey, VaultOptions? options = null) =>
+        CreateWith(folder, options, vault => vault.AddFido2Slot(securityKey));
+
+    /// <summary>Opens the vault with a FIDO2 security key registered in it (one PIN entry and touch).</summary>
+    /// <exception cref="WrongKeyException">The key is not registered in this vault.</exception>
+    public static Vault OpenWithFido2(string folder, IFido2Authenticator securityKey, VaultOptions? options = null)
+    {
+        var header = ReadHeader(folder);
+        var slots = header.Slots
+            .Where(s => s.Type == KeySlotType.Fido2 && s.CredentialId is not null && s.Challenge is not null)
+            .ToList();
+        if (slots.Count == 0)
+            throw new WrongKeyException("This vault has no security key registered.");
+
+        foreach (var group in slots.GroupBy(s => s.RelyingPartyId ?? Fido2RelyingPartyId))
+        {
+            var (credentialId, secret) = securityKey.GetSecret(group.Key,
+                group.Select(s => (s.CredentialId!, s.Challenge!)).ToList());
+            var slot = group.FirstOrDefault(s => s.CredentialId!.AsSpan().SequenceEqual(credentialId));
+            if (slot is null)
+                continue;
+            byte[] kek = KeyWrap.Fido2Kek(secret, slot.Challenge);
+            CryptographicOperations.ZeroMemory(secret);
+            byte[]? masterKey = KeyWrap.Unwrap(slot, kek, header.VaultId);
+            CryptographicOperations.ZeroMemory(kek);
+            if (masterKey is not null)
+                return Load(folder, header, masterKey, options);
+        }
+        throw new WrongKeyException("This security key is not registered in this vault.");
     }
 
     /// <summary>Opens the vault with a YubiKey. <paramref name="askPassword"/> is called only if the key's slot needs one.</summary>
@@ -138,6 +179,15 @@ public sealed class Vault : IDisposable
         return slot;
     }
 
+    /// <summary>Registers another FIDO2 security key. Files are not re-encrypted.</summary>
+    public KeySlot AddSecurityKey(IFido2Authenticator securityKey)
+    {
+        ThrowIfDisposed();
+        var slot = AddFido2Slot(securityKey);
+        SaveHeader();
+        return slot;
+    }
+
     /// <summary>Replaces the recovery code; the old one stops working.</summary>
     public string RegenerateRecoveryCode()
     {
@@ -155,8 +205,8 @@ public sealed class Vault : IDisposable
             ?? throw new VaultException($"No key slot with id {slotId}.");
         if (_header.Slots.Count == 1)
             throw new VaultException("Cannot remove the last way to open the vault.");
-        if (slot.Type == KeySlotType.YubiKey && _header.Slots.Count(s => s.Type == KeySlotType.YubiKey) == 1)
-            throw new VaultException("Cannot remove the only YubiKey; register another one first.");
+        if (slot.IsHardwareKey && _header.Slots.Count(s => s.IsHardwareKey) == 1)
+            throw new VaultException("Cannot remove the only security key; register another one first.");
         _header.Slots.Remove(slot);
         SaveHeader();
     }
@@ -178,6 +228,30 @@ public sealed class Vault : IDisposable
         byte[] response = yubiKey.Respond(slot.Challenge);
         byte[] kek = KeyWrap.YubiKeyKek(response, slot.Challenge, slot.Argon2id is null ? null : password, slot.Argon2id);
         CryptographicOperations.ZeroMemory(response);
+        KeyWrap.Wrap(slot, kek, _masterKey, _header.VaultId);
+        CryptographicOperations.ZeroMemory(kek);
+        _header.Slots.Add(slot);
+        return slot;
+    }
+
+    KeySlot AddFido2Slot(IFido2Authenticator securityKey)
+    {
+        var slot = new KeySlot
+        {
+            Id = NewSlotId("k"),
+            Type = KeySlotType.Fido2,
+            Label = securityKey.Description,
+            CreatedUtc = DateTime.UtcNow,
+            RelyingPartyId = Fido2RelyingPartyId,
+            Challenge = RandomNumberGenerator.GetBytes(Fido2SaltSize),
+        };
+        slot.CredentialId = securityKey.MakeCredential(Fido2RelyingPartyId, RandomNumberGenerator.GetBytes(16), "YubiVault");
+        // Registering already asks for the PIN and a touch; reading the secret asks once more.
+        var (usedCredential, secret) = securityKey.GetSecret(Fido2RelyingPartyId, [(slot.CredentialId, slot.Challenge)]);
+        if (!usedCredential.AsSpan().SequenceEqual(slot.CredentialId))
+            throw new VaultException("The security key answered with an unexpected credential.");
+        byte[] kek = KeyWrap.Fido2Kek(secret, slot.Challenge);
+        CryptographicOperations.ZeroMemory(secret);
         KeyWrap.Wrap(slot, kek, _masterKey, _header.VaultId);
         CryptographicOperations.ZeroMemory(kek);
         _header.Slots.Add(slot);

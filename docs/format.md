@@ -12,7 +12,8 @@ A vault is a folder:
 
 - **Master key:** 256 random bits per vault. It never changes and never touches the disk unencrypted.
 - **Key slots:** each slot holds a copy of the master key wrapped with AES-256-GCM under a key-encryption key (KEK). The associated data binds the wrap to the vault id, slot id, slot type and password flag.
-- **YubiKey slot:** the YubiKey answers a random 64-byte challenge (stored in the slot) with HMAC-SHA1 from OTP slot 2. `KEK = HKDF-SHA256(ikm = response || Argon2id(password), salt = challenge, info = "YubiVault v1 yubikey kek")`. The password part is present only when the slot was created with a password.
+- **FIDO2 slot (`fido2`, default):** a non-discoverable credential created on the security key for relying party `yubivault`, with the hmac-secret extension and user verification (PIN) required. The slot stores the credential id and a random 32-byte salt. The key returns its hmac-secret (PRF) output for that salt through the Windows WebAuthn API. `KEK = HKDF-SHA256(ikm = secret, salt = salt, info = "YubiVault v1 fido2 kek")`. Works with any FIDO2 key that supports hmac-secret (YubiKey 5, Security Key by Yubico, ...).
+- **YubiKey OTP slot (`yubikey`):** the YubiKey answers a random 64-byte challenge (stored in the slot) with HMAC-SHA1 from OTP slot 2. `KEK = HKDF-SHA256(ikm = response || Argon2id(password), salt = challenge, info = "YubiVault v1 yubikey kek")`. The password part is present only when the slot was created with a password.
 - **Recovery slot:** a 160-bit random code, shown once as eight groups of four Base32 characters. `KEK = HKDF-SHA256(Argon2id(code), salt = argon2 salt, info = "YubiVault v1 recovery kek")`.
 - **Argon2id defaults:** 64 MiB, 3 passes, parallelism 1, 16-byte random salt. The parameters are stored per slot.
 
