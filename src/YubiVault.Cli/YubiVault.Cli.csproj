@@ -10,8 +10,18 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>yubivault</AssemblyName>
+    <AssemblyName>yubivault-cli</AssemblyName>
     <RootNamespace>YubiVault.Cli</RootNamespace>
+    <ApplicationIcon>..\..\assets\yubivault.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!-- One portable yubivault-cli.exe, like the app. -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
   </PropertyGroup>
 
 </Project>

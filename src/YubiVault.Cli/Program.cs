@@ -13,16 +13,16 @@ static class Program
         YubiVault: encrypt files and folders with your YubiKey.
 
         Usage:
-          yubivault init <vault> [--otp [--no-password] [--program-slot]]
-          yubivault add <vault> <file-or-folder>... [--to <vault-folder>]
-          yubivault list <vault>
-          yubivault extract <vault> <vault-path> <destination> [--overwrite]
-          yubivault remove <vault> <vault-path>
-          yubivault keys <vault>
-          yubivault add-key <vault> [--otp [--no-password] [--program-slot]]
-          yubivault remove-key <vault> <slot-id>
-          yubivault new-recovery-code <vault>
-          yubivault compact <vault>
+          yubivault-cli init <vault> [--otp [--no-password] [--program-slot]]
+          yubivault-cli add <vault> <file-or-folder>... [--to <vault-folder>]
+          yubivault-cli list <vault>
+          yubivault-cli extract <vault> <vault-path> <destination> [--overwrite]
+          yubivault-cli remove <vault> <vault-path>
+          yubivault-cli keys <vault>
+          yubivault-cli add-key <vault> [--otp [--no-password] [--program-slot]]
+          yubivault-cli remove-key <vault> <slot-id>
+          yubivault-cli new-recovery-code <vault>
+          yubivault-cli compact <vault>
 
         <vault> is the vault file; ".yvault" is added to the name if it has no extension.
         By default the vault is protected by a FIDO2 security key (any YubiKey 5 or Security Key):
@@ -63,7 +63,7 @@ static class Program
     static int Run(Arguments cli)
     {
         if (!Commands.Contains(cli.Command!))
-            throw new ArgumentException($"Unknown command \"{cli.Command}\". Run \"yubivault help\".");
+            throw new ArgumentException($"Unknown command \"{cli.Command}\". Run \"yubivault-cli help\".");
         switch (cli.Command)
         {
             case "init":
@@ -136,7 +136,7 @@ static class Program
                 return 0;
 
             default:
-                throw new ArgumentException($"Unknown command \"{cli.Command}\". Run \"yubivault help\".");
+                throw new ArgumentException($"Unknown command \"{cli.Command}\". Run \"yubivault-cli help\".");
         }
     }
 

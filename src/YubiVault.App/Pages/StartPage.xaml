@@ -36,6 +36,9 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+
+            <ui:HyperlinkButton x:Name="AssociateButton" Icon="{ui:SymbolIcon DocumentLink24}" Margin="0,20,0,0" Padding="0"
+                                Content="Open .yvault files with YubiVault" Click="OnAssociate" />
         </StackPanel>
 
         <!-- Right: unlock panel for the chosen vault -->
