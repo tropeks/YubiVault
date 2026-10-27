@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="using:FluentAvalonia.UI.Controls"
+        x:Class="YubiVault.App.MainWindow"
+        Title="YubiVault" Icon="/Assets/yubivault.ico"
+        Width="980" Height="660" MinWidth="720" MinHeight="480"
+        WindowStartupLocation="CenterScreen">
+    <Panel>
+        <ContentControl x:Name="Host" />
+
+        <!-- Busy overlay: shown while the vault works or waits for a touch. -->
+        <Panel x:Name="BusyOverlay" IsVisible="False" Background="#99000000">
+            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Padding="32,28" CornerRadius="8"
+                    MinWidth="320" MaxWidth="460" BorderThickness="1"
+                    Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
+                <StackPanel Spacing="12">
+                    <ui:SymbolIcon x:Name="TouchIcon" Symbol="TouchPointer" FontSize="48" HorizontalAlignment="Center"
+                                   IsVisible="False" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
+                    <ui:ProgressRing x:Name="BusyRing" IsIndeterminate="True" Width="40" Height="40"
+                                     HorizontalAlignment="Center" />
+                    <TextBlock x:Name="BusyTitle" FontSize="16" FontWeight="SemiBold" TextAlignment="Center"
+                               TextWrapping="Wrap" />
+                    <TextBlock x:Name="BusyDetail" TextAlignment="Center" TextWrapping="Wrap" MaxHeight="40"
+                               TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+        </Panel>
+    </Panel>
+</Window>

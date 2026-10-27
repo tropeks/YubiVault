@@ -1,4 +1,4 @@
-using Wpf.Ui.Controls;
+using FluentAvalonia.UI.Controls;
 using YubiVault.Core;
 
 namespace YubiVault.App.Pages;
@@ -12,7 +12,7 @@ public sealed class VaultItem
     public long Size { get; init; }
     public DateTime? ModifiedUtc { get; init; }
 
-    public SymbolRegular Icon => IsFolder ? SymbolRegular.Folder24 : SymbolRegular.Document24;
+    public Symbol Icon => IsFolder ? Symbol.Folder : Symbol.Document;
     public string SizeText => IsFolder ? "" : Format.Size(Size);
     public string ModifiedText => ModifiedUtc?.ToLocalTime().ToString("g") ?? "";
 

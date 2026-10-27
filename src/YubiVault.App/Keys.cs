@@ -1,5 +1,5 @@
-using System.Windows;
-using System.Windows.Interop;
+using Avalonia.Controls;
+using YubiVault.App.Resources;
 using YubiVault.Core;
 using YubiVault.Core.Keys;
 using YubiVault.YubiKey;
@@ -9,13 +9,27 @@ namespace YubiVault.App;
 /// <summary>Picks the right kind of key for a vault, with messages a person can act on.</summary>
 static class Keys
 {
-    /// <summary>A FIDO2 security key reached through Windows' own PIN and touch dialog.</summary>
-    public static IFido2Authenticator SecurityKey(Window owner)
+    /// <summary>
+    /// A FIDO2 security key: through Windows' own PIN and touch dialog on Windows, and through the
+    /// Yubico SDK with our own PIN prompt on Linux and macOS.
+    /// </summary>
+    public static IFido2Authenticator SecurityKey(Window owner, MainWindow main)
     {
+        if (!OperatingSystem.IsWindows())
+        {
+            return new YubicoSecurityKey
+            {
+                AskPin = retries => Dialogs.AskPinFromWorker(owner, retries),
+                TouchNotifier = waiting => main.ShowTouchPrompt(waiting),
+            };
+        }
         if (!WindowsSecurityKey.IsSupported(out string reason))
             throw new VaultException(reason);
-        return new WindowsSecurityKey(new WindowInteropHelper(owner).Handle);
+        return new WindowsSecurityKey(owner.TryGetPlatformHandle()?.Handle ?? IntPtr.Zero);
     }
+
+    /// <summary>True when the key's PIN is asked by the system (Windows) rather than by YubiVault.</summary>
+    public static bool SystemAsksForPin => OperatingSystem.IsWindows();
 
     /// <summary>The one YubiKey with OTP challenge-response that is plugged in.</summary>
     /// <exception cref="VaultException">No key, or more than one.</exception>
@@ -23,9 +37,9 @@ static class Keys
     {
         var keys = YubiKeyResponder.FindAll();
         if (keys.Count == 0)
-            throw new VaultException("No YubiKey with OTP found. Security Key models have no OTP; use a FIDO2 security key instead.");
+            throw new VaultException(Strings.NoOtpKey);
         if (keys.Count > 1)
-            throw new VaultException("More than one YubiKey is connected. Leave only one plugged in.");
+            throw new VaultException(Strings.MoreThanOneKey);
         keys[0].TouchNotifier = onTouch;
         return keys[0];
     }
