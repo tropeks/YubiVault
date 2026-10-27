@@ -12,13 +12,13 @@ if [ "${1:-}" = "--uninstall" ]; then
     rm -f "$bin/yubivault" "$bin/yubivault-cli" \
           "$data/applications/yubivault.desktop" \
           "$data/icons/hicolor/512x512/apps/yubivault.png"
-    rm -f "$data/mime/packages/yubivault-mime.xml"
+    rm -f "$data/mime/packages/yubivault.xml"
 else
     install -Dm755 "$here/YubiVault" "$bin/yubivault"
     install -Dm755 "$here/yubivault-cli" "$bin/yubivault-cli"
     install -Dm644 "$here/share/yubivault.desktop" "$data/applications/yubivault.desktop"
     install -Dm644 "$here/share/yubivault.png" "$data/icons/hicolor/512x512/apps/yubivault.png"
-    install -Dm644 "$here/share/yubivault-mime.xml" "$data/mime/packages/yubivault-mime.xml"
+    install -Dm644 "$here/share/yubivault-mime.xml" "$data/mime/packages/yubivault.xml"
     # Menus may not search ~/.local/bin, so point the entry at the full path.
     sed -i "s|^Exec=yubivault |Exec=\"$bin/yubivault\" |" "$data/applications/yubivault.desktop"
 fi
