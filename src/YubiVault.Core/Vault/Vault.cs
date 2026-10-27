@@ -408,6 +408,31 @@ public sealed class Vault : IDisposable
         return selected.Count;
     }
 
+    /// <summary>Renames or moves a file, or a folder and everything in it. Only the index changes.</summary>
+    /// <returns>Number of files moved.</returns>
+    public int Move(string vaultPath, string newVaultPath)
+    {
+        ThrowIfDisposed();
+        vaultPath = VaultPath.Normalize(vaultPath);
+        newVaultPath = VaultPath.Normalize(newVaultPath);
+        if (vaultPath.Length == 0 || newVaultPath.Length == 0)
+            throw new VaultException("Name a file or folder to move, and where to.");
+        if (vaultPath == newVaultPath)
+            return 0;
+        if (VaultPath.IsWithin(newVaultPath, vaultPath))
+            throw new VaultException("Cannot move a folder into itself.");
+        var moved = _entries.Where(e => VaultPath.IsWithin(e.Path, vaultPath)).ToList();
+        if (moved.Count == 0)
+            throw new VaultException($"Nothing in the vault at {vaultPath}.");
+        var others = _entries.Except(moved).ToList();
+        if (others.Any(e => VaultPath.IsWithin(e.Path, newVaultPath) || VaultPath.IsWithin(newVaultPath, e.Path)))
+            throw new VaultException($"{newVaultPath} already exists in the vault.");
+        foreach (var entry in moved)
+            entry.Path = newVaultPath + entry.Path[vaultPath.Length..];
+        SaveIndex();
+        return moved.Count;
+    }
+
     /// <summary>Deletes a file, or a folder and everything in it, from the vault.</summary>
     /// <returns>Number of files removed.</returns>
     public int Remove(string vaultPath)

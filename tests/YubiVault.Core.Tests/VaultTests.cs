@@ -382,3 +382,58 @@ public class Fido2VaultTests : IDisposable
             Assert.Throws<VaultException>(() => vault.RemoveSlot(vault.Slots.First(s => s.Type == KeySlotType.Fido2).Id));
     }
 }
+
+public class VaultMoveTests : IDisposable
+{
+    readonly TempFolder _temp = new();
+    readonly FakeYubiKey _key = new("primary", serial: 1001);
+
+    public void Dispose() => _temp.Dispose();
+
+    Vault NewVaultWith(params string[] files)
+    {
+        foreach (var file in files)
+            _temp.WriteFile(Path.Combine("in", file), [1]);
+        var (vault, _) = Vault.Create(_temp["vault"], _key, null, Fast.Options);
+        foreach (var top in files.Select(f => f.Split('/')[0]).Distinct())
+            vault.Add(_temp[Path.Combine("in", top)]);
+        return vault;
+    }
+
+    [Fact]
+    public void RenamesAFileAndKeepsItAfterReopen()
+    {
+        using (var vault = NewVaultWith("a.txt"))
+            Assert.Equal(1, vault.Move("a.txt", "b.txt"));
+        using var reopened = Vault.OpenWithYubiKey(_temp["vault"], _key, () => "", Fast.Options);
+        Assert.Equal("b.txt", Assert.Single(reopened.Entries).Path);
+        reopened.Extract("b.txt", _temp["out"]);
+        Assert.True(File.Exists(_temp["out/b.txt"]));
+    }
+
+    [Fact]
+    public void MovesAWholeFolder()
+    {
+        using var vault = NewVaultWith("docs/x.txt", "docs/sub/y.txt", "other.txt");
+        Assert.Equal(2, vault.Move("docs", "Archive/docs"));
+        Assert.Equal(["Archive/docs/sub/y.txt", "Archive/docs/x.txt", "other.txt"], vault.Entries.Select(e => e.Path).Order());
+    }
+
+    [Fact]
+    public void RefusesToOverwriteOrNestIntoItself()
+    {
+        using var vault = NewVaultWith("a.txt", "b.txt", "docs/x.txt");
+        Assert.Throws<VaultException>(() => vault.Move("a.txt", "b.txt"));
+        Assert.Throws<VaultException>(() => vault.Move("docs", "docs/inner"));
+        Assert.Throws<VaultException>(() => vault.Move("missing", "z"));
+    }
+
+    [Fact]
+    public void KeySlotsCanBeReadWhileLocked()
+    {
+        using (Vault.Create(_temp["vault"], _key, "pw", Fast.Options).Vault) { }
+        var slots = Vault.ReadKeySlots(_temp["vault"]);
+        Assert.Contains(slots, s => s.Type == KeySlotType.YubiKey && s.RequiresPassword && s.Serial == 1001);
+        Assert.Contains(slots, s => s.Type == KeySlotType.Recovery);
+    }
+}
