@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7FCFB468-A911-48AC-86F0-52DD9D1AA1FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YubiVault.Cli", "src\YubiVault.Cli\YubiVault.Cli.csproj", "{F63AFB20-F1D1-4100-936C-0269056241DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YubiVault.Core", "src\YubiVault.Core\YubiVault.Core.csproj", "{1ABC4DDB-C97D-4852-8B40-ACB3109D045F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YubiVault.YubiKey", "src\YubiVault.YubiKey\YubiVault.YubiKey.csproj", "{4BCEF594-3AA7-43CE-9929-B8A67B171164}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8B39DD35-3E9C-417B-BD8B-618E9036A3F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YubiVault.Core.Tests", "tests\YubiVault.Core.Tests\YubiVault.Core.Tests.csproj", "{CEA00825-84ED-4D94-BC4A-E562AB57CD73}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F63AFB20-F1D1-4100-936C-0269056241DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F63AFB20-F1D1-4100-936C-0269056241DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F63AFB20-F1D1-4100-936C-0269056241DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F63AFB20-F1D1-4100-936C-0269056241DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1ABC4DDB-C97D-4852-8B40-ACB3109D045F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1ABC4DDB-C97D-4852-8B40-ACB3109D045F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1ABC4DDB-C97D-4852-8B40-ACB3109D045F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1ABC4DDB-C97D-4852-8B40-ACB3109D045F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BCEF594-3AA7-43CE-9929-B8A67B171164}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BCEF594-3AA7-43CE-9929-B8A67B171164}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BCEF594-3AA7-43CE-9929-B8A67B171164}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BCEF594-3AA7-43CE-9929-B8A67B171164}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEA00825-84ED-4D94-BC4A-E562AB57CD73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEA00825-84ED-4D94-BC4A-E562AB57CD73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEA00825-84ED-4D94-BC4A-E562AB57CD73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEA00825-84ED-4D94-BC4A-E562AB57CD73}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F63AFB20-F1D1-4100-936C-0269056241DA} = {7FCFB468-A911-48AC-86F0-52DD9D1AA1FB}
+		{1ABC4DDB-C97D-4852-8B40-ACB3109D045F} = {7FCFB468-A911-48AC-86F0-52DD9D1AA1FB}
+		{4BCEF594-3AA7-43CE-9929-B8A67B171164} = {7FCFB468-A911-48AC-86F0-52DD9D1AA1FB}
+		{CEA00825-84ED-4D94-BC4A-E562AB57CD73} = {8B39DD35-3E9C-417B-BD8B-618E9036A3F6}
+	EndGlobalSection
+EndGlobal
