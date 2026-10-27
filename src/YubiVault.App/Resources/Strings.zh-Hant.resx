@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  
+  <data name="AppTagline" xml:space="preserve">
+    <value>使用 AES-256 和 XChaCha20 加密檔案和資料夾，只有你的安全金鑰才能開啟。</value>
+  </data>
+  <data name="OpenVault" xml:space="preserve">
+    <value>開啟保險庫...</value>
+  </data>
+  <data name="CreateVault" xml:space="preserve">
+    <value>建立新的保險庫...</value>
+  </data>
+  <data name="RecentVaults" xml:space="preserve">
+    <value>最近的保險庫</value>
+  </data>
+  <data name="AssociateFiles" xml:space="preserve">
+    <value>使用 YubiVault 開啟 .yvault 檔案</value>
+  </data>
+  <data name="AssociateDone" xml:space="preserve">
+    <value>現在按兩下 .yvault 檔案會在 YubiVault 中開啟。
+
+如果你移動了 YubiVault，請在新位置再次按一下此選項。</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>語言</value>
+  </data>
+  <data name="LanguageSystem" xml:space="preserve">
+    <value>系統預設</value>
+  </data>
+  <data name="ChooseVaultTitle" xml:space="preserve">
+    <value>選擇保險庫</value>
+  </data>
+  <data name="VaultFileType" xml:space="preserve">
+    <value>YubiVault 保險庫</value>
+  </data>
+  <data name="NotAVault" xml:space="preserve">
+    <value>{0} 不是 YubiVault 保險庫。</value>
+  </data>
+  <data name="CouldNotOpen" xml:space="preserve">
+    <value>無法開啟保險庫</value>
+  </data>
+  <data name="UnlockHintFido2Windows" xml:space="preserve">
+    <value>插入安全金鑰並按一下「解鎖」。Windows 會要求輸入金鑰的 PIN 並觸碰金鑰。</value>
+  </data>
+  <data name="UnlockHintFido2" xml:space="preserve">
+    <value>插入安全金鑰並按一下「解鎖」。系統會要求輸入金鑰的 PIN 並觸碰金鑰。</value>
+  </data>
+  <data name="UnlockHintOtp" xml:space="preserve">
+    <value>插入 YubiKey 並按一下「解鎖」，然後在金鑰閃爍時觸碰它。</value>
+  </data>
+  <data name="UnlockHintRecovery" xml:space="preserve">
+    <value>輸入建立保險庫時儲存的復原碼。</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>密碼</value>
+  </data>
+  <data name="Unlock" xml:space="preserve">
+    <value>解鎖</value>
+  </data>
+  <data name="UseRecoveryCode" xml:space="preserve">
+    <value>金鑰遺失了？使用復原碼</value>
+  </data>
+  <data name="UseKeyInstead" xml:space="preserve">
+    <value>改用我的金鑰</value>
+  </data>
+  <data name="InvalidRecoveryCode" xml:space="preserve">
+    <value>這不是有效的復原碼。</value>
+  </data>
+  <data name="UnlockingRecovery" xml:space="preserve">
+    <value>正在使用復原碼解鎖...</value>
+  </data>
+  <data name="WaitingForKey" xml:space="preserve">
+    <value>正在等待安全金鑰...</value>
+  </data>
+  <data name="Unlocking" xml:space="preserve">
+    <value>正在解鎖...</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>返回</value>
+  </data>
+  <data name="CreateTitle" xml:space="preserve">
+    <value>建立新的保險庫</value>
+  </data>
+  <data name="CreateIntro" xml:space="preserve">
+    <value>保險庫就是一個 .yvault 檔案。可以存放在隨身碟、磁碟或雲端資料夾中：從外部無法看到檔名、大小或內容。</value>
+  </data>
+  <data name="Where" xml:space="preserve">
+    <value>位置</value>
+  </data>
+  <data name="WherePlaceholder" xml:space="preserve">
+    <value>儲存保險庫檔案的資料夾</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>瀏覽...</value>
+  </data>
+  <data name="VaultNamePlaceholder" xml:space="preserve">
+    <value>保險庫名稱</value>
+  </data>
+  <data name="DefaultVaultName" xml:space="preserve">
+    <value>我的保險庫</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>金鑰</value>
+  </data>
+  <data name="KeyFido2Title" xml:space="preserve">
+    <value>安全金鑰 (FIDO2)，建議使用</value>
+  </data>
+  <data name="KeyFido2Detail" xml:space="preserve">
+    <value>任何 YubiKey 5 或 Security Key by Yubico，需要 PIN 和觸碰。</value>
+  </data>
+  <data name="KeyOtpTitle" xml:space="preserve">
+    <value>YubiKey 5 挑戰-回應（OTP 插槽 2）</value>
+  </data>
+  <data name="KeyOtpDetail" xml:space="preserve">
+    <value>只需觸碰，可選擇加上密碼。</value>
+  </data>
+  <data name="PasswordOptional" xml:space="preserve">
+    <value>密碼（選填，建議使用）</value>
+  </data>
+  <data name="RepeatPassword" xml:space="preserve">
+    <value>再次輸入密碼</value>
+  </data>
+  <data name="ReplaceSlot" xml:space="preserve">
+    <value>將新的密鑰寫入插槽 2（會清除原有內容）</value>
+  </data>
+  <data name="RecoveryNoticeTitle" xml:space="preserve">
+    <value>你將取得一組復原碼</value>
+  </data>
+  <data name="RecoveryNoticeText" xml:space="preserve">
+    <value>如果遺失金鑰，可用它開啟保險庫。它只會在保險庫建立後顯示一次。</value>
+  </data>
+  <data name="CreateButton" xml:space="preserve">
+    <value>建立保險庫</value>
+  </data>
+  <data name="CouldNotCreate" xml:space="preserve">
+    <value>無法建立保險庫</value>
+  </data>
+  <data name="ChooseLocation" xml:space="preserve">
+    <value>請選擇建立保險庫的位置。</value>
+  </data>
+  <data name="ChooseLocationTitle" xml:space="preserve">
+    <value>選擇建立保險庫的位置</value>
+  </data>
+  <data name="InvalidName" xml:space="preserve">
+    <value>請為保險庫指定可作為檔名的名稱。</value>
+  </data>
+  <data name="PasswordsDiffer" xml:space="preserve">
+    <value>兩次輸入的密碼不一致。</value>
+  </data>
+  <data name="CreatingVault" xml:space="preserve">
+    <value>正在建立保險庫...</value>
+  </data>
+  <data name="RegisteringKey" xml:space="preserve">
+    <value>正在註冊安全金鑰...</value>
+  </data>
+  <data name="Keys" xml:space="preserve">
+    <value>金鑰</value>
+  </data>
+  <data name="Lock" xml:space="preserve">
+    <value>鎖定</value>
+  </data>
+  <data name="UpOneFolder" xml:space="preserve">
+    <value>上一層資料夾</value>
+  </data>
+  <data name="AddFiles" xml:space="preserve">
+    <value>新增檔案</value>
+  </data>
+  <data name="AddFolder" xml:space="preserve">
+    <value>新增資料夾</value>
+  </data>
+  <data name="Extract" xml:space="preserve">
+    <value>取出</value>
+  </data>
+  <data name="Rename" xml:space="preserve">
+    <value>重新命名</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="ColumnName" xml:space="preserve">
+    <value>名稱</value>
+  </data>
+  <data name="ColumnSize" xml:space="preserve">
+    <value>大小</value>
+  </data>
+  <data name="ColumnModified" xml:space="preserve">
+    <value>修改時間</value>
+  </data>
+  <data name="DropHere" xml:space="preserve">
+    <value>將檔案或資料夾拖放到這裡進行加密</value>
+  </data>
+  <data name="DropHereDetail" xml:space="preserve">
+    <value>或使用上方的「新增檔案」/「新增資料夾」</value>
+  </data>
+  <data name="AllFiles" xml:space="preserve">
+    <value>所有檔案</value>
+  </data>
+  <data name="StatusFiles" xml:space="preserve">
+    <value>{0} 個檔案，已加密 {1}</value>
+  </data>
+  <data name="AutoLockAfter" xml:space="preserve">
+    <value>閒置 {0} 分鐘後鎖定</value>
+  </data>
+  <data name="AutoLockOff" xml:space="preserve">
+    <value>自動鎖定已關閉</value>
+  </data>
+  <data name="ChooseFilesTitle" xml:space="preserve">
+    <value>選擇要加密的檔案</value>
+  </data>
+  <data name="ChooseFoldersTitle" xml:space="preserve">
+    <value>選擇要加密的資料夾</value>
+  </data>
+  <data name="Encrypting" xml:space="preserve">
+    <value>正在加密...</value>
+  </data>
+  <data name="EncryptedInfo" xml:space="preserve">
+    <value>已加密 {0} 個檔案。原始檔案未被變更；如不再需要，請自行刪除。</value>
+  </data>
+  <data name="Decrypting" xml:space="preserve">
+    <value>正在解密...</value>
+  </data>
+  <data name="ExtractSelectedTitle" xml:space="preserve">
+    <value>將所選項目取出到...</value>
+  </data>
+  <data name="ExtractAllTitle" xml:space="preserve">
+    <value>將此資料夾中的所有內容取出到...</value>
+  </data>
+  <data name="ReplaceExisting" xml:space="preserve">
+    <value>{0}
+
+要取代現有檔案嗎？</value>
+  </data>
+  <data name="ExtractedInfo" xml:space="preserve">
+    <value>已將 {0} 個檔案取出到 {1}。</value>
+  </data>
+  <data name="RenameTitle" xml:space="preserve">
+    <value>重新命名</value>
+  </data>
+  <data name="RenamePrompt" xml:space="preserve">
+    <value>「{0}」的新名稱</value>
+  </data>
+  <data name="Renaming" xml:space="preserve">
+    <value>正在重新命名...</value>
+  </data>
+  <data name="DeleteOne" xml:space="preserve">
+    <value>要從保險庫刪除「{0}」嗎？此動作無法復原。</value>
+  </data>
+  <data name="DeleteMany" xml:space="preserve">
+    <value>要從保險庫刪除 {0} 個項目嗎？此動作無法復原。</value>
+  </data>
+  <data name="Deleting" xml:space="preserve">
+    <value>正在刪除...</value>
+  </data>
+  <data name="TouchKeyTitle" xml:space="preserve">
+    <value>請觸碰安全金鑰</value>
+  </data>
+  <data name="TouchKeyDetail" xml:space="preserve">
+    <value>金鑰正在閃爍，等待你觸碰。</value>
+  </data>
+  <data name="KeysTitle" xml:space="preserve">
+    <value>金鑰與設定</value>
+  </data>
+  <data name="KeysIntro" xml:space="preserve">
+    <value>下方的每把金鑰都能單獨開啟此保險庫。註冊第二把金鑰作為備用；不會重新加密任何內容。</value>
+  </data>
+  <data name="ColumnKey" xml:space="preserve">
+    <value>金鑰</value>
+  </data>
+  <data name="ColumnType" xml:space="preserve">
+    <value>類型</value>
+  </data>
+  <data name="ColumnAdded" xml:space="preserve">
+    <value>新增日期</value>
+  </data>
+  <data name="KindFido2" xml:space="preserve">
+    <value>FIDO2 + PIN</value>
+  </data>
+  <data name="KindOtp" xml:space="preserve">
+    <value>OTP</value>
+  </data>
+  <data name="KindOtpPassword" xml:space="preserve">
+    <value>OTP + 密碼</value>
+  </data>
+  <data name="KindRecovery" xml:space="preserve">
+    <value>復原碼</value>
+  </data>
+  <data name="AddSecurityKey" xml:space="preserve">
+    <value>新增安全金鑰</value>
+  </data>
+  <data name="AddOtpKey" xml:space="preserve">
+    <value>新增 YubiKey (OTP)</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>移除</value>
+  </data>
+  <data name="NewRecoveryCode" xml:space="preserve">
+    <value>新的復原碼</value>
+  </data>
+  <data name="LockAfter" xml:space="preserve">
+    <value>自動鎖定時間</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>永不</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>{0} 分鐘</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>發生問題</value>
+  </data>
+  <data name="ConfirmAddSecurityKey" xml:space="preserve">
+    <value>插入新的安全金鑰並拔除其他金鑰。系統會兩次要求輸入新金鑰的 PIN 並觸碰金鑰。</value>
+  </data>
+  <data name="ConfirmAddOtpKey" xml:space="preserve">
+    <value>插入新的 YubiKey 5 並拔除其他金鑰。如果其插槽 2 是空的，將設定為挑戰-回應模式。</value>
+  </data>
+  <data name="OtpPasswordPrompt" xml:space="preserve">
+    <value>與此 YubiKey 搭配使用的選用密碼（留空表示不使用）：</value>
+  </data>
+  <data name="RegisteringYubiKey" xml:space="preserve">
+    <value>正在註冊 YubiKey...</value>
+  </data>
+  <data name="ConfirmRemoveKey" xml:space="preserve">
+    <value>要移除「{0}」嗎？它將無法再開啟此保險庫。</value>
+  </data>
+  <data name="Removing" xml:space="preserve">
+    <value>正在移除...</value>
+  </data>
+  <data name="ConfirmNewRecovery" xml:space="preserve">
+    <value>要建立新的復原碼嗎？舊的復原碼將失效。</value>
+  </data>
+  <data name="CreatingRecovery" xml:space="preserve">
+    <value>正在建立新的復原碼...</value>
+  </data>
+  <data name="RecoveryTitle" xml:space="preserve">
+    <value>請儲存你的復原碼</value>
+  </data>
+  <data name="RecoveryText" xml:space="preserve">
+    <value>如果遺失金鑰，可用此復原碼開啟保險庫。請抄寫或列印下來，離線存放在安全的地方。任何持有它的人都能開啟保險庫。它不會再次顯示。</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="RecoverySaved" xml:space="preserve">
+    <value>我已儲存復原碼</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>確定</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>是</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>否</value>
+  </data>
+  <data name="PinTitle" xml:space="preserve">
+    <value>安全金鑰 PIN</value>
+  </data>
+  <data name="PinPrompt" xml:space="preserve">
+    <value>請輸入安全金鑰的 PIN。</value>
+  </data>
+  <data name="PinRetry" xml:space="preserve">
+    <value>PIN 錯誤。還剩 {0} 次嘗試機會。</value>
+  </data>
+  <data name="NoOtpKey" xml:space="preserve">
+    <value>找不到支援 OTP 的 YubiKey。Security Key 系列不支援 OTP；請改用 FIDO2 安全金鑰。</value>
+  </data>
+  <data name="MoreThanOneKey" xml:space="preserve">
+    <value>連接了多個 YubiKey。請只保留一個。</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>未預期的錯誤</value>
+  </data>
+</root>
