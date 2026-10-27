@@ -10,48 +10,52 @@ namespace YubiVault.App.Pages;
 public partial class StartPage : UserControl
 {
     readonly MainWindow _main;
-    string? _folder;
+    string? _vaultFile;
     bool _fido2;
     bool _recoveryMode;
 
-    public StartPage(MainWindow main, string? vaultFolder)
+    public StartPage(MainWindow main, string? vaultFile)
     {
         _main = main;
         InitializeComponent();
-        var recent = main.Settings.RecentVaults.Where(Directory.Exists).ToList();
+        var recent = main.Settings.RecentVaults.Where(File.Exists).ToList();
         RecentList.ItemsSource = recent;
         RecentHeader.Visibility = recent.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
-        if (vaultFolder is not null)
-            SelectVault(vaultFolder);
+        if (vaultFile is not null)
+            SelectVault(vaultFile);
     }
 
     void OnOpenVault(object sender, RoutedEventArgs e)
     {
-        var dialog = new OpenFolderDialog { Title = "Choose the vault folder" };
+        var dialog = new OpenFileDialog
+        {
+            Title = "Choose the vault",
+            Filter = $"YubiVault vaults (*{Vault.FileExtension})|*{Vault.FileExtension}|All files (*.*)|*.*",
+        };
         if (dialog.ShowDialog(_main) == true)
-            SelectVault(dialog.FolderName);
+            SelectVault(dialog.FileName);
     }
 
     void OnCreateVault(object sender, RoutedEventArgs e) => _main.ShowCreate();
 
     void OnRecentClick(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement { Tag: string folder })
-            SelectVault(folder);
+        if (sender is FrameworkElement { Tag: string path })
+            SelectVault(path);
     }
 
-    void SelectVault(string folder)
+    void SelectVault(string path)
     {
         ErrorBar.IsOpen = false;
-        if (!Vault.Exists(folder))
+        if (!Vault.Exists(path))
         {
-            ShowError($"There is no vault in {folder}.");
+            ShowError($"{path} is not a YubiVault vault.");
             return;
         }
         IReadOnlyList<KeySlot> slots;
         try
         {
-            slots = Vault.ReadKeySlots(folder);
+            slots = Vault.ReadKeySlots(path);
         }
         catch (VaultException ex)
         {
@@ -59,10 +63,10 @@ public partial class StartPage : UserControl
             return;
         }
 
-        _folder = folder;
+        _vaultFile = path;
         _fido2 = Keys.PreferFido2(slots);
-        VaultName.Text = Path.GetFileName(folder.TrimEnd('\\', '/'));
-        VaultLocation.Text = folder;
+        VaultName.Text = Path.GetFileNameWithoutExtension(path);
+        VaultLocation.Text = path;
         bool needsPassword = !_fido2 && slots.Any(s => s.RequiresPassword);
         PasswordInput.Visibility = needsPassword ? Visibility.Visible : Visibility.Collapsed;
         PasswordInput.Password = "";
@@ -88,9 +92,9 @@ public partial class StartPage : UserControl
             UnlockHint.Text = "Type the recovery code you saved when the vault was created.";
             RecoveryInput.Focus();
         }
-        else if (_folder is not null && UnlockPanel.Visibility == Visibility.Visible)
+        else if (_vaultFile is not null && UnlockPanel.Visibility == Visibility.Visible)
         {
-            SelectVault(_folder);
+            SelectVault(_vaultFile);
         }
     }
 
@@ -102,29 +106,29 @@ public partial class StartPage : UserControl
 
     async void OnUnlock(object sender, RoutedEventArgs e)
     {
-        if (_folder is null)
+        if (_vaultFile is null)
             return;
         ErrorBar.IsOpen = false;
-        string folder = _folder;
+        string path = _vaultFile;
         try
         {
             if (_recoveryMode)
             {
                 string code = RecoveryInput.Text;
-                var vault = await _main.RunAsync("Unlocking with the recovery code...", () => Vault.OpenWithRecoveryCode(folder, code));
+                var vault = await _main.RunAsync("Unlocking with the recovery code...", () => Vault.OpenWithRecoveryCode(path, code));
                 _main.ShowVault(vault);
             }
             else if (_fido2)
             {
                 var key = Keys.SecurityKey(_main);
-                var vault = await _main.RunAsync("Waiting for your security key...", () => Vault.OpenWithFido2(folder, key));
+                var vault = await _main.RunAsync("Waiting for your security key...", () => Vault.OpenWithFido2(path, key));
                 _main.ShowVault(vault);
             }
             else
             {
                 string password = PasswordInput.Password;
                 var vault = await _main.RunAsync("Unlocking...", () =>
-                    Vault.OpenWithYubiKey(folder, Keys.OtpYubiKey(_main.ShowTouchPrompt), () => password));
+                    Vault.OpenWithYubiKey(path, Keys.OtpYubiKey(_main.ShowTouchPrompt), () => password));
                 _main.ShowVault(vault, openedWithOtpKey: true);
             }
         }

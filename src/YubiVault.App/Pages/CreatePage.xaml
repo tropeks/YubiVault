@@ -10,7 +10,7 @@
                        Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
             <TextBlock Margin="0,6,0,24" TextWrapping="Wrap"
                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                       Text="A vault is a folder. Put it on a USB stick, a disk or a cloud folder: from the outside nobody sees names or contents." />
+                       Text="A vault is a single .yvault file. Keep it on a USB stick, a disk or a cloud folder: from the outside nobody sees names, sizes or contents." />
 
             <TextBlock Text="Where" FontWeight="SemiBold" Margin="0,0,0,6"
                        Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
@@ -19,7 +19,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <ui:TextBox x:Name="LocationInput" PlaceholderText="Folder that will contain the vault" IsReadOnly="True" />
+                <ui:TextBox x:Name="LocationInput" PlaceholderText="Folder where the vault file will be saved" IsReadOnly="True" />
                 <ui:Button Grid.Column="1" Content="Browse..." Margin="8,0,0,0" Click="OnBrowse" />
             </Grid>
             <ui:TextBox x:Name="NameInput" PlaceholderText="Vault name" Text="My Vault" Margin="0,8,0,0" />

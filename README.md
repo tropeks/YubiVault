@@ -10,7 +10,7 @@ A portable vault for Windows that encrypts files and folders and only opens them
 - **YubiKey 5 OTP mode (optional).** YubiKey 5 keys can instead use HMAC-SHA1 challenge-response (slot 2), optionally combined with a password.
 - **Recovery.** When a vault is created, YubiVault shows a recovery code to print and keep safe. A second YubiKey can be registered later without re-encrypting anything.
 - **Layered encryption.** Every file goes through AES-256-GCM and then XChaCha20-Poly1305, with independent keys derived by HKDF-SHA256. A future break in one algorithm is not enough to expose your data.
-- **A vault is a folder.** Keep it on a USB stick, a disk, OneDrive or Google Drive. From the outside there are no file names, folders or structure, only encrypted blobs and an encrypted index.
+- **A vault is a single `.yvault` file.** Keep it on a USB stick, a disk, OneDrive or Google Drive. From the outside there are no file names, folders, sizes or structure, only encrypted data.
 
 ## Roadmap
 

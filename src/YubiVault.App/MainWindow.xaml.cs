@@ -22,7 +22,9 @@ public partial class MainWindow : FluentWindow
     {
         InitializeComponent();
         Settings = AppSettings.Load();
-        ShowStart();
+        // A vault passed on the command line (e.g. a double-clicked .yvault file) is selected right away.
+        string? argument = Environment.GetCommandLineArgs().Skip(1).FirstOrDefault();
+        ShowStart(argument is not null && Vault.Exists(argument) ? argument : null);
 
         InputManager.Current.PreProcessInput += (_, _) => _lastActivityUtc = DateTime.UtcNow;
         _idleTimer.Tick += (_, _) => LockIfIdle();
@@ -43,7 +45,7 @@ public partial class MainWindow : FluentWindow
 
     // ---- Navigation ----
 
-    public void ShowStart(string? vaultFolder = null) => Host.Content = new StartPage(this, vaultFolder);
+    public void ShowStart(string? vaultFile = null) => Host.Content = new StartPage(this, vaultFile);
 
     public void ShowCreate() => Host.Content = new CreatePage(this);
 
@@ -52,7 +54,7 @@ public partial class MainWindow : FluentWindow
         _vault = vault;
         _openedWithOtpKey = openedWithOtpKey;
         _lastActivityUtc = DateTime.UtcNow;
-        Settings.RememberVault(vault.Folder);
+        Settings.RememberVault(vault.FilePath);
         Host.Content = new VaultPage(this, vault);
     }
 
@@ -61,13 +63,13 @@ public partial class MainWindow : FluentWindow
     {
         if (_vault is null)
             return;
-        string folder = _vault.Folder;
+        string path = _vault.FilePath;
         _vault.Dispose();
         _vault = null;
         TempFiles.WipeAll();
         foreach (var window in OwnedWindows.Cast<Window>().ToList())
             window.Close();
-        ShowStart(folder);
+        ShowStart(path);
     }
 
     void LockIfIdle()

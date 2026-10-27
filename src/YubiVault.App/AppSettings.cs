@@ -40,10 +40,10 @@ public sealed class AppSettings
         }
     }
 
-    public void RememberVault(string folder)
+    public void RememberVault(string path)
     {
-        RecentVaults.RemoveAll(p => string.Equals(p, folder, StringComparison.OrdinalIgnoreCase));
-        RecentVaults.Insert(0, folder);
+        RecentVaults.RemoveAll(p => string.Equals(p, path, StringComparison.OrdinalIgnoreCase));
+        RecentVaults.Insert(0, path);
         if (RecentVaults.Count > MaxRecentVaults)
             RecentVaults.RemoveRange(MaxRecentVaults, RecentVaults.Count - MaxRecentVaults);
         Save();

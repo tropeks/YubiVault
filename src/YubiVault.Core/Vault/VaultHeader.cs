@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace YubiVault.Core;
 
-/// <summary>Contents of <c>vault.yv</c>: everything needed to unwrap the master key, nothing secret in the clear.</summary>
+/// <summary>The vault header: everything needed to unwrap the master key, nothing secret in the clear.</summary>
 public sealed class VaultHeader
 {
     public const string FormatName = "YubiVault";
@@ -65,6 +65,12 @@ public sealed class VaultEntry
     /// <summary>Path inside the vault, '/'-separated, no leading slash.</summary>
     [JsonPropertyName("path")] public string Path { get; set; } = "";
     [JsonPropertyName("blob")] public string BlobId { get; set; } = "";
+
+    /// <summary>Where the encrypted blob starts in the vault file.</summary>
+    [JsonPropertyName("offset")] public long Offset { get; set; }
+
+    /// <summary>Length of the encrypted blob in bytes.</summary>
+    [JsonPropertyName("length")] public long Length { get; set; }
     [JsonPropertyName("size")] public long Size { get; set; }
     [JsonPropertyName("modifiedUtc")] public DateTime ModifiedUtc { get; set; }
 }

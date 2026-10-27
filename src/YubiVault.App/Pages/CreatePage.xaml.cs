@@ -43,10 +43,10 @@ public partial class CreatePage : UserControl
         }
         if (name.Length == 0 || name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
         {
-            ShowError("Give the vault a name that is valid as a folder name.");
+            ShowError("Give the vault a name that is valid as a file name.");
             return;
         }
-        string folder = Path.Combine(LocationInput.Text, name);
+        string path = Path.Combine(LocationInput.Text, name + Vault.FileExtension);
         bool otp = OtpOption.IsChecked == true;
         string? password = null;
         if (otp)
@@ -70,13 +70,13 @@ public partial class CreatePage : UserControl
                     var key = Keys.OtpYubiKey(_main.ShowTouchPrompt);
                     if (replace || !key.IsSlotConfigured)
                         key.ProgramSlot();
-                    return Vault.Create(folder, key, password);
+                    return Vault.Create(path, key, password);
                 });
             }
             else
             {
                 IFido2Authenticator key = Keys.SecurityKey(_main);
-                created = await _main.RunAsync("Registering your security key...", () => Vault.Create(folder, key));
+                created = await _main.RunAsync("Registering your security key...", () => Vault.Create(path, key));
             }
 
             new RecoveryCodeWindow(created.RecoveryCode) { Owner = _main }.ShowDialog();

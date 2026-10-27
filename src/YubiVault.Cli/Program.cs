@@ -22,7 +22,9 @@ static class Program
           yubivault add-key <vault> [--otp [--no-password] [--program-slot]]
           yubivault remove-key <vault> <slot-id>
           yubivault new-recovery-code <vault>
+          yubivault compact <vault>
 
+        <vault> is the vault file; ".yvault" is added to the name if it has no extension.
         By default the vault is protected by a FIDO2 security key (any YubiKey 5 or Security Key):
         Windows asks for the key's PIN and a touch.
 
@@ -56,7 +58,7 @@ static class Program
     }
 
     static readonly HashSet<string> Commands =
-        ["init", "add", "list", "extract", "remove", "keys", "add-key", "remove-key", "new-recovery-code"];
+        ["init", "add", "list", "extract", "remove", "keys", "add-key", "remove-key", "new-recovery-code", "compact"];
 
     static int Run(Arguments cli)
     {
@@ -65,10 +67,10 @@ static class Program
         switch (cli.Command)
         {
             case "init":
-                return Init(cli.Positional(0, "vault"), cli);
+                return Init(VaultFilePath(cli.Positional(0, "vault")), cli);
         }
 
-        using var vault = Unlock(cli.Positional(0, "vault"), cli);
+        using var vault = Unlock(VaultFilePath(cli.Positional(0, "vault")), cli);
         switch (cli.Command)
         {
             case "add":
@@ -127,12 +129,22 @@ static class Program
                 ShowRecoveryCode(vault.RegenerateRecoveryCode());
                 return 0;
 
+            case "compact":
+                long before = vault.FileSize;
+                vault.Compact();
+                Console.WriteLine($"Vault file: {FormatSize(before)} -> {FormatSize(vault.FileSize)}.");
+                return 0;
+
             default:
                 throw new ArgumentException($"Unknown command \"{cli.Command}\". Run \"yubivault help\".");
         }
     }
 
-    static int Init(string folder, Arguments cli)
+    /// <summary>Adds the vault extension to a name without one.</summary>
+    static string VaultFilePath(string path) =>
+        Path.HasExtension(path) || Directory.Exists(path) ? path : path + Vault.FileExtension;
+
+    static int Init(string path, Arguments cli)
     {
         Vault vault;
         string recoveryCode;
@@ -141,41 +153,41 @@ static class Program
             var key = PrepareYubiKey(cli);
             string? password = AskNewPassword(cli);
             Console.WriteLine("Creating the vault...");
-            (vault, recoveryCode) = Vault.Create(folder, key, password);
+            (vault, recoveryCode) = Vault.Create(path, key, password);
         }
         else
         {
             var securityKey = SecurityKey();
             Console.WriteLine("Creating the vault. Windows will ask for your security key's PIN and a touch, twice.");
-            (vault, recoveryCode) = Vault.Create(folder, securityKey);
+            (vault, recoveryCode) = Vault.Create(path, securityKey);
         }
         using (vault)
         {
-            Console.WriteLine($"Vault created in {vault.Folder}.");
+            Console.WriteLine($"Vault created: {vault.FilePath}");
             ShowRecoveryCode(recoveryCode);
         }
         return 0;
     }
 
-    static Vault Unlock(string folder, Arguments cli)
+    static Vault Unlock(string path, Arguments cli)
     {
-        if (!Vault.Exists(folder))
-            throw new VaultException($"No vault found in {Path.GetFullPath(folder)}.");
+        if (!Vault.Exists(path))
+            throw new VaultException($"No vault found at {Path.GetFullPath(path)}.");
         if (cli.Flags.Contains("--recovery"))
         {
             Console.Write("Recovery code: ");
-            return Vault.OpenWithRecoveryCode(folder, Console.ReadLine() ?? "");
+            return Vault.OpenWithRecoveryCode(path, Console.ReadLine() ?? "");
         }
-        var slots = Vault.ReadKeySlots(folder);
+        var slots = Vault.ReadKeySlots(path);
         bool hasFido2 = slots.Any(s => s.Type == KeySlotType.Fido2);
         bool hasOtp = slots.Any(s => s.Type == KeySlotType.YubiKey);
         if (hasFido2 && !(hasOtp && OtpKeyConnected()))
         {
             Console.WriteLine("Windows will ask for your security key's PIN and a touch.");
-            return Vault.OpenWithFido2(folder, SecurityKey());
+            return Vault.OpenWithFido2(path, SecurityKey());
         }
         var key = FindYubiKey();
-        return Vault.OpenWithYubiKey(folder, key, () => ReadSecret("Password: "));
+        return Vault.OpenWithYubiKey(path, key, () => ReadSecret("Password: "));
     }
 
     static bool OtpKeyConnected()

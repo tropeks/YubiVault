@@ -18,8 +18,8 @@ public partial class VaultPage : UserControl
         _main = main;
         _vault = vault;
         InitializeComponent();
-        VaultName.Text = Path.GetFileName(vault.Folder.TrimEnd('\\', '/'));
-        VaultLocation.Text = vault.Folder;
+        VaultName.Text = Path.GetFileNameWithoutExtension(vault.FilePath);
+        VaultLocation.Text = vault.FilePath;
         Refresh();
     }
 

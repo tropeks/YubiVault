@@ -7,165 +7,201 @@ using YubiVault.Core.Keys;
 namespace YubiVault.Core;
 
 /// <summary>
-/// An unlocked vault folder. Layout: <c>vault.yv</c> (key slots), <c>index.yv</c> (encrypted list of
-/// files) and <c>data/</c> (one encrypted blob per file, named at random).
+/// An unlocked vault: a single <c>.yvault</c> file holding the key slots, the encrypted list of
+/// files and one encrypted blob per file (see <see cref="VaultFile"/> and docs/format.md).
 /// </summary>
 public sealed class Vault : IDisposable
 {
-    public const string HeaderFileName = "vault.yv";
-    public const string IndexFileName = "index.yv";
-    public const string DataFolderName = "data";
+    public const string FileExtension = ".yvault";
     public const int ChallengeSize = 64;
     public const int Fido2SaltSize = 32;
     public const string Fido2RelyingPartyId = "yubivault";
 
+    /// <summary>Saves compact the file by themselves once this much (and a quarter of it) is unused.</summary>
+    const long MinWasteToCompact = 1 << 20;
+
     static readonly byte[] IndexContext = "index"u8.ToArray();
     static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
-    readonly string _folder;
+    readonly string _path;
     readonly VaultHeader _header;
     readonly VaultOptions _options;
     readonly byte[] _masterKey;
+    VaultFile _file;
     List<VaultEntry> _entries;
     bool _disposed;
 
-    Vault(string folder, VaultHeader header, byte[] masterKey, List<VaultEntry> entries, VaultOptions options)
+    Vault(string path, VaultFile file, VaultHeader header, byte[] masterKey, List<VaultEntry> entries, VaultOptions options)
     {
-        _folder = folder;
+        _path = path;
+        _file = file;
         _header = header;
         _masterKey = masterKey;
         _entries = entries;
         _options = options;
     }
 
-    public string Folder => _folder;
+    /// <summary>Full path of the vault file.</summary>
+    public string FilePath => _path;
     public IReadOnlyList<KeySlot> Slots => _header.Slots;
     public IReadOnlyList<VaultEntry> Entries => _entries;
 
-    public static bool Exists(string folder) => File.Exists(Path.Combine(folder, HeaderFileName));
+    /// <summary>Size of the vault file in bytes.</summary>
+    public long FileSize => _file.Length;
+
+    /// <summary>Bytes taken by deleted or replaced files, freed by <see cref="Compact"/>.</summary>
+    public long WastedBytes => _file.End - VaultFile.DataStart - _file.HeaderLength - _file.IndexLength - _entries.Sum(e => e.Length);
+
+    public static bool Exists(string path) => VaultFile.LooksLikeVault(path);
 
     /// <summary>Reads the key slots of a locked vault, e.g. to know which kind of key will open it.</summary>
-    public static IReadOnlyList<KeySlot> ReadKeySlots(string folder) => ReadHeader(folder).Slots;
+    public static IReadOnlyList<KeySlot> ReadKeySlots(string path)
+    {
+        using var file = VaultFile.Open(path, writable: false);
+        return ParseHeader(file.ReadHeader()).Slots;
+    }
 
-    /// <summary>Creates an empty vault opened by <paramref name="yubiKey"/> (plus <paramref name="password"/>, if given).</summary>
+    /// <summary>Creates an empty vault file opened by <paramref name="yubiKey"/> (plus <paramref name="password"/>, if given).</summary>
     /// <returns>The open vault and the recovery code to show the user once.</returns>
-    public static (Vault Vault, string RecoveryCode) Create(string folder, IChallengeResponder yubiKey, string? password,
+    public static (Vault Vault, string RecoveryCode) Create(string path, IChallengeResponder yubiKey, string? password,
         VaultOptions? options = null) =>
-        CreateWith(folder, options, vault => vault.AddYubiKeySlot(yubiKey, password));
+        CreateWith(path, options, vault => vault.AddYubiKeySlot(yubiKey, password));
 
-    static (Vault Vault, string RecoveryCode) CreateWith(string folder, VaultOptions? options, Action<Vault> addFirstKey)
+    /// <summary>Creates an empty vault file opened by a FIDO2 security key (PIN and touch).</summary>
+    /// <returns>The open vault and the recovery code to show the user once.</returns>
+    public static (Vault Vault, string RecoveryCode) Create(string path, IFido2Authenticator securityKey, VaultOptions? options = null) =>
+        CreateWith(path, options, vault => vault.AddFido2Slot(securityKey));
+
+    static (Vault Vault, string RecoveryCode) CreateWith(string path, VaultOptions? options, Action<Vault> addFirstKey)
     {
         options ??= VaultOptions.Default;
-        folder = Path.GetFullPath(folder);
-        if (Exists(folder))
-            throw new VaultException($"There is already a vault in {folder}.");
-        if (Directory.Exists(folder) && Directory.EnumerateFileSystemEntries(folder).Any())
-            throw new VaultException($"The folder {folder} is not empty.");
+        path = Path.GetFullPath(path);
+        if (File.Exists(path) || Directory.Exists(path))
+            throw new VaultException($"{path} already exists.");
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
 
         var header = new VaultHeader { VaultId = RandomNumberGenerator.GetBytes(16) };
         var masterKey = RandomNumberGenerator.GetBytes(KeyWrap.MasterKeySize);
-        var vault = new Vault(folder, header, masterKey, [], options);
+        var vault = new Vault(path, VaultFile.Create(path), header, masterKey, [], options);
         try
         {
             addFirstKey(vault);
             string recovery = vault.AddRecoverySlot();
-            Directory.CreateDirectory(Path.Combine(folder, DataFolderName));
-            vault.SaveIndex();
-            vault.SaveHeader();
+            vault.Save(header: true);
             return (vault, recovery);
         }
         catch
         {
             vault.Dispose();
+            File.Delete(path);
             throw;
         }
     }
 
-    /// <summary>Creates an empty vault opened by a FIDO2 security key (PIN and touch).</summary>
-    /// <returns>The open vault and the recovery code to show the user once.</returns>
-    public static (Vault Vault, string RecoveryCode) Create(string folder, IFido2Authenticator securityKey, VaultOptions? options = null) =>
-        CreateWith(folder, options, vault => vault.AddFido2Slot(securityKey));
-
     /// <summary>Opens the vault with a FIDO2 security key registered in it (one PIN entry and touch).</summary>
     /// <exception cref="WrongKeyException">The key is not registered in this vault.</exception>
-    public static Vault OpenWithFido2(string folder, IFido2Authenticator securityKey, VaultOptions? options = null)
-    {
-        var header = ReadHeader(folder);
-        var slots = header.Slots
-            .Where(s => s.Type == KeySlotType.Fido2 && s.CredentialId is not null && s.Challenge is not null)
-            .ToList();
-        if (slots.Count == 0)
-            throw new WrongKeyException("This vault has no security key registered.");
-
-        foreach (var group in slots.GroupBy(s => s.RelyingPartyId ?? Fido2RelyingPartyId))
+    public static Vault OpenWithFido2(string path, IFido2Authenticator securityKey, VaultOptions? options = null) =>
+        Open(path, options, header =>
         {
-            var (credentialId, secret) = securityKey.GetSecret(group.Key,
-                group.Select(s => (s.CredentialId!, s.Challenge!)).ToList());
-            var slot = group.FirstOrDefault(s => s.CredentialId!.AsSpan().SequenceEqual(credentialId));
-            if (slot is null)
-                continue;
-            byte[] kek = KeyWrap.Fido2Kek(secret, slot.Challenge);
-            CryptographicOperations.ZeroMemory(secret);
-            byte[]? masterKey = KeyWrap.Unwrap(slot, kek, header.VaultId);
-            CryptographicOperations.ZeroMemory(kek);
-            if (masterKey is not null)
-                return Load(folder, header, masterKey, options);
-        }
-        throw new WrongKeyException("This security key is not registered in this vault.");
-    }
+            var slots = header.Slots
+                .Where(s => s.Type == KeySlotType.Fido2 && s.CredentialId is not null && s.Challenge is not null)
+                .ToList();
+            if (slots.Count == 0)
+                throw new WrongKeyException("This vault has no security key registered.");
 
-    /// <summary>Opens the vault with a YubiKey. <paramref name="askPassword"/> is called only if the key's slot needs one.</summary>
-    /// <exception cref="WrongKeyException">The YubiKey (or password) does not open this vault.</exception>
-    public static Vault OpenWithYubiKey(string folder, IChallengeResponder yubiKey, Func<string> askPassword,
-        VaultOptions? options = null)
-    {
-        var header = ReadHeader(folder);
-        var candidates = header.Slots.Where(s => s.Type == KeySlotType.YubiKey && s.Challenge is not null).ToList();
-        if (yubiKey.SerialNumber is int serial && candidates.Any(s => s.Serial == serial))
-            candidates = candidates.Where(s => s.Serial == serial).ToList();
-        if (candidates.Count == 0)
-            throw new WrongKeyException("This vault has no YubiKey registered.");
-
-        string? password = null;
-        foreach (var slot in candidates)
-        {
-            if (slot.RequiresPassword)
-                password ??= askPassword();
-            byte[] response = yubiKey.Respond(slot.Challenge!);
-            byte[] kek = KeyWrap.YubiKeyKek(response, slot.Challenge, slot.RequiresPassword ? password : null, slot.Argon2id);
-            CryptographicOperations.ZeroMemory(response);
-            byte[]? masterKey = KeyWrap.Unwrap(slot, kek, header.VaultId);
-            CryptographicOperations.ZeroMemory(kek);
-            if (masterKey is not null)
-                return Load(folder, header, masterKey, options);
-        }
-        throw new WrongKeyException(candidates.Any(s => s.RequiresPassword)
-            ? "Wrong YubiKey or wrong password."
-            : "This YubiKey is not registered in this vault.");
-    }
-
-    /// <exception cref="FormatException">The code is not a valid recovery code.</exception>
-    /// <exception cref="WrongKeyException">The code does not open this vault.</exception>
-    public static Vault OpenWithRecoveryCode(string folder, string recoveryCode, VaultOptions? options = null)
-    {
-        var header = ReadHeader(folder);
-        byte[] code = RecoveryCode.Parse(recoveryCode);
-        try
-        {
-            foreach (var slot in header.Slots.Where(s => s.Type == KeySlotType.Recovery && s.Argon2id is not null))
+            foreach (var group in slots.GroupBy(s => s.RelyingPartyId ?? Fido2RelyingPartyId))
             {
-                byte[] kek = KeyWrap.RecoveryKek(code, slot.Argon2id!);
+                var (credentialId, secret) = securityKey.GetSecret(group.Key,
+                    group.Select(s => (s.CredentialId!, s.Challenge!)).ToList());
+                var slot = group.FirstOrDefault(s => s.CredentialId!.AsSpan().SequenceEqual(credentialId));
+                if (slot is null)
+                    continue;
+                byte[] kek = KeyWrap.Fido2Kek(secret, slot.Challenge);
+                CryptographicOperations.ZeroMemory(secret);
                 byte[]? masterKey = KeyWrap.Unwrap(slot, kek, header.VaultId);
                 CryptographicOperations.ZeroMemory(kek);
                 if (masterKey is not null)
-                    return Load(folder, header, masterKey, options);
+                    return masterKey;
             }
+            throw new WrongKeyException("This security key is not registered in this vault.");
+        });
+
+    /// <summary>Opens the vault with a YubiKey. <paramref name="askPassword"/> is called only if the key's slot needs one.</summary>
+    /// <exception cref="WrongKeyException">The YubiKey (or password) does not open this vault.</exception>
+    public static Vault OpenWithYubiKey(string path, IChallengeResponder yubiKey, Func<string> askPassword,
+        VaultOptions? options = null) =>
+        Open(path, options, header =>
+        {
+            var candidates = header.Slots.Where(s => s.Type == KeySlotType.YubiKey && s.Challenge is not null).ToList();
+            if (yubiKey.SerialNumber is int serial && candidates.Any(s => s.Serial == serial))
+                candidates = candidates.Where(s => s.Serial == serial).ToList();
+            if (candidates.Count == 0)
+                throw new WrongKeyException("This vault has no YubiKey registered.");
+
+            string? password = null;
+            foreach (var slot in candidates)
+            {
+                if (slot.RequiresPassword)
+                    password ??= askPassword();
+                byte[] response = yubiKey.Respond(slot.Challenge!);
+                byte[] kek = KeyWrap.YubiKeyKek(response, slot.Challenge, slot.RequiresPassword ? password : null, slot.Argon2id);
+                CryptographicOperations.ZeroMemory(response);
+                byte[]? masterKey = KeyWrap.Unwrap(slot, kek, header.VaultId);
+                CryptographicOperations.ZeroMemory(kek);
+                if (masterKey is not null)
+                    return masterKey;
+            }
+            throw new WrongKeyException(candidates.Any(s => s.RequiresPassword)
+                ? "Wrong YubiKey or wrong password."
+                : "This YubiKey is not registered in this vault.");
+        });
+
+    /// <exception cref="FormatException">The code is not a valid recovery code.</exception>
+    /// <exception cref="WrongKeyException">The code does not open this vault.</exception>
+    public static Vault OpenWithRecoveryCode(string path, string recoveryCode, VaultOptions? options = null)
+    {
+        byte[] code = RecoveryCode.Parse(recoveryCode);
+        try
+        {
+            return Open(path, options, header =>
+            {
+                foreach (var slot in header.Slots.Where(s => s.Type == KeySlotType.Recovery && s.Argon2id is not null))
+                {
+                    byte[] kek = KeyWrap.RecoveryKek(code, slot.Argon2id!);
+                    byte[]? masterKey = KeyWrap.Unwrap(slot, kek, header.VaultId);
+                    CryptographicOperations.ZeroMemory(kek);
+                    if (masterKey is not null)
+                        return masterKey;
+                }
+                throw new WrongKeyException("The recovery code does not open this vault.");
+            });
         }
         finally
         {
             CryptographicOperations.ZeroMemory(code);
         }
-        throw new WrongKeyException("The recovery code does not open this vault.");
+    }
+
+    static Vault Open(string path, VaultOptions? options, Func<VaultHeader, byte[]> unwrapMasterKey)
+    {
+        path = Path.GetFullPath(path);
+        var file = VaultFile.Open(path, writable: true);
+        Vault? vault = null;
+        try
+        {
+            var header = ParseHeader(file.ReadHeader());
+            vault = new Vault(path, file, header, unwrapMasterKey(header), [], options ?? VaultOptions.Default);
+            vault._entries = vault.ReadIndex();
+            return vault;
+        }
+        catch
+        {
+            if (vault is not null)
+                vault.Dispose();
+            else
+                file.Dispose();
+            throw;
+        }
     }
 
     // ---- Key slots ----
@@ -303,7 +339,7 @@ public sealed class Vault : IDisposable
         if (File.Exists(sourcePath))
         {
             AddFile(sourcePath, target, progress);
-            SaveIndex();
+            Save();
             return 1;
         }
         if (!Directory.Exists(sourcePath))
@@ -321,50 +357,34 @@ public sealed class Vault : IDisposable
         }
         finally
         {
-            SaveIndex();
+            Save();
         }
         return count;
     }
 
     void AddFile(string sourceFile, string vaultPath, IProgress<string>? progress)
     {
+        int existing = _entries.FindIndex(e => e.Path == vaultPath);
+        if (existing < 0 && _entries.Any(e => VaultPath.IsWithin(e.Path, vaultPath) || VaultPath.IsWithin(vaultPath, e.Path)))
+            throw new VaultException($"{vaultPath} conflicts with an existing file or folder in the vault.");
+
         progress?.Report(vaultPath);
         string blobId = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(16));
-        string blobPath = BlobPath(blobId);
-        Directory.CreateDirectory(Path.GetDirectoryName(blobPath)!);
-        string temp = blobPath + ".tmp";
         var info = new FileInfo(sourceFile);
-        try
-        {
-            using (var input = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16))
-            using (var output = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1 << 16))
-                CascadeCipher.Encrypt(input, output, _masterKey, BlobContext(blobId), _options.ChunkSizeLog2);
-            File.Move(temp, blobPath);
-        }
-        catch
-        {
-            File.Delete(temp);
-            throw;
-        }
+        long offset, length;
+        using (var input = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16))
+            (offset, length) = _file.Append(output =>
+                CascadeCipher.Encrypt(input, output, _masterKey, BlobContext(blobId), _options.ChunkSizeLog2));
 
-        var existing = _entries.FindIndex(e => e.Path == vaultPath);
-        var entry = new VaultEntry { Path = vaultPath, BlobId = blobId, Size = info.Length, ModifiedUtc = info.LastWriteTimeUtc };
+        var entry = new VaultEntry
+        {
+            Path = vaultPath, BlobId = blobId, Offset = offset, Length = length,
+            Size = info.Length, ModifiedUtc = info.LastWriteTimeUtc,
+        };
         if (existing >= 0)
-        {
-            string oldBlob = _entries[existing].BlobId;
             _entries[existing] = entry;
-            SaveIndex();
-            File.Delete(BlobPath(oldBlob));
-        }
         else
-        {
-            if (_entries.Any(e => VaultPath.IsWithin(e.Path, vaultPath) || VaultPath.IsWithin(vaultPath, e.Path)))
-            {
-                File.Delete(blobPath);
-                throw new VaultException($"{vaultPath} conflicts with an existing file or folder in the vault.");
-            }
             _entries.Add(entry);
-        }
     }
 
     /// <summary>Decrypts a file, or every file under a folder, into <paramref name="destinationFolder"/>.</summary>
@@ -393,7 +413,7 @@ public sealed class Vault : IDisposable
             string temp = target + ".yvpart";
             try
             {
-                using (var input = File.OpenRead(BlobPath(entry.BlobId)))
+                using (var input = _file.OpenRecord(entry.Offset, entry.Length))
                 using (var output = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None, 1 << 16))
                     CascadeCipher.Decrypt(input, output, _masterKey, BlobContext(entry.BlobId));
                 File.Move(temp, target, overwrite);
@@ -429,7 +449,7 @@ public sealed class Vault : IDisposable
             throw new VaultException($"{newVaultPath} already exists in the vault.");
         foreach (var entry in moved)
             entry.Path = newVaultPath + entry.Path[vaultPath.Length..];
-        SaveIndex();
+        Save();
         return moved.Count;
     }
 
@@ -445,23 +465,68 @@ public sealed class Vault : IDisposable
         if (removed.Count == 0)
             throw new VaultException($"Nothing in the vault at {vaultPath}.");
         _entries = _entries.Except(removed).ToList();
-        SaveIndex();
-        foreach (var entry in removed)
-            File.Delete(BlobPath(entry.BlobId));
+        Save();
         return removed.Count;
+    }
+
+    /// <summary>
+    /// Rewrites the vault file without the space left by deleted or replaced files. The new file
+    /// is written next to the old one and replaces it only once complete.
+    /// </summary>
+    public void Compact()
+    {
+        ThrowIfDisposed();
+        string temp = _path + ".compacting";
+        File.Delete(temp);
+        var compacted = new List<VaultEntry>(_entries.Count);
+        try
+        {
+            using (var target = VaultFile.Create(temp))
+            {
+                foreach (var entry in _entries)
+                {
+                    using var source = _file.OpenRecord(entry.Offset, entry.Length);
+                    var (offset, length) = target.Append(output => source.CopyTo(output, 1 << 20));
+                    compacted.Add(new VaultEntry
+                    {
+                        Path = entry.Path, BlobId = entry.BlobId, Offset = offset, Length = length,
+                        Size = entry.Size, ModifiedUtc = entry.ModifiedUtc,
+                    });
+                }
+                target.Commit(SerializeHeader(), output => WriteIndex(compacted, output));
+            }
+        }
+        catch
+        {
+            File.Delete(temp);
+            throw;
+        }
+
+        _file.Dispose();
+        try
+        {
+            File.Move(temp, _path, overwrite: true);
+            _entries = compacted;
+        }
+        catch
+        {
+            File.Delete(temp);
+            throw;
+        }
+        finally
+        {
+            _file = VaultFile.Open(_path, writable: true);
+        }
     }
 
     // ---- Storage ----
 
-    static VaultHeader ReadHeader(string folder)
+    static VaultHeader ParseHeader(byte[] json)
     {
-        string path = Path.Combine(folder, HeaderFileName);
-        if (!File.Exists(path))
-            throw new VaultException($"No vault found in {Path.GetFullPath(folder)}.");
         VaultHeader? header;
         try
         {
-            header = JsonSerializer.Deserialize<VaultHeader>(File.ReadAllBytes(path), JsonOptions);
+            header = JsonSerializer.Deserialize<VaultHeader>(json, JsonOptions);
         }
         catch (JsonException e)
         {
@@ -474,39 +539,32 @@ public sealed class Vault : IDisposable
         return header;
     }
 
-    static Vault Load(string folder, VaultHeader header, byte[] masterKey, VaultOptions? options)
+    byte[] SerializeHeader() => JsonSerializer.SerializeToUtf8Bytes(_header, JsonOptions);
+
+    List<VaultEntry> ReadIndex()
     {
-        folder = Path.GetFullPath(folder);
-        var vault = new Vault(folder, header, masterKey, [], options ?? VaultOptions.Default);
         try
         {
-            using var input = File.OpenRead(Path.Combine(folder, IndexFileName));
+            using var input = _file.OpenIndex();
             using var plain = new MemoryStream();
-            CascadeCipher.Decrypt(input, plain, masterKey, IndexContext);
-            vault._entries = JsonSerializer.Deserialize<List<VaultEntry>>(plain.GetBuffer().AsSpan(0, (int)plain.Length)) ?? [];
+            CascadeCipher.Decrypt(input, plain, _masterKey, IndexContext);
+            var entries = JsonSerializer.Deserialize<List<VaultEntry>>(plain.GetBuffer().AsSpan(0, (int)plain.Length)) ?? [];
             CryptographicOperations.ZeroMemory(plain.GetBuffer());
-            return vault;
+            return entries;
         }
         catch (Exception e)
         {
-            vault.Dispose();
-            throw new VaultException("The vault index is missing, damaged or was tampered with.", e);
+            throw new VaultException("The vault index is damaged or was tampered with.", e);
         }
     }
 
-    void SaveHeader() => WriteAtomically(Path.Combine(_folder, HeaderFileName),
-        output => JsonSerializer.Serialize(output, _header, JsonOptions));
-
-    void SaveIndex()
+    void WriteIndex(List<VaultEntry> entries, Stream output)
     {
-        byte[] json = JsonSerializer.SerializeToUtf8Bytes(_entries);
+        byte[] json = JsonSerializer.SerializeToUtf8Bytes(entries);
         try
         {
-            WriteAtomically(Path.Combine(_folder, IndexFileName), output =>
-            {
-                using var input = new MemoryStream(json, writable: false);
-                CascadeCipher.Encrypt(input, output, _masterKey, IndexContext, _options.ChunkSizeLog2);
-            });
+            using var input = new MemoryStream(json, writable: false);
+            CascadeCipher.Encrypt(input, output, _masterKey, IndexContext, _options.ChunkSizeLog2);
         }
         finally
         {
@@ -514,30 +572,37 @@ public sealed class Vault : IDisposable
         }
     }
 
-    static void WriteAtomically(string path, Action<Stream> write)
+    /// <summary>Commits the index (and the header, if it changed), then compacts if a quarter of the file is unused.</summary>
+    void Save(bool header = false)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        string temp = path + ".tmp";
-        using (var output = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None))
+        _file.Commit(header ? SerializeHeader() : null, output => WriteIndex(_entries, output));
+        long wasted = WastedBytes;
+        if (wasted >= MinWasteToCompact && wasted * 4 >= _file.End)
         {
-            write(output);
-            output.Flush(flushToDisk: true);
+            try
+            {
+                Compact();
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                // The save is committed and the vault intact; the space is reclaimed on a later save.
+            }
         }
-        File.Move(temp, path, overwrite: true);
     }
 
-    string BlobPath(string blobId) => Path.Combine(_folder, DataFolderName, blobId[..2], blobId + ".yvb");
+    void SaveHeader() => Save(header: true);
 
     static byte[] BlobContext(string blobId) => Encoding.ASCII.GetBytes("blob:" + blobId);
 
     void ThrowIfDisposed() => ObjectDisposedException.ThrowIf(_disposed, this);
 
-    /// <summary>Locks the vault: the master key is wiped from memory.</summary>
+    /// <summary>Locks the vault: the master key is wiped from memory and the file is closed.</summary>
     public void Dispose()
     {
         if (_disposed)
             return;
         CryptographicOperations.ZeroMemory(_masterKey);
+        _file.Dispose();
         _disposed = true;
     }
 }
