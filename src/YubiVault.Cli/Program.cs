@@ -155,12 +155,19 @@ static class Program
 #endif
         var keys = YubiKeyResponder.FindAll();
         if (keys.Count == 0)
-            throw new VaultException("No YubiKey found. Plug in your YubiKey, or use --recovery.");
+            throw new VaultException(NoYubiKeyMessage);
         if (keys.Count > 1)
             throw new VaultException("More than one YubiKey is connected. Leave only one plugged in.");
         keys[0].TouchNotifier = () => Console.WriteLine("Touch your YubiKey...");
         return keys[0];
     }
+
+    const string NoYubiKeyMessage = """
+        No YubiKey found. Plug in your YubiKey, or use --recovery.
+        If it is plugged in, its OTP interface may be turned off (FIDO-only keys are not visible to YubiVault).
+        Turn it on from an administrator PowerShell, then replug the key:
+            ykman config usb --enable OTP
+        """;
 
     static IChallengeResponder PrepareYubiKey(Arguments cli)
     {
