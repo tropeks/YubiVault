@@ -21,14 +21,18 @@ The zip also has `yubivault-cli.exe`, a command-line version (`yubivault-cli hel
 
 ### Linux
 
-1. Download `YubiVault-<version>-linux-x64.tar.gz` (or `linux-arm64`) and unpack it: `tar xzf YubiVault-*.tar.gz`.
-2. Run `./YubiVault` from that folder, or `./install.sh` to add it to your applications menu and open `.yvault` files with it. It installs for your user only, in `~/.local`, without root (`./install.sh --uninstall` removes it).
-3. **Security key access.** YubiVault reads the key through `/dev/hidraw*`. On systemd 244 or later (Ubuntu 20.04+, Debian 11+, Fedora 32+ and most current distributions) the `uaccess` tag in systemd's `60-fido-id.rules` already gives the logged-in user access, so there is nothing to do. On older or non-systemd systems, install the bundled rule and replug the key:
+- **Debian, Ubuntu, Mint:** download `yubivault_<version>_amd64.deb` (or `arm64`) and run `sudo apt install ./yubivault_*.deb`.
+- **Fedora, RHEL and derivatives:** download `yubivault-<version>-1.x86_64.rpm` (or `aarch64`) and run `sudo dnf install ./yubivault-*.rpm`.
+- **Any distribution, portable:** download `YubiVault-<version>-linux-x64.tar.gz` (or `linux-arm64`), unpack it with `tar xzf YubiVault-*.tar.gz` and run `./YubiVault` from that folder. `./install.sh` adds it to your applications menu for your user only, in `~/.local`, without root (`./install.sh --uninstall` removes it).
 
-   ```sh
-   sudo cp share/70-yubivault-fido.rules /etc/udev/rules.d/
-   sudo udevadm control --reload && sudo udevadm trigger
-   ```
+The packages and `install.sh` put YubiVault in your applications menu and open `.yvault` files with it.
+
+**Security key access.** YubiVault reads the key through `/dev/hidraw*`. On systemd 244 or later (Ubuntu 20.04+, Debian 11+, Fedora 32+ and most current distributions) the `uaccess` tag in systemd's `60-fido-id.rules` already gives the logged-in user access, so there is nothing to do. On older or non-systemd systems, install the rule from the tarball's `share/` folder and replug the key:
+
+```sh
+sudo cp share/70-yubivault-fido.rules /etc/udev/rules.d/
+sudo udevadm control --reload && sudo udevadm trigger
+```
 
 ### macOS
 

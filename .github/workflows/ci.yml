@@ -18,3 +18,37 @@ jobs:
           dotnet-version: 10.0.x
       - run: dotnet build --configuration Release
       - run: dotnet test --configuration Release --no-build
+
+  # Builds the Linux packages from stand-in binaries, so packaging mistakes
+  # show up on pull requests rather than on release day.
+  linux-packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+      - run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.46.3
+      - name: Package stand-in binaries
+        run: |
+          mkdir -p stub/app stub/cli upload
+          printf '#!/bin/sh\necho app\n' > stub/app/YubiVault
+          printf '#!/bin/sh\necho cli\n' > stub/cli/yubivault-cli
+          cd upload
+          for rid in linux-x64 linux-arm64; do
+            ../packaging/linux/package.sh 0.0.0 $rid ../stub/app ../stub/cli
+          done
+          ls -l
+      - name: Check the packages
+        run: |
+          cd upload
+          tar tzf YubiVault-0.0.0-linux-x64.tar.gz
+          dpkg-deb --info yubivault_0.0.0_amd64.deb
+          dpkg-deb --contents yubivault_0.0.0_amd64.deb
+          sudo apt-get install -y ./yubivault_0.0.0_amd64.deb
+          yubivault-cli
+          test -f /usr/share/mime/packages/yubivault.xml
+          sudo apt-get remove -y yubivault
+          ls yubivault-0.0.0-1.x86_64.rpm yubivault-0.0.0-1.aarch64.rpm yubivault_0.0.0_arm64.deb
+          docker run --rm -v "$PWD:/p" fedora:latest sh -c 'dnf install -y /p/yubivault-0.0.0-1.x86_64.rpm && yubivault-cli && rpm -ql yubivault'
