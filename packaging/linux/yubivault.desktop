@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=YubiVault
+GenericName=Encrypted Vault
+Comment=Encrypt files and folders with your YubiKey or FIDO2 security key
+Exec=yubivault %f
+Icon=yubivault
+Terminal=false
+Categories=Utility;Security;
+MimeType=application/x-yubivault;
+Keywords=vault;encryption;yubikey;fido2;security key;
+StartupWMClass=YubiVault

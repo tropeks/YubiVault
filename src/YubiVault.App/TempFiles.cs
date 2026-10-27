@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO;
 
 namespace YubiVault.App;
@@ -9,18 +8,35 @@ namespace YubiVault.App;
 /// </summary>
 public sealed class TempFiles
 {
-    readonly string _root = Path.Combine(Path.GetTempPath(), "YubiVault", Environment.ProcessId.ToString());
+    readonly string _root = Path.Combine(TempRoot(), "YubiVault", Environment.ProcessId.ToString());
+
+    /// <summary>
+    /// On Linux, $XDG_RUNTIME_DIR is a per-user tmpfs (memory, not disk) when it exists. Elsewhere the
+    /// user's temp folder; on Linux and macOS the folders are made readable by the user only.
+    /// </summary>
+    static string TempRoot() =>
+        OperatingSystem.IsLinux() && Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR") is { Length: > 0 } runtime
+            && Directory.Exists(runtime)
+            ? runtime
+            : Path.GetTempPath();
 
     /// <summary>A new, empty private folder to decrypt a file into.</summary>
     public string NewFolder()
     {
         string folder = Path.Combine(_root, Guid.NewGuid().ToString("n")[..8]);
-        Directory.CreateDirectory(folder);
+        if (OperatingSystem.IsWindows())
+        {
+            Directory.CreateDirectory(folder);
+        }
+        else
+        {
+            const UnixFileMode OwnerOnly = UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute;
+            Directory.CreateDirectory(Path.GetDirectoryName(_root)!, OwnerOnly);
+            Directory.CreateDirectory(_root, OwnerOnly);
+            Directory.CreateDirectory(folder, OwnerOnly);
+        }
         return folder;
     }
-
-    public static void Open(string path) =>
-        Process.Start(new ProcessStartInfo(path) { UseShellExecute = true });
 
     public void WipeAll()
     {

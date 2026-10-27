@@ -1,17 +1,18 @@
-using System.ComponentModel;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Threading;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Threading;
 using Microsoft.Win32;
 using Yubico.YubiKey;
 using YubiVault.App.Pages;
+using YubiVault.App.Resources;
 using YubiVault.Core;
-using Wpf.Ui.Appearance;
-using Wpf.Ui.Controls;
 
 namespace YubiVault.App;
 
-public partial class MainWindow : FluentWindow
+public partial class MainWindow : Window
 {
     readonly DispatcherTimer _idleTimer = new() { Interval = TimeSpan.FromSeconds(15) };
     DateTime _lastActivityUtc = DateTime.UtcNow;
@@ -19,28 +20,28 @@ public partial class MainWindow : FluentWindow
     bool _openedWithOtpKey;
     int _busyDepth;
 
-    public MainWindow()
-    {
-        InitializeComponent();
-        // Light or dark and the accent color follow Windows, also when they change while running.
-        ApplicationThemeManager.ApplySystemTheme(updateAccent: true);
-        SystemThemeWatcher.Watch(this, WindowBackdropType.Mica, updateAccents: true);
-        Settings = AppSettings.Load();
-        // A vault passed on the command line (e.g. a double-clicked .yvault file) is selected right away.
-        string? argument = Environment.GetCommandLineArgs().Skip(1).FirstOrDefault();
-        ShowStart(argument is not null && Vault.Exists(argument) ? argument : null);
+    public MainWindow() : this(AppSettings.Load(), null) { }
 
-        InputManager.Current.PreProcessInput += (_, _) => _lastActivityUtc = DateTime.UtcNow;
+    public MainWindow(AppSettings settings, string? vaultFile)
+    {
+        Settings = settings;
+        InitializeComponent();
+        ApplyFlowDirection();
+        ShowStart(vaultFile);
+
+        AddHandler(KeyDownEvent, (_, _) => _lastActivityUtc = DateTime.UtcNow, RoutingStrategies.Tunnel, handledEventsToo: true);
+        AddHandler(PointerMovedEvent, (_, _) => _lastActivityUtc = DateTime.UtcNow, RoutingStrategies.Tunnel, handledEventsToo: true);
         _idleTimer.Tick += (_, _) => LockIfIdle();
         _idleTimer.Start();
-        SystemEvents.SessionSwitch += OnSessionSwitch;
+        if (OperatingSystem.IsWindows())
+            SystemEvents.SessionSwitch += OnSessionSwitch;
         try
         {
             YubiKeyDeviceListener.Instance.Removed += OnYubiKeyRemoved;
         }
         catch (Exception)
         {
-            // Device notifications are a convenience; locking still happens on idle and on Windows lock.
+            // Device notifications are a convenience; locking still happens on idle and on session lock.
         }
     }
 
@@ -62,6 +63,27 @@ public partial class MainWindow : FluentWindow
         Host.Content = new VaultPage(this, vault);
     }
 
+    /// <summary>A vault file opened from the system (e.g. Finder) while the app runs.</summary>
+    public void OpenFromSystem(string path)
+    {
+        if (_vault is null)
+            ShowStart(path);
+        Activate();
+    }
+
+    /// <summary>Re-reads every text after the language changed.</summary>
+    public void ChangeLanguage(string code)
+    {
+        Settings.Language = code;
+        Settings.Save();
+        Localization.Apply(code);
+        ApplyFlowDirection();
+        ShowStart();
+    }
+
+    void ApplyFlowDirection() =>
+        FlowDirection = Localization.IsRightToLeft ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+
     /// <summary>Wipes the master key and temporary files and returns to the unlock screen.</summary>
     public void Lock()
     {
@@ -71,7 +93,8 @@ public partial class MainWindow : FluentWindow
         _vault.Dispose();
         _vault = null;
         TempFiles.WipeAll();
-        foreach (var window in OwnedWindows.Cast<Window>().ToList())
+        Dialogs.CloseAll();
+        foreach (var window in OwnedWindows.ToList())
             window.Close();
         ShowStart(path);
     }
@@ -84,28 +107,30 @@ public partial class MainWindow : FluentWindow
             Lock();
     }
 
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     void OnSessionSwitch(object? sender, SessionSwitchEventArgs e)
     {
         if (e.Reason is SessionSwitchReason.SessionLock or SessionSwitchReason.ConsoleDisconnect or SessionSwitchReason.RemoteDisconnect)
-            Dispatcher.BeginInvoke(Lock);
+            Dispatcher.UIThread.Post(Lock);
     }
 
     void OnYubiKeyRemoved(object? sender, YubiKeyDeviceEventArgs e)
     {
         // Lock when the OTP YubiKey that opened the vault is pulled out. FIDO2 keys are only needed to unlock,
-        // so for them locking relies on the idle timer and on Windows being locked.
-        Dispatcher.BeginInvoke(() =>
+        // so for them locking relies on the idle timer and on the session being locked.
+        Dispatcher.UIThread.Post(() =>
         {
             if (_vault is not null && _openedWithOtpKey && _busyDepth == 0 && !Keys.OtpYubiKeyConnected())
                 Lock();
         });
     }
 
-    protected override void OnClosing(CancelEventArgs e)
+    protected override void OnClosing(WindowClosingEventArgs e)
     {
         _vault?.Dispose();
         TempFiles.WipeAll();
-        SystemEvents.SessionSwitch -= OnSessionSwitch;
+        if (OperatingSystem.IsWindows())
+            SystemEvents.SessionSwitch -= OnSessionSwitch;
         base.OnClosing(e);
     }
 
@@ -127,31 +152,34 @@ public partial class MainWindow : FluentWindow
 
     public Task RunAsync(string title, Action work) => RunAsync(title, () => { work(); return true; });
 
-    /// <summary>Called from a background thread when the YubiKey waits for a touch.</summary>
-    public void ShowTouchPrompt() => Dispatcher.Invoke(() =>
+    /// <summary>Called from a background thread when the key waits for a touch (true) or stops waiting (false).</summary>
+    public void ShowTouchPrompt(bool waiting = true) => Dispatcher.UIThread.Post(() =>
     {
-        TouchIcon.Visibility = Visibility.Visible;
-        BusyRing.Visibility = Visibility.Collapsed;
-        BusyTitle.Text = "Touch your YubiKey";
-        BusyDetail.Text = "The key is blinking and waiting for your touch.";
+        TouchIcon.IsVisible = waiting;
+        BusyRing.IsVisible = !waiting;
+        if (waiting)
+        {
+            BusyTitle.Text = Strings.TouchKeyTitle;
+            BusyDetail.Text = Strings.TouchKeyDetail;
+        }
     });
 
     /// <summary>Reports progress (e.g. the file being encrypted) from any thread.</summary>
     public IProgress<string> BusyProgress => new Progress<string>(text =>
     {
-        TouchIcon.Visibility = Visibility.Collapsed;
-        BusyRing.Visibility = Visibility.Visible;
+        TouchIcon.IsVisible = false;
+        BusyRing.IsVisible = true;
         BusyDetail.Text = text;
     });
 
     void BeginBusy(string title)
     {
         _busyDepth++;
-        TouchIcon.Visibility = Visibility.Collapsed;
-        BusyRing.Visibility = Visibility.Visible;
+        TouchIcon.IsVisible = false;
+        BusyRing.IsVisible = true;
         BusyTitle.Text = title;
         BusyDetail.Text = "";
-        BusyOverlay.Visibility = Visibility.Visible;
+        BusyOverlay.IsVisible = true;
     }
 
     void EndBusy()
@@ -159,6 +187,6 @@ public partial class MainWindow : FluentWindow
         _busyDepth--;
         _lastActivityUtc = DateTime.UtcNow;
         if (_busyDepth == 0)
-            BusyOverlay.Visibility = Visibility.Collapsed;
+            BusyOverlay.IsVisible = false;
     }
 }

@@ -114,7 +114,7 @@ static class Program
                 }
                 else
                 {
-                    Console.WriteLine("Windows will ask for the key's PIN and a touch, twice.");
+                    Console.WriteLine("You will be asked for the key's PIN and a touch, twice.");
                     added2 = vault.AddSecurityKey(SecurityKey());
                 }
                 Console.WriteLine($"Registered {added2.Label} as {added2.Id}.");
@@ -158,7 +158,7 @@ static class Program
         else
         {
             var securityKey = SecurityKey();
-            Console.WriteLine("Creating the vault. Windows will ask for your security key's PIN and a touch, twice.");
+            Console.WriteLine("Creating the vault. You will be asked for your security key's PIN and a touch, twice.");
             (vault, recoveryCode) = Vault.Create(path, securityKey);
         }
         using (vault)
@@ -183,7 +183,7 @@ static class Program
         bool hasOtp = slots.Any(s => s.Type == KeySlotType.YubiKey);
         if (hasFido2 && !(hasOtp && OtpKeyConnected()))
         {
-            Console.WriteLine("Windows will ask for your security key's PIN and a touch.");
+            Console.WriteLine(OperatingSystem.IsWindows() ? "Windows will ask for your security key's PIN and a touch." : "Unlocking with your security key.");
             return Vault.OpenWithFido2(path, SecurityKey());
         }
         var key = FindYubiKey();
@@ -208,6 +208,14 @@ static class Program
         if (Environment.GetEnvironmentVariable("YUBIVAULT_FAKE_YUBIKEY") is { Length: > 0 } fake)
             return new FakeSecurityKey(fake);
 #endif
+        if (!OperatingSystem.IsWindows())
+        {
+            return new YubicoSecurityKey
+            {
+                AskPin = retries => ReadSecret(retries is int left ? $"Wrong PIN, {left} tries left. PIN: " : "Security key PIN: "),
+                TouchNotifier = waiting => { if (waiting) Console.WriteLine("Touch your security key..."); },
+            };
+        }
         if (!WindowsSecurityKey.IsSupported(out string reason))
             throw new VaultException(reason);
         IntPtr window = GetConsoleWindow();

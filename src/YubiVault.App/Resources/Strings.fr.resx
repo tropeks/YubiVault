@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  
+  <data name="AppTagline" xml:space="preserve">
+    <value>Fichiers et dossiers chiffrés avec AES-256 et XChaCha20, ouverts uniquement avec votre clé de sécurité.</value>
+  </data>
+  <data name="OpenVault" xml:space="preserve">
+    <value>Ouvrir un coffre...</value>
+  </data>
+  <data name="CreateVault" xml:space="preserve">
+    <value>Créer un nouveau coffre...</value>
+  </data>
+  <data name="RecentVaults" xml:space="preserve">
+    <value>Coffres récents</value>
+  </data>
+  <data name="AssociateFiles" xml:space="preserve">
+    <value>Ouvrir les fichiers .yvault avec YubiVault</value>
+  </data>
+  <data name="AssociateDone" xml:space="preserve">
+    <value>Un double-clic sur un fichier .yvault l'ouvre désormais dans YubiVault.
+
+Si vous déplacez YubiVault, cliquez de nouveau sur cette option depuis le nouvel emplacement.</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Langue</value>
+  </data>
+  <data name="LanguageSystem" xml:space="preserve">
+    <value>Langue du système</value>
+  </data>
+  <data name="ChooseVaultTitle" xml:space="preserve">
+    <value>Choisir le coffre</value>
+  </data>
+  <data name="VaultFileType" xml:space="preserve">
+    <value>Coffres YubiVault</value>
+  </data>
+  <data name="NotAVault" xml:space="preserve">
+    <value>{0} n'est pas un coffre YubiVault.</value>
+  </data>
+  <data name="CouldNotOpen" xml:space="preserve">
+    <value>Impossible d'ouvrir le coffre</value>
+  </data>
+  <data name="UnlockHintFido2Windows" xml:space="preserve">
+    <value>Branchez votre clé de sécurité et cliquez sur Déverrouiller. Windows vous demandera le PIN de la clé et de la toucher.</value>
+  </data>
+  <data name="UnlockHintFido2" xml:space="preserve">
+    <value>Branchez votre clé de sécurité et cliquez sur Déverrouiller. Le PIN de la clé et un toucher vous seront demandés.</value>
+  </data>
+  <data name="UnlockHintOtp" xml:space="preserve">
+    <value>Branchez votre YubiKey et cliquez sur Déverrouiller, puis touchez la clé quand elle clignote.</value>
+  </data>
+  <data name="UnlockHintRecovery" xml:space="preserve">
+    <value>Saisissez le code de récupération que vous avez conservé lors de la création du coffre.</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Mot de passe</value>
+  </data>
+  <data name="Unlock" xml:space="preserve">
+    <value>Déverrouiller</value>
+  </data>
+  <data name="UseRecoveryCode" xml:space="preserve">
+    <value>Clé perdue ? Utilisez le code de récupération</value>
+  </data>
+  <data name="UseKeyInstead" xml:space="preserve">
+    <value>Utiliser ma clé</value>
+  </data>
+  <data name="InvalidRecoveryCode" xml:space="preserve">
+    <value>Ce n'est pas un code de récupération valide.</value>
+  </data>
+  <data name="UnlockingRecovery" xml:space="preserve">
+    <value>Déverrouillage avec le code de récupération...</value>
+  </data>
+  <data name="WaitingForKey" xml:space="preserve">
+    <value>En attente de votre clé de sécurité...</value>
+  </data>
+  <data name="Unlocking" xml:space="preserve">
+    <value>Déverrouillage...</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Retour</value>
+  </data>
+  <data name="CreateTitle" xml:space="preserve">
+    <value>Créer un nouveau coffre</value>
+  </data>
+  <data name="CreateIntro" xml:space="preserve">
+    <value>Un coffre est un fichier .yvault unique. Gardez-le sur une clé USB, un disque ou un dossier cloud : de l'extérieur, personne ne voit les noms, les tailles ni le contenu.</value>
+  </data>
+  <data name="Where" xml:space="preserve">
+    <value>Emplacement</value>
+  </data>
+  <data name="WherePlaceholder" xml:space="preserve">
+    <value>Dossier où le fichier du coffre sera enregistré</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Parcourir...</value>
+  </data>
+  <data name="VaultNamePlaceholder" xml:space="preserve">
+    <value>Nom du coffre</value>
+  </data>
+  <data name="DefaultVaultName" xml:space="preserve">
+    <value>Mon coffre</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>Clé</value>
+  </data>
+  <data name="KeyFido2Title" xml:space="preserve">
+    <value>Clé de sécurité (FIDO2), recommandé</value>
+  </data>
+  <data name="KeyFido2Detail" xml:space="preserve">
+    <value>N'importe quelle YubiKey 5 ou Security Key by Yubico, avec son PIN et un toucher.</value>
+  </data>
+  <data name="KeyOtpTitle" xml:space="preserve">
+    <value>Défi-réponse YubiKey 5 (emplacement OTP 2)</value>
+  </data>
+  <data name="KeyOtpDetail" xml:space="preserve">
+    <value>Un simple toucher, avec un mot de passe facultatif.</value>
+  </data>
+  <data name="PasswordOptional" xml:space="preserve">
+    <value>Mot de passe (facultatif, recommandé)</value>
+  </data>
+  <data name="RepeatPassword" xml:space="preserve">
+    <value>Confirmer le mot de passe</value>
+  </data>
+  <data name="ReplaceSlot" xml:space="preserve">
+    <value>Programmer l'emplacement 2 avec un nouveau secret (efface son contenu)</value>
+  </data>
+  <data name="RecoveryNoticeTitle" xml:space="preserve">
+    <value>Vous recevrez un code de récupération</value>
+  </data>
+  <data name="RecoveryNoticeText" xml:space="preserve">
+    <value>Il ouvre le coffre si vous perdez votre clé. Il ne s'affiche qu'une fois, juste après la création du coffre.</value>
+  </data>
+  <data name="CreateButton" xml:space="preserve">
+    <value>Créer le coffre</value>
+  </data>
+  <data name="CouldNotCreate" xml:space="preserve">
+    <value>Impossible de créer le coffre</value>
+  </data>
+  <data name="ChooseLocation" xml:space="preserve">
+    <value>Choisissez où créer le coffre.</value>
+  </data>
+  <data name="ChooseLocationTitle" xml:space="preserve">
+    <value>Choisir où créer le coffre</value>
+  </data>
+  <data name="InvalidName" xml:space="preserve">
+    <value>Donnez au coffre un nom valide comme nom de fichier.</value>
+  </data>
+  <data name="PasswordsDiffer" xml:space="preserve">
+    <value>Les mots de passe ne correspondent pas.</value>
+  </data>
+  <data name="CreatingVault" xml:space="preserve">
+    <value>Création du coffre...</value>
+  </data>
+  <data name="RegisteringKey" xml:space="preserve">
+    <value>Enregistrement de votre clé de sécurité...</value>
+  </data>
+  <data name="Keys" xml:space="preserve">
+    <value>Clés</value>
+  </data>
+  <data name="Lock" xml:space="preserve">
+    <value>Verrouiller</value>
+  </data>
+  <data name="UpOneFolder" xml:space="preserve">
+    <value>Dossier parent</value>
+  </data>
+  <data name="AddFiles" xml:space="preserve">
+    <value>Ajouter des fichiers</value>
+  </data>
+  <data name="AddFolder" xml:space="preserve">
+    <value>Ajouter un dossier</value>
+  </data>
+  <data name="Extract" xml:space="preserve">
+    <value>Extraire</value>
+  </data>
+  <data name="Rename" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Supprimer</value>
+  </data>
+  <data name="ColumnName" xml:space="preserve">
+    <value>Nom</value>
+  </data>
+  <data name="ColumnSize" xml:space="preserve">
+    <value>Taille</value>
+  </data>
+  <data name="ColumnModified" xml:space="preserve">
+    <value>Modifié</value>
+  </data>
+  <data name="DropHere" xml:space="preserve">
+    <value>Déposez des fichiers ou des dossiers ici pour les chiffrer</value>
+  </data>
+  <data name="DropHereDetail" xml:space="preserve">
+    <value>ou utilisez Ajouter des fichiers / Ajouter un dossier ci-dessus</value>
+  </data>
+  <data name="AllFiles" xml:space="preserve">
+    <value>Tous les fichiers</value>
+  </data>
+  <data name="StatusFiles" xml:space="preserve">
+    <value>{0} fichiers, {1} chiffrés</value>
+  </data>
+  <data name="AutoLockAfter" xml:space="preserve">
+    <value>Se verrouille après {0} min d'inactivité</value>
+  </data>
+  <data name="AutoLockOff" xml:space="preserve">
+    <value>Verrouillage automatique désactivé</value>
+  </data>
+  <data name="ChooseFilesTitle" xml:space="preserve">
+    <value>Choisir les fichiers à chiffrer</value>
+  </data>
+  <data name="ChooseFoldersTitle" xml:space="preserve">
+    <value>Choisir les dossiers à chiffrer</value>
+  </data>
+  <data name="Encrypting" xml:space="preserve">
+    <value>Chiffrement...</value>
+  </data>
+  <data name="EncryptedInfo" xml:space="preserve">
+    <value>{0} fichier(s) chiffré(s). Les originaux n'ont pas été modifiés ; supprimez-les vous-même si vous n'en avez plus besoin.</value>
+  </data>
+  <data name="Decrypting" xml:space="preserve">
+    <value>Déchiffrement...</value>
+  </data>
+  <data name="ExtractSelectedTitle" xml:space="preserve">
+    <value>Extraire les éléments sélectionnés vers...</value>
+  </data>
+  <data name="ExtractAllTitle" xml:space="preserve">
+    <value>Extraire tout le contenu de ce dossier vers...</value>
+  </data>
+  <data name="ReplaceExisting" xml:space="preserve">
+    <value>{0}
+
+Remplacer les fichiers existants ?</value>
+  </data>
+  <data name="ExtractedInfo" xml:space="preserve">
+    <value>{0} fichier(s) extrait(s) vers {1}.</value>
+  </data>
+  <data name="RenameTitle" xml:space="preserve">
+    <value>Renommer</value>
+  </data>
+  <data name="RenamePrompt" xml:space="preserve">
+    <value>Nouveau nom pour « {0} »</value>
+  </data>
+  <data name="Renaming" xml:space="preserve">
+    <value>Renommage...</value>
+  </data>
+  <data name="DeleteOne" xml:space="preserve">
+    <value>Supprimer « {0} » du coffre ? Cette action est irréversible.</value>
+  </data>
+  <data name="DeleteMany" xml:space="preserve">
+    <value>Supprimer {0} éléments du coffre ? Cette action est irréversible.</value>
+  </data>
+  <data name="Deleting" xml:space="preserve">
+    <value>Suppression...</value>
+  </data>
+  <data name="TouchKeyTitle" xml:space="preserve">
+    <value>Touchez votre clé de sécurité</value>
+  </data>
+  <data name="TouchKeyDetail" xml:space="preserve">
+    <value>La clé clignote et attend que vous la touchiez.</value>
+  </data>
+  <data name="KeysTitle" xml:space="preserve">
+    <value>Clés et paramètres</value>
+  </data>
+  <data name="KeysIntro" xml:space="preserve">
+    <value>Chaque clé ci-dessous peut ouvrir ce coffre à elle seule. Enregistrez une deuxième clé en secours ; rien n'est rechiffré.</value>
+  </data>
+  <data name="ColumnKey" xml:space="preserve">
+    <value>Clé</value>
+  </data>
+  <data name="ColumnType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="ColumnAdded" xml:space="preserve">
+    <value>Ajoutée le</value>
+  </data>
+  <data name="KindFido2" xml:space="preserve">
+    <value>FIDO2 + PIN</value>
+  </data>
+  <data name="KindOtp" xml:space="preserve">
+    <value>OTP</value>
+  </data>
+  <data name="KindOtpPassword" xml:space="preserve">
+    <value>OTP + mot de passe</value>
+  </data>
+  <data name="KindRecovery" xml:space="preserve">
+    <value>Code de récupération</value>
+  </data>
+  <data name="AddSecurityKey" xml:space="preserve">
+    <value>Ajouter une clé de sécurité</value>
+  </data>
+  <data name="AddOtpKey" xml:space="preserve">
+    <value>Ajouter une YubiKey (OTP)</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Retirer</value>
+  </data>
+  <data name="NewRecoveryCode" xml:space="preserve">
+    <value>Nouveau code de récupération</value>
+  </data>
+  <data name="LockAfter" xml:space="preserve">
+    <value>Verrouiller automatiquement après</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>Jamais</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>{0} min</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Un problème est survenu</value>
+  </data>
+  <data name="ConfirmAddSecurityKey" xml:space="preserve">
+    <value>Branchez la nouvelle clé de sécurité et retirez les autres. Le PIN de la nouvelle clé et un toucher vous seront demandés, deux fois.</value>
+  </data>
+  <data name="ConfirmAddOtpKey" xml:space="preserve">
+    <value>Branchez la nouvelle YubiKey 5 et retirez les autres. Si son emplacement 2 est vide, il sera programmé en défi-réponse.</value>
+  </data>
+  <data name="OtpPasswordPrompt" xml:space="preserve">
+    <value>Mot de passe facultatif à utiliser avec cette YubiKey (laisser vide pour aucun) :</value>
+  </data>
+  <data name="RegisteringYubiKey" xml:space="preserve">
+    <value>Enregistrement de la YubiKey...</value>
+  </data>
+  <data name="ConfirmRemoveKey" xml:space="preserve">
+    <value>Retirer « {0} » ? Elle n'ouvrira plus ce coffre.</value>
+  </data>
+  <data name="Removing" xml:space="preserve">
+    <value>Retrait...</value>
+  </data>
+  <data name="ConfirmNewRecovery" xml:space="preserve">
+    <value>Créer un nouveau code de récupération ? L'ancien ne fonctionnera plus.</value>
+  </data>
+  <data name="CreatingRecovery" xml:space="preserve">
+    <value>Création d'un nouveau code de récupération...</value>
+  </data>
+  <data name="RecoveryTitle" xml:space="preserve">
+    <value>Conservez votre code de récupération</value>
+  </data>
+  <data name="RecoveryText" xml:space="preserve">
+    <value>Ce code ouvre le coffre si vous perdez votre clé. Notez-le ou imprimez-le et gardez-le en lieu sûr, hors ligne. Toute personne qui le possède peut ouvrir le coffre. Il ne sera plus affiché.</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copier</value>
+  </data>
+  <data name="RecoverySaved" xml:space="preserve">
+    <value>J'ai conservé le code de récupération</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continuer</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Annuler</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Oui</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Non</value>
+  </data>
+  <data name="PinTitle" xml:space="preserve">
+    <value>PIN de la clé de sécurité</value>
+  </data>
+  <data name="PinPrompt" xml:space="preserve">
+    <value>Saisissez le PIN de votre clé de sécurité.</value>
+  </data>
+  <data name="PinRetry" xml:space="preserve">
+    <value>PIN incorrect. Il reste {0} essais.</value>
+  </data>
+  <data name="NoOtpKey" xml:space="preserve">
+    <value>Aucune YubiKey avec OTP trouvée. Les modèles Security Key n'ont pas d'OTP ; utilisez plutôt une clé de sécurité FIDO2.</value>
+  </data>
+  <data name="MoreThanOneKey" xml:space="preserve">
+    <value>Plusieurs YubiKey sont branchées. N'en laissez qu'une.</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>Erreur inattendue</value>
+  </data>
+</root>

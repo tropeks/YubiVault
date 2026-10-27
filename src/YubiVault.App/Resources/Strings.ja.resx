@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  
+  <data name="AppTagline" xml:space="preserve">
+    <value>AES-256 と XChaCha20 で暗号化したファイルとフォルダーを、あなたのセキュリティキーだけで開けます。</value>
+  </data>
+  <data name="OpenVault" xml:space="preserve">
+    <value>金庫を開く...</value>
+  </data>
+  <data name="CreateVault" xml:space="preserve">
+    <value>新しい金庫を作成...</value>
+  </data>
+  <data name="RecentVaults" xml:space="preserve">
+    <value>最近使った金庫</value>
+  </data>
+  <data name="AssociateFiles" xml:space="preserve">
+    <value>.yvault ファイルを YubiVault で開く</value>
+  </data>
+  <data name="AssociateDone" xml:space="preserve">
+    <value>.yvault ファイルをダブルクリックすると YubiVault で開くようになりました。
+
+YubiVault を移動した場合は、新しい場所からもう一度この項目をクリックしてください。</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="LanguageSystem" xml:space="preserve">
+    <value>システムの既定</value>
+  </data>
+  <data name="ChooseVaultTitle" xml:space="preserve">
+    <value>金庫を選択</value>
+  </data>
+  <data name="VaultFileType" xml:space="preserve">
+    <value>YubiVault 金庫</value>
+  </data>
+  <data name="NotAVault" xml:space="preserve">
+    <value>{0} は YubiVault の金庫ではありません。</value>
+  </data>
+  <data name="CouldNotOpen" xml:space="preserve">
+    <value>金庫を開けませんでした</value>
+  </data>
+  <data name="UnlockHintFido2Windows" xml:space="preserve">
+    <value>セキュリティキーを接続して [ロック解除] をクリックしてください。Windows がキーの PIN とタッチを求めます。</value>
+  </data>
+  <data name="UnlockHintFido2" xml:space="preserve">
+    <value>セキュリティキーを接続して [ロック解除] をクリックしてください。キーの PIN とタッチを求められます。</value>
+  </data>
+  <data name="UnlockHintOtp" xml:space="preserve">
+    <value>YubiKey を接続して [ロック解除] をクリックし、キーが点滅したらタッチしてください。</value>
+  </data>
+  <data name="UnlockHintRecovery" xml:space="preserve">
+    <value>金庫の作成時に保存した回復コードを入力してください。</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="Unlock" xml:space="preserve">
+    <value>ロック解除</value>
+  </data>
+  <data name="UseRecoveryCode" xml:space="preserve">
+    <value>キーを紛失しましたか？回復コードを使う</value>
+  </data>
+  <data name="UseKeyInstead" xml:space="preserve">
+    <value>キーを使う</value>
+  </data>
+  <data name="InvalidRecoveryCode" xml:space="preserve">
+    <value>有効な回復コードではありません。</value>
+  </data>
+  <data name="UnlockingRecovery" xml:space="preserve">
+    <value>回復コードでロック解除しています...</value>
+  </data>
+  <data name="WaitingForKey" xml:space="preserve">
+    <value>セキュリティキーを待っています...</value>
+  </data>
+  <data name="Unlocking" xml:space="preserve">
+    <value>ロック解除しています...</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>戻る</value>
+  </data>
+  <data name="CreateTitle" xml:space="preserve">
+    <value>新しい金庫を作成</value>
+  </data>
+  <data name="CreateIntro" xml:space="preserve">
+    <value>金庫は 1 つの .yvault ファイルです。USB メモリ、ディスク、クラウドのフォルダーに保存できます。外からは名前もサイズも中身も見えません。</value>
+  </data>
+  <data name="Where" xml:space="preserve">
+    <value>保存先</value>
+  </data>
+  <data name="WherePlaceholder" xml:space="preserve">
+    <value>金庫ファイルを保存するフォルダー</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>参照...</value>
+  </data>
+  <data name="VaultNamePlaceholder" xml:space="preserve">
+    <value>金庫の名前</value>
+  </data>
+  <data name="DefaultVaultName" xml:space="preserve">
+    <value>マイ金庫</value>
+  </data>
+  <data name="Key" xml:space="preserve">
+    <value>キー</value>
+  </data>
+  <data name="KeyFido2Title" xml:space="preserve">
+    <value>セキュリティキー (FIDO2)、推奨</value>
+  </data>
+  <data name="KeyFido2Detail" xml:space="preserve">
+    <value>任意の YubiKey 5 または Security Key by Yubico（PIN とタッチを使用）。</value>
+  </data>
+  <data name="KeyOtpTitle" xml:space="preserve">
+    <value>YubiKey 5 チャレンジレスポンス (OTP スロット 2)</value>
+  </data>
+  <data name="KeyOtpDetail" xml:space="preserve">
+    <value>タッチのみ。パスワードは任意です。</value>
+  </data>
+  <data name="PasswordOptional" xml:space="preserve">
+    <value>パスワード (任意、推奨)</value>
+  </data>
+  <data name="RepeatPassword" xml:space="preserve">
+    <value>パスワードの確認</value>
+  </data>
+  <data name="ReplaceSlot" xml:space="preserve">
+    <value>スロット 2 に新しいシークレットを書き込む (既存の内容は消去されます)</value>
+  </data>
+  <data name="RecoveryNoticeTitle" xml:space="preserve">
+    <value>回復コードが発行されます</value>
+  </data>
+  <data name="RecoveryNoticeText" xml:space="preserve">
+    <value>キーを紛失したときに金庫を開くためのコードです。金庫の作成直後に一度だけ表示されます。</value>
+  </data>
+  <data name="CreateButton" xml:space="preserve">
+    <value>金庫を作成</value>
+  </data>
+  <data name="CouldNotCreate" xml:space="preserve">
+    <value>金庫を作成できませんでした</value>
+  </data>
+  <data name="ChooseLocation" xml:space="preserve">
+    <value>金庫を作成する場所を選んでください。</value>
+  </data>
+  <data name="ChooseLocationTitle" xml:space="preserve">
+    <value>金庫を作成する場所を選択</value>
+  </data>
+  <data name="InvalidName" xml:space="preserve">
+    <value>ファイル名として使える名前を金庫に付けてください。</value>
+  </data>
+  <data name="PasswordsDiffer" xml:space="preserve">
+    <value>パスワードが一致しません。</value>
+  </data>
+  <data name="CreatingVault" xml:space="preserve">
+    <value>金庫を作成しています...</value>
+  </data>
+  <data name="RegisteringKey" xml:space="preserve">
+    <value>セキュリティキーを登録しています...</value>
+  </data>
+  <data name="Keys" xml:space="preserve">
+    <value>キー</value>
+  </data>
+  <data name="Lock" xml:space="preserve">
+    <value>ロック</value>
+  </data>
+  <data name="UpOneFolder" xml:space="preserve">
+    <value>1 つ上のフォルダー</value>
+  </data>
+  <data name="AddFiles" xml:space="preserve">
+    <value>ファイルを追加</value>
+  </data>
+  <data name="AddFolder" xml:space="preserve">
+    <value>フォルダーを追加</value>
+  </data>
+  <data name="Extract" xml:space="preserve">
+    <value>取り出す</value>
+  </data>
+  <data name="Rename" xml:space="preserve">
+    <value>名前の変更</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="ColumnName" xml:space="preserve">
+    <value>名前</value>
+  </data>
+  <data name="ColumnSize" xml:space="preserve">
+    <value>サイズ</value>
+  </data>
+  <data name="ColumnModified" xml:space="preserve">
+    <value>更新日時</value>
+  </data>
+  <data name="DropHere" xml:space="preserve">
+    <value>ここにファイルやフォルダーをドロップすると暗号化されます</value>
+  </data>
+  <data name="DropHereDetail" xml:space="preserve">
+    <value>または上の [ファイルを追加] / [フォルダーを追加] を使用</value>
+  </data>
+  <data name="AllFiles" xml:space="preserve">
+    <value>すべてのファイル</value>
+  </data>
+  <data name="StatusFiles" xml:space="preserve">
+    <value>{0} 個のファイル、暗号化済み {1}</value>
+  </data>
+  <data name="AutoLockAfter" xml:space="preserve">
+    <value>{0} 分間操作がないとロック</value>
+  </data>
+  <data name="AutoLockOff" xml:space="preserve">
+    <value>自動ロック オフ</value>
+  </data>
+  <data name="ChooseFilesTitle" xml:space="preserve">
+    <value>暗号化するファイルを選択</value>
+  </data>
+  <data name="ChooseFoldersTitle" xml:space="preserve">
+    <value>暗号化するフォルダーを選択</value>
+  </data>
+  <data name="Encrypting" xml:space="preserve">
+    <value>暗号化しています...</value>
+  </data>
+  <data name="EncryptedInfo" xml:space="preserve">
+    <value>{0} 個のファイルを暗号化しました。元のファイルは変更されていません。不要になったらご自身で削除してください。</value>
+  </data>
+  <data name="Decrypting" xml:space="preserve">
+    <value>復号しています...</value>
+  </data>
+  <data name="ExtractSelectedTitle" xml:space="preserve">
+    <value>選択した項目の取り出し先...</value>
+  </data>
+  <data name="ExtractAllTitle" xml:space="preserve">
+    <value>このフォルダーのすべての内容の取り出し先...</value>
+  </data>
+  <data name="ReplaceExisting" xml:space="preserve">
+    <value>{0}
+
+既存のファイルを置き換えますか？</value>
+  </data>
+  <data name="ExtractedInfo" xml:space="preserve">
+    <value>{0} 個のファイルを {1} に取り出しました。</value>
+  </data>
+  <data name="RenameTitle" xml:space="preserve">
+    <value>名前の変更</value>
+  </data>
+  <data name="RenamePrompt" xml:space="preserve">
+    <value>「{0}」の新しい名前</value>
+  </data>
+  <data name="Renaming" xml:space="preserve">
+    <value>名前を変更しています...</value>
+  </data>
+  <data name="DeleteOne" xml:space="preserve">
+    <value>「{0}」を金庫から削除しますか？この操作は元に戻せません。</value>
+  </data>
+  <data name="DeleteMany" xml:space="preserve">
+    <value>{0} 個の項目を金庫から削除しますか？この操作は元に戻せません。</value>
+  </data>
+  <data name="Deleting" xml:space="preserve">
+    <value>削除しています...</value>
+  </data>
+  <data name="TouchKeyTitle" xml:space="preserve">
+    <value>セキュリティキーにタッチしてください</value>
+  </data>
+  <data name="TouchKeyDetail" xml:space="preserve">
+    <value>キーが点滅してタッチを待っています。</value>
+  </data>
+  <data name="KeysTitle" xml:space="preserve">
+    <value>キーと設定</value>
+  </data>
+  <data name="KeysIntro" xml:space="preserve">
+    <value>以下の各キーは、単独でこの金庫を開けます。予備として 2 本目のキーを登録してください。再暗号化は行われません。</value>
+  </data>
+  <data name="ColumnKey" xml:space="preserve">
+    <value>キー</value>
+  </data>
+  <data name="ColumnType" xml:space="preserve">
+    <value>種類</value>
+  </data>
+  <data name="ColumnAdded" xml:space="preserve">
+    <value>追加日</value>
+  </data>
+  <data name="KindFido2" xml:space="preserve">
+    <value>FIDO2 + PIN</value>
+  </data>
+  <data name="KindOtp" xml:space="preserve">
+    <value>OTP</value>
+  </data>
+  <data name="KindOtpPassword" xml:space="preserve">
+    <value>OTP + パスワード</value>
+  </data>
+  <data name="KindRecovery" xml:space="preserve">
+    <value>回復コード</value>
+  </data>
+  <data name="AddSecurityKey" xml:space="preserve">
+    <value>セキュリティキーを追加</value>
+  </data>
+  <data name="AddOtpKey" xml:space="preserve">
+    <value>YubiKey (OTP) を追加</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="NewRecoveryCode" xml:space="preserve">
+    <value>新しい回復コード</value>
+  </data>
+  <data name="LockAfter" xml:space="preserve">
+    <value>自動的にロックするまでの時間</value>
+  </data>
+  <data name="Never" xml:space="preserve">
+    <value>しない</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>{0} 分</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>問題が発生しました</value>
+  </data>
+  <data name="ConfirmAddSecurityKey" xml:space="preserve">
+    <value>新しいセキュリティキーを接続し、他のキーを取り外してください。新しいキーの PIN とタッチを 2 回求められます。</value>
+  </data>
+  <data name="ConfirmAddOtpKey" xml:space="preserve">
+    <value>新しい YubiKey 5 を接続し、他のキーを取り外してください。スロット 2 が空の場合は、チャレンジレスポンス用に書き込まれます。</value>
+  </data>
+  <data name="OtpPasswordPrompt" xml:space="preserve">
+    <value>この YubiKey と併用するパスワード (任意、不要な場合は空欄):</value>
+  </data>
+  <data name="RegisteringYubiKey" xml:space="preserve">
+    <value>YubiKey を登録しています...</value>
+  </data>
+  <data name="ConfirmRemoveKey" xml:space="preserve">
+    <value>「{0}」を削除しますか？このキーではこの金庫を開けなくなります。</value>
+  </data>
+  <data name="Removing" xml:space="preserve">
+    <value>削除しています...</value>
+  </data>
+  <data name="ConfirmNewRecovery" xml:space="preserve">
+    <value>新しい回復コードを作成しますか？古いコードは使えなくなります。</value>
+  </data>
+  <data name="CreatingRecovery" xml:space="preserve">
+    <value>新しい回復コードを作成しています...</value>
+  </data>
+  <data name="RecoveryTitle" xml:space="preserve">
+    <value>回復コードを保存してください</value>
+  </data>
+  <data name="RecoveryText" xml:space="preserve">
+    <value>このコードは、キーを紛失したときに金庫を開くためのものです。書き留めるか印刷して、オフラインの安全な場所に保管してください。このコードを持つ人は誰でも金庫を開けます。再表示はされません。</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>コピー</value>
+  </data>
+  <data name="RecoverySaved" xml:space="preserve">
+    <value>回復コードを保存しました</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>続行</value>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>はい</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>いいえ</value>
+  </data>
+  <data name="PinTitle" xml:space="preserve">
+    <value>セキュリティキーの PIN</value>
+  </data>
+  <data name="PinPrompt" xml:space="preserve">
+    <value>セキュリティキーの PIN を入力してください。</value>
+  </data>
+  <data name="PinRetry" xml:space="preserve">
+    <value>PIN が違います。残り {0} 回です。</value>
+  </data>
+  <data name="NoOtpKey" xml:space="preserve">
+    <value>OTP 対応の YubiKey が見つかりません。Security Key シリーズには OTP がありません。代わりに FIDO2 セキュリティキーを使用してください。</value>
+  </data>
+  <data name="MoreThanOneKey" xml:space="preserve">
+    <value>複数の YubiKey が接続されています。1 本だけ接続してください。</value>
+  </data>
+  <data name="UnexpectedError" xml:space="preserve">
+    <value>予期しないエラー</value>
+  </data>
+</root>
