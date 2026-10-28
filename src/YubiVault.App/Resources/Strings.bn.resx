@@ -381,4 +381,49 @@ YubiVault অন্য জায়গায় সরালে, নতুন �
   <data name="UnexpectedError" xml:space="preserve">
     <value>অপ্রত্যাশিত ত্রুটি</value>
   </data>
+  <data name="OpenHiddenVault" xml:space="preserve">
+    <value>লুকানো ভল্ট খুলুন</value>
+  </data>
+  <data name="OpenNormalVault" xml:space="preserve">
+    <value>সাধারণ ভল্ট খুলুন</value>
+  </data>
+  <data name="UnlockHintHidden" xml:space="preserve">
+    <value>লুকানো ভল্টের পাসওয়ার্ড লিখুন। এরপর আপনার সিকিউরিটি কী তার PIN এবং একটি স্পর্শ চাইবে।</value>
+  </data>
+  <data name="UnlockHintHiddenRecovery" xml:space="preserve">
+    <value>লুকানো ভল্টের নিজস্ব রিকভারি কোড লিখুন।</value>
+  </data>
+  <data name="HiddenPassword" xml:space="preserve">
+    <value>লুকানো ভল্টের পাসওয়ার্ড</value>
+  </data>
+  <data name="HiddenVault" xml:space="preserve">
+    <value>লুকানো ভল্ট</value>
+  </data>
+  <data name="StatusHiddenFree" xml:space="preserve">
+    <value>{1}-এর মধ্যে {0} খালি</value>
+  </data>
+  <data name="CreateHiddenVault" xml:space="preserve">
+    <value>লুকানো ভল্ট তৈরি করুন</value>
+  </data>
+  <data name="HiddenVaultIntro" xml:space="preserve">
+    <value>লুকানো ভল্ট এই ভল্টের ফাইলের ভেতরে এমন জায়গায় থাকে যা এলোমেলো প্যাডিংয়ের মতো দেখায়। এর পাসওয়ার্ড ছাড়া কেউ জানতে পারে না যে এটি আছে, এমনকি যে এই ভল্ট খোলে সে-ও নয়। এটি নিজের পাসওয়ার্ড ও আপনার সিকিউরিটি কী দিয়ে, অথবা নিজের রিকভারি কোড দিয়ে খোলে।</value>
+  </data>
+  <data name="HiddenVaultWarning" xml:space="preserve">
+    <value>এটি এই ফাইলে আগে থেকে থাকা যেকোনো লুকানো ভল্ট প্রতিস্থাপন করে, এবং এর আকার পরে বদলানো যায় না। যে কেউ ফাইলের পুরোনো কপি রাখে, যেমন ক্লাউড ড্রাইভের ভার্সন হিস্টরি, সে দেখতে পারে যে প্যাডিং বদলেছে।</value>
+  </data>
+  <data name="HiddenVaultSize" xml:space="preserve">
+    <value>আকার (MB)</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>কমপক্ষে ৮টি অক্ষর ব্যবহার করুন।</value>
+  </data>
+  <data name="CreatingHiddenVault" xml:space="preserve">
+    <value>লুকানো ভল্ট তৈরি হচ্ছে...</value>
+  </data>
+  <data name="HiddenVaultCreated" xml:space="preserve">
+    <value>লুকানো ভল্ট প্রস্তুত। এটি খুলতে, শুরুর পাতায় এই ভল্টটি বেছে নিন এবং “লুকানো ভল্ট খুলুন” ব্যবহার করুন।</value>
+  </data>
+  <data name="InvalidSize" xml:space="preserve">
+    <value>কমপক্ষে 1 MB আকার লিখুন।</value>
+  </data>
 </root>

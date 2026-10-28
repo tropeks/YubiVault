@@ -381,4 +381,49 @@ Remplacer les fichiers existants ?</value>
   <data name="UnexpectedError" xml:space="preserve">
     <value>Erreur inattendue</value>
   </data>
+  <data name="OpenHiddenVault" xml:space="preserve">
+    <value>Ouvrir le coffre caché</value>
+  </data>
+  <data name="OpenNormalVault" xml:space="preserve">
+    <value>Ouvrir le coffre normal</value>
+  </data>
+  <data name="UnlockHintHidden" xml:space="preserve">
+    <value>Saisissez le mot de passe du coffre caché. Votre clé de sécurité demandera ensuite son code PIN et un toucher.</value>
+  </data>
+  <data name="UnlockHintHiddenRecovery" xml:space="preserve">
+    <value>Saisissez le code de récupération propre au coffre caché.</value>
+  </data>
+  <data name="HiddenPassword" xml:space="preserve">
+    <value>Mot de passe du coffre caché</value>
+  </data>
+  <data name="HiddenVault" xml:space="preserve">
+    <value>Coffre caché</value>
+  </data>
+  <data name="StatusHiddenFree" xml:space="preserve">
+    <value>{0} libres sur {1}</value>
+  </data>
+  <data name="CreateHiddenVault" xml:space="preserve">
+    <value>Créer un coffre caché</value>
+  </data>
+  <data name="HiddenVaultIntro" xml:space="preserve">
+    <value>Un coffre caché se trouve dans le fichier de ce coffre, dans un espace qui ressemble à du remplissage aléatoire. Sans son mot de passe, personne ne peut savoir qu'il existe, pas même quelqu'un qui ouvre ce coffre. Il s'ouvre avec son propre mot de passe et votre clé de sécurité, ou avec son propre code de récupération.</value>
+  </data>
+  <data name="HiddenVaultWarning" xml:space="preserve">
+    <value>Ceci remplace tout coffre caché déjà présent dans ce fichier, et sa taille ne pourra pas être modifiée ensuite. Quiconque conserve d'anciennes copies du fichier, comme l'historique des versions d'un stockage en ligne, peut voir que le remplissage a changé.</value>
+  </data>
+  <data name="HiddenVaultSize" xml:space="preserve">
+    <value>Taille (Mo)</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Utilisez au moins 8 caractères.</value>
+  </data>
+  <data name="CreatingHiddenVault" xml:space="preserve">
+    <value>Création du coffre caché...</value>
+  </data>
+  <data name="HiddenVaultCreated" xml:space="preserve">
+    <value>Le coffre caché est prêt. Pour l'ouvrir, choisissez ce coffre sur la page d'accueil et utilisez « Ouvrir le coffre caché ».</value>
+  </data>
+  <data name="InvalidSize" xml:space="preserve">
+    <value>Indiquez une taille d'au moins 1 Mo.</value>
+  </data>
 </root>

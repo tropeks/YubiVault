@@ -10,4 +10,8 @@
     <PackageReference Include="NSec.Cryptography" Version="26.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="YubiVault.Core.Tests" />
+  </ItemGroup>
+
 </Project>

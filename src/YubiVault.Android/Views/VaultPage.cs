@@ -111,10 +111,12 @@ sealed class VaultPage : UserControl, IBackHandler
             _folder = ""; // the folder was emptied, renamed or deleted
         _topBar.Content = Ui.TopBar(
             _folder.Length == 0 ? _session.Name : _folder[(_folder.LastIndexOf('/') + 1)..],
-            _folder.Length == 0 ? null : _session.Name + " / " + _folder.Replace("/", " / "),
+            _folder.Length == 0 ? (_session.Vault.IsHidden ? Strings.HiddenVault : null) : _session.Name + " / " + _folder.Replace("/", " / "),
             _folder.Length == 0 ? null : () => Navigate(VaultPath.Parent(_folder)),
-            Ui.IconButton(Ui.KeyIcon, Strings.Keys, () => _main.Show(new KeysPage(_main, _session))),
-            Ui.IconButton(Ui.LockIcon, Strings.Lock, Lock));
+            // A hidden vault's keys are fixed, and listing them would give it away.
+            _session.Vault.IsHidden
+                ? [Ui.IconButton(Ui.LockIcon, Strings.Lock, Lock)]
+                : [Ui.IconButton(Ui.KeyIcon, Strings.Keys, () => _main.Show(new KeysPage(_main, _session))), Ui.IconButton(Ui.LockIcon, Strings.Lock, Lock)]);
 
         _list.Children.Clear();
         var items = VaultItem.ListFolder(entries, _folder);
@@ -128,6 +130,8 @@ sealed class VaultPage : UserControl, IBackHandler
         foreach (var item in items)
             _list.Children.Add(Row(item));
         _status.Text = Ui.Format(Strings.StatusFiles, entries.Count, Ui.Size(entries.Sum(e => e.Size)));
+        if (_session.Vault.HiddenFreeBytes is long free)
+            _status.Text += " · " + Ui.Format(Strings.StatusHiddenFree, Ui.Size(free), Ui.Size(_session.Vault.HiddenCapacity!.Value));
     }
 
     Control Row(VaultItem item)

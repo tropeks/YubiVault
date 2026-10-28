@@ -381,4 +381,49 @@
   <data name="UnexpectedError" xml:space="preserve">
     <value>अनपेक्षित त्रुटि</value>
   </data>
+  <data name="OpenHiddenVault" xml:space="preserve">
+    <value>छिपी तिजोरी खोलें</value>
+  </data>
+  <data name="OpenNormalVault" xml:space="preserve">
+    <value>सामान्य तिजोरी खोलें</value>
+  </data>
+  <data name="UnlockHintHidden" xml:space="preserve">
+    <value>छिपी तिजोरी का पासवर्ड टाइप करें। इसके बाद आपकी सुरक्षा कुंजी उसका PIN और एक स्पर्श माँगेगी।</value>
+  </data>
+  <data name="UnlockHintHiddenRecovery" xml:space="preserve">
+    <value>छिपी तिजोरी का अपना रिकवरी कोड टाइप करें।</value>
+  </data>
+  <data name="HiddenPassword" xml:space="preserve">
+    <value>छिपी तिजोरी का पासवर्ड</value>
+  </data>
+  <data name="HiddenVault" xml:space="preserve">
+    <value>छिपी तिजोरी</value>
+  </data>
+  <data name="StatusHiddenFree" xml:space="preserve">
+    <value>{1} में से {0} खाली</value>
+  </data>
+  <data name="CreateHiddenVault" xml:space="preserve">
+    <value>छिपी तिजोरी बनाएँ</value>
+  </data>
+  <data name="HiddenVaultIntro" xml:space="preserve">
+    <value>छिपी तिजोरी इस तिजोरी की फ़ाइल के अंदर, ऐसी जगह में रहती है जो यादृच्छिक भराव जैसी दिखती है। उसके पासवर्ड के बिना कोई नहीं जान सकता कि वह मौजूद है, इस तिजोरी को खोलने वाला भी नहीं। वह अपने पासवर्ड और आपकी सुरक्षा कुंजी से, या अपने रिकवरी कोड से खुलती है।</value>
+  </data>
+  <data name="HiddenVaultWarning" xml:space="preserve">
+    <value>इससे इस फ़ाइल में पहले से मौजूद कोई भी छिपी तिजोरी बदल जाती है, और उसका आकार बाद में नहीं बदला जा सकता। जो कोई फ़ाइल की पुरानी प्रतियाँ रखता है, जैसे क्लाउड ड्राइव का संस्करण इतिहास, वह देख सकता है कि भराव बदल गया।</value>
+  </data>
+  <data name="HiddenVaultSize" xml:space="preserve">
+    <value>आकार (MB)</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>कम से कम 8 अक्षर उपयोग करें।</value>
+  </data>
+  <data name="CreatingHiddenVault" xml:space="preserve">
+    <value>छिपी तिजोरी बनाई जा रही है...</value>
+  </data>
+  <data name="HiddenVaultCreated" xml:space="preserve">
+    <value>छिपी तिजोरी तैयार है। इसे खोलने के लिए, शुरुआती पेज पर यह तिजोरी चुनें और “छिपी तिजोरी खोलें” का उपयोग करें।</value>
+  </data>
+  <data name="InvalidSize" xml:space="preserve">
+    <value>कम से कम 1 MB का आकार लिखें।</value>
+  </data>
 </root>

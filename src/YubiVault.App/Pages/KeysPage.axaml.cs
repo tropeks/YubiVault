@@ -113,6 +113,20 @@ public partial class KeysPage : UserControl
         });
     }
 
+    async void OnCreateHiddenVault(object? sender, RoutedEventArgs e)
+    {
+        if (await Dialogs.AskHiddenVaultAsync(_main) is not var (sizeMiB, password))
+            return;
+        await Guard(async () =>
+        {
+            var key = Keys.SecurityKey(_main, _main);
+            string code = await _main.RunAsync(Strings.CreatingHiddenVault,
+                () => _vault.CreateHiddenVault(password, key, sizeMiB << 20));
+            await Dialogs.ShowRecoveryCodeAsync(_main, code);
+            await Dialogs.AlertAsync(_main, Strings.HiddenVault, Strings.HiddenVaultCreated);
+        });
+    }
+
     void OnAutoLockChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (AutoLockCombo.SelectedIndex < 0 || _main is null)

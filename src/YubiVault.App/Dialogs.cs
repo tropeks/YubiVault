@@ -69,6 +69,55 @@ static class Dialogs
         return await ShowAsync(owner, dialog) == ContentDialogResult.Primary ? input.Text ?? "" : null;
     }
 
+    /// <summary>Asks the size and password of a new hidden vault, with what the user must know first.</summary>
+    /// <returns>The size in MiB and the password, or null when cancelled.</returns>
+    public static async Task<(long SizeMiB, string Password)?> AskHiddenVaultAsync(TopLevel owner)
+    {
+        var size = new NumericUpDown { Minimum = 1, Maximum = 1 << 20, Value = 256, Increment = 64, FormatString = "0", MinWidth = 160 };
+        var password = new TextBox { Watermark = Strings.HiddenPassword, PasswordChar = '●', Classes = { "revealPasswordButton" } };
+        var repeat = new TextBox { Watermark = Strings.RepeatPassword, PasswordChar = '●', Classes = { "revealPasswordButton" } };
+        var error = new TextBlock { TextWrapping = TextWrapping.Wrap, IsVisible = false, Foreground = Brushes.IndianRed, MaxWidth = 480 };
+        var dialog = new ContentDialog
+        {
+            Title = Strings.CreateHiddenVault,
+            Content = new StackPanel
+            {
+                Spacing = 10,
+                MaxWidth = 480,
+                Children =
+                {
+                    Text(Strings.HiddenVaultIntro),
+                    Text(Strings.HiddenVaultWarning),
+                    new StackPanel
+                    {
+                        Orientation = Orientation.Horizontal, Spacing = 10, Margin = new(0, 6, 0, 0),
+                        Children = { new TextBlock { Text = Strings.HiddenVaultSize, VerticalAlignment = VerticalAlignment.Center }, size },
+                    },
+                    password,
+                    repeat,
+                    error,
+                },
+            },
+            PrimaryButtonText = Strings.CreateHiddenVault,
+            CloseButtonText = Strings.Cancel,
+            DefaultButton = ContentDialogButton.Primary,
+        };
+        dialog.PrimaryButtonClick += (_, e) =>
+        {
+            string? problem = size.Value is not >= 1 ? Strings.InvalidSize
+                : (password.Text ?? "").Length < 8 ? Strings.PasswordTooShort
+                : password.Text != repeat.Text ? Strings.PasswordsDiffer
+                : null;
+            error.Text = problem;
+            error.IsVisible = problem is not null;
+            e.Cancel = problem is not null;
+        };
+        dialog.Opened += (_, _) => password.Focus();
+        if (await ShowAsync(owner, dialog) != ContentDialogResult.Primary)
+            return null;
+        return ((long)size.Value!.Value, password.Text!);
+    }
+
     /// <summary>
     /// Asks for the security key's PIN from a background thread (the Yubico SDK asks while it works).
     /// </summary>

@@ -49,6 +49,39 @@ static class KeyWrap
         }
     }
 
+    /// <summary>
+    /// Key that opens hidden vault slots: Argon2id of the hidden password or recovery code, with the
+    /// vault's key-area salt and the options' cost, then HKDF with an info string per kind of secret.
+    /// </summary>
+    public static byte[] HiddenSlotKey(ReadOnlySpan<byte> secret, byte[] salt, VaultOptions options, ReadOnlySpan<byte> info)
+    {
+        byte[] stretched = Argon2(secret, new Argon2Settings { Salt = salt, MemoryKiB = options.Argon2MemoryKiB, Passes = options.Argon2Passes });
+        try
+        {
+            return HKDF.DeriveKey(HashAlgorithmName.SHA256, stretched, 32, salt, info.ToArray());
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(stretched);
+        }
+    }
+
+    /// <summary>KEK of a hidden vault opened by password and security key: both secrets are needed.</summary>
+    public static byte[] HiddenFido2Kek(ReadOnlySpan<byte> secret, ReadOnlySpan<byte> slotKey, ReadOnlySpan<byte> salt)
+    {
+        byte[] ikm = [.. secret, .. slotKey];
+        try
+        {
+            return HKDF.DeriveKey(HashAlgorithmName.SHA256, ikm, 32, salt.ToArray(), HiddenFido2KekInfo);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(ikm);
+        }
+    }
+
+    static readonly byte[] HiddenFido2KekInfo = "YubiVault v2 hidden fido2 kek"u8.ToArray();
+
     public static Argon2Settings NewArgon2Settings(VaultOptions options) => new()
     {
         Salt = RandomNumberGenerator.GetBytes(16),

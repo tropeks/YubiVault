@@ -381,4 +381,49 @@ Substituir os arquivos existentes?</value>
   <data name="UnexpectedError" xml:space="preserve">
     <value>Erro inesperado</value>
   </data>
+  <data name="OpenHiddenVault" xml:space="preserve">
+    <value>Abrir cofre oculto</value>
+  </data>
+  <data name="OpenNormalVault" xml:space="preserve">
+    <value>Abrir o cofre normal</value>
+  </data>
+  <data name="UnlockHintHidden" xml:space="preserve">
+    <value>Digite a senha do cofre oculto. Depois sua chave de segurança pede o PIN e um toque.</value>
+  </data>
+  <data name="UnlockHintHiddenRecovery" xml:space="preserve">
+    <value>Digite o código de recuperação do próprio cofre oculto.</value>
+  </data>
+  <data name="HiddenPassword" xml:space="preserve">
+    <value>Senha do cofre oculto</value>
+  </data>
+  <data name="HiddenVault" xml:space="preserve">
+    <value>Cofre oculto</value>
+  </data>
+  <data name="StatusHiddenFree" xml:space="preserve">
+    <value>{0} livres de {1}</value>
+  </data>
+  <data name="CreateHiddenVault" xml:space="preserve">
+    <value>Criar cofre oculto</value>
+  </data>
+  <data name="HiddenVaultIntro" xml:space="preserve">
+    <value>Um cofre oculto fica dentro do arquivo deste cofre, num espaço que parece preenchimento aleatório. Sem a senha dele ninguém consegue saber que ele existe, nem quem abrir este cofre. Ele abre com a própria senha e a sua chave de segurança, ou com o próprio código de recuperação.</value>
+  </data>
+  <data name="HiddenVaultWarning" xml:space="preserve">
+    <value>Isto substitui qualquer cofre oculto que já exista neste arquivo, e o tamanho dele não pode ser mudado depois. Quem guardar cópias antigas do arquivo, como o histórico de versões de um drive na nuvem, consegue ver que o preenchimento mudou.</value>
+  </data>
+  <data name="HiddenVaultSize" xml:space="preserve">
+    <value>Tamanho (MB)</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Use pelo menos 8 caracteres.</value>
+  </data>
+  <data name="CreatingHiddenVault" xml:space="preserve">
+    <value>Criando o cofre oculto...</value>
+  </data>
+  <data name="HiddenVaultCreated" xml:space="preserve">
+    <value>O cofre oculto está pronto. Para abri-lo, escolha este cofre na tela inicial e use “Abrir cofre oculto”.</value>
+  </data>
+  <data name="InvalidSize" xml:space="preserve">
+    <value>Digite um tamanho de pelo menos 1 MB.</value>
+  </data>
 </root>

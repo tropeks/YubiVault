@@ -84,6 +84,7 @@
                 </Button>
 
                 <HyperlinkButton x:Name="RecoveryToggle" Margin="0,12,0,0" Padding="0" Click="OnToggleRecovery" />
+                <HyperlinkButton x:Name="HiddenToggle" Margin="0,8,0,0" Padding="0" Click="OnToggleHidden" />
 
                 <ui:InfoBar x:Name="ErrorBar" Severity="Error" IsClosable="True" Margin="0,16,0,0"
                             Title="{x:Static r:Strings.CouldNotOpen}" />

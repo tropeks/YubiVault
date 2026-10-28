@@ -25,7 +25,8 @@ sealed class KeysPage : UserControl, IBackHandler
                 Ui.Hint(Strings.KeysIntro),
                 _slots,
                 Ui.Button(Strings.AddSecurityKey, AddKey, accent: true, icon: Ui.KeyIcon),
-                Ui.Button(Strings.NewRecoveryCode, NewRecoveryCode)));
+                Ui.Button(Strings.NewRecoveryCode, NewRecoveryCode),
+                Ui.Button(Strings.CreateHiddenVault, () => { if (!_busy) _main.Show(new CreateHiddenPage(_main, session)); }, icon: Ui.LockIcon)));
         Refresh();
     }
 

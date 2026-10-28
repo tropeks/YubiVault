@@ -381,4 +381,49 @@
   <data name="UnexpectedError" xml:space="preserve">
     <value>خطأ غير متوقع</value>
   </data>
+  <data name="OpenHiddenVault" xml:space="preserve">
+    <value>فتح الخزنة المخفية</value>
+  </data>
+  <data name="OpenNormalVault" xml:space="preserve">
+    <value>فتح الخزنة العادية</value>
+  </data>
+  <data name="UnlockHintHidden" xml:space="preserve">
+    <value>اكتب كلمة مرور الخزنة المخفية. بعدها سيطلب مفتاح الأمان رمز PIN ولمسة.</value>
+  </data>
+  <data name="UnlockHintHiddenRecovery" xml:space="preserve">
+    <value>اكتب رمز الاسترداد الخاص بالخزنة المخفية.</value>
+  </data>
+  <data name="HiddenPassword" xml:space="preserve">
+    <value>كلمة مرور الخزنة المخفية</value>
+  </data>
+  <data name="HiddenVault" xml:space="preserve">
+    <value>الخزنة المخفية</value>
+  </data>
+  <data name="StatusHiddenFree" xml:space="preserve">
+    <value>{0} متاحة من {1}</value>
+  </data>
+  <data name="CreateHiddenVault" xml:space="preserve">
+    <value>إنشاء خزنة مخفية</value>
+  </data>
+  <data name="HiddenVaultIntro" xml:space="preserve">
+    <value>توجد الخزنة المخفية داخل ملف هذه الخزنة، في مساحة تبدو كحشو عشوائي. بدون كلمة مرورها لا يمكن لأحد أن يعرف بوجودها، حتى من يفتح هذه الخزنة. تُفتح بكلمة مرورها الخاصة ومفتاح الأمان، أو برمز الاسترداد الخاص بها.</value>
+  </data>
+  <data name="HiddenVaultWarning" xml:space="preserve">
+    <value>يستبدل هذا أي خزنة مخفية موجودة بالفعل في هذا الملف، ولا يمكن تغيير حجمها لاحقاً. من يحتفظ بنسخ قديمة من الملف، مثل سجل الإصدارات في التخزين السحابي، يمكنه أن يرى أن الحشو قد تغيّر.</value>
+  </data>
+  <data name="HiddenVaultSize" xml:space="preserve">
+    <value>الحجم (ميغابايت)</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>استخدم 8 أحرف على الأقل.</value>
+  </data>
+  <data name="CreatingHiddenVault" xml:space="preserve">
+    <value>جارٍ إنشاء الخزنة المخفية...</value>
+  </data>
+  <data name="HiddenVaultCreated" xml:space="preserve">
+    <value>الخزنة المخفية جاهزة. لفتحها، اختر هذه الخزنة في صفحة البداية واستخدم «فتح الخزنة المخفية».</value>
+  </data>
+  <data name="InvalidSize" xml:space="preserve">
+    <value>أدخل حجماً لا يقل عن 1 ميغابايت.</value>
+  </data>
 </root>

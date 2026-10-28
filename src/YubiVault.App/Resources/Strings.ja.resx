@@ -381,4 +381,49 @@ YubiVault を移動した場合は、新しい場所からもう一度この項�
   <data name="UnexpectedError" xml:space="preserve">
     <value>予期しないエラー</value>
   </data>
+  <data name="OpenHiddenVault" xml:space="preserve">
+    <value>隠し金庫を開く</value>
+  </data>
+  <data name="OpenNormalVault" xml:space="preserve">
+    <value>通常の金庫を開く</value>
+  </data>
+  <data name="UnlockHintHidden" xml:space="preserve">
+    <value>隠し金庫のパスワードを入力してください。その後、セキュリティキーが PIN とタッチを求めます。</value>
+  </data>
+  <data name="UnlockHintHiddenRecovery" xml:space="preserve">
+    <value>隠し金庫専用の回復コードを入力してください。</value>
+  </data>
+  <data name="HiddenPassword" xml:space="preserve">
+    <value>隠し金庫のパスワード</value>
+  </data>
+  <data name="HiddenVault" xml:space="preserve">
+    <value>隠し金庫</value>
+  </data>
+  <data name="StatusHiddenFree" xml:space="preserve">
+    <value>{1} 中 {0} の空き</value>
+  </data>
+  <data name="CreateHiddenVault" xml:space="preserve">
+    <value>隠し金庫を作成</value>
+  </data>
+  <data name="HiddenVaultIntro" xml:space="preserve">
+    <value>隠し金庫は、この金庫のファイル内の、ランダムな埋め草にしか見えない領域に置かれます。パスワードがなければ、この金庫を開いた人でさえ、隠し金庫があることを知ることはできません。専用のパスワードとセキュリティキー、または専用の回復コードで開きます。</value>
+  </data>
+  <data name="HiddenVaultWarning" xml:space="preserve">
+    <value>このファイルに既にある隠し金庫は置き換えられ、サイズは後から変更できません。クラウドドライブのバージョン履歴など、ファイルの古いコピーを持っている人は、埋め草が変化したことに気付けます。</value>
+  </data>
+  <data name="HiddenVaultSize" xml:space="preserve">
+    <value>サイズ (MB)</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>8 文字以上にしてください。</value>
+  </data>
+  <data name="CreatingHiddenVault" xml:space="preserve">
+    <value>隠し金庫を作成しています...</value>
+  </data>
+  <data name="HiddenVaultCreated" xml:space="preserve">
+    <value>隠し金庫の準備ができました。開くには、スタートページでこの金庫を選び、「隠し金庫を開く」を使ってください。</value>
+  </data>
+  <data name="InvalidSize" xml:space="preserve">
+    <value>1 MB 以上のサイズを入力してください。</value>
+  </data>
 </root>

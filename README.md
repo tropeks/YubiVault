@@ -27,6 +27,7 @@ The Android app opens and creates the same `.yvault` files. Plug the security ke
 - **YubiKey 5 OTP mode (optional).** YubiKey 5 keys can instead use HMAC-SHA1 challenge-response (slot 2), optionally combined with a password.
 - **Recovery.** When a vault is created, YubiVault shows a recovery code to print and keep safe. A second YubiKey can be registered later without re-encrypting anything.
 - **Layered encryption.** Every file goes through AES-256-GCM and then XChaCha20-Poly1305, with independent keys derived by HKDF-SHA256. A future break in one algorithm is not enough to expose your data.
+- **Hidden vault (optional).** A second vault can live inside a vault's file, in space that looks like random padding, with its own password (plus your security key) and its own recovery code. Without that password nobody can tell it exists, even after opening the outer vault. It protects against someone who sees one copy of the file, not against someone who compares copies over time (see [docs/format.md](docs/format.md#hidden-vault)).
 - **A vault is a single `.yvault` file.** Keep it on a USB stick, a disk, OneDrive or Google Drive. From the outside there are no file names, folders, sizes or structure, only encrypted data.
 
 ## Roadmap
