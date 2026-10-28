@@ -31,6 +31,7 @@ public sealed class AndroidPlatform : IPlatform
     readonly Dictionary<int, TaskCompletionSource<(Result Result, Intent? Data)>> _pendingResults = [];
     int _nextRequestCode = 4100;
     VaultDocument? _pendingOpen;
+    bool _otherAppOpened;
 
     AndroidPlatform(Activity activity)
     {
@@ -53,6 +54,42 @@ public sealed class AndroidPlatform : IPlatform
     Context Context => _activity;
 
     ContentResolver Resolver => _activity.ContentResolver!;
+
+    // ---- Leaving the screen ----
+
+    /// <summary>Raised on the UI thread when the app is no longer visible (home, another app, screen off).</summary>
+    public event Action? Backgrounded;
+
+    /// <summary>Raised on the UI thread when the app is visible again.</summary>
+    public event Action? Foregrounded;
+
+    internal void OnStopped() => Backgrounded?.Invoke();
+
+    internal void OnStarted() => Foregrounded?.Invoke();
+
+    /// <summary>
+    /// True if the app itself sent the user to another app (a file picker or a viewer for a decrypted
+    /// file) since this was last asked; such a trip does not lock the vault right away.
+    /// </summary>
+    public bool TakeOtherAppOpened()
+    {
+        bool opened = _otherAppOpened;
+        _otherAppOpened = false;
+        return opened;
+    }
+
+    /// <summary>Ends every picker the app is still waiting on as if the user had cancelled it.</summary>
+    public void CancelPendingResults()
+    {
+        List<TaskCompletionSource<(Result, Intent?)>> pending;
+        lock (_pendingResults)
+        {
+            pending = [.. _pendingResults.Values];
+            _pendingResults.Clear();
+        }
+        foreach (var completion in pending)
+            completion.TrySetResult((Result.Canceled, null));
+    }
 
     // ---- .yvault files opened from other apps ----
 
@@ -257,6 +294,7 @@ public sealed class AndroidPlatform : IPlatform
         try
         {
             _activity.StartActivityForResult(intent, requestCode);
+            _otherAppOpened = true;
         }
         catch (ActivityNotFoundException)
         {
@@ -489,6 +527,7 @@ public sealed class AndroidPlatform : IPlatform
         try
         {
             _activity.StartActivity(Intent.CreateChooser(intent, (string?)null));
+            _otherAppOpened = true;
         }
         catch (ActivityNotFoundException e)
         {

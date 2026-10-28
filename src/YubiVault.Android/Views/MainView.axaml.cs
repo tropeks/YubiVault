@@ -44,6 +44,8 @@ public partial class MainView : UserControl
             android.OpenRequested += OpenFromOtherApp;
             if (android.TakePendingOpen() is { } document)
                 OpenFromOtherApp(document);
+            android.Backgrounded += OnBackgrounded;
+            android.Foregrounded += OnForegrounded;
         }
     }
 
@@ -76,6 +78,91 @@ public partial class MainView : UserControl
     {
         Session = session;
         Show(new VaultPage(this, session));
+        if (_inBackground)
+            RequestLock(); // the unlock finished after the user had left the app
+    }
+
+    // ---- Locking ----
+
+    /// <summary>How long a vault stays open while the user is in a picker or a viewer the app opened.</summary>
+    static readonly TimeSpan OtherAppGrace = TimeSpan.FromMinutes(5);
+
+    bool _inBackground, _lockPending;
+    int _steps;
+    DateTime _leftAt;
+    IDisposable? _lockTimer;
+
+    /// <summary>Locks the vault (writing back anything pending) and returns to the start page.</summary>
+    internal async Task LockAsync()
+    {
+        _lockPending = false;
+        var session = Session;
+        if (session is null)
+            return;
+        Session = null;
+        await session.LockAsync(this);
+        // A new recovery code stays on screen until the user has stored it; it is not vault content.
+        if (PageHost.Content is not RecoveryCodePage)
+            ShowStart();
+    }
+
+    /// <summary>Pages call these around each step that uses the vault, so a lock never cuts one in half.</summary>
+    internal void BeginStep() => _steps++;
+
+    internal void EndStep()
+    {
+        if (--_steps == 0 && _lockPending)
+            _ = LockAsync();
+    }
+
+    /// <summary>
+    /// Leaving the app locks the vault at once. A trip the app started itself (picking files, viewing a
+    /// decrypted file) gets a few minutes before it locks, or the file would vanish under the viewer.
+    /// </summary>
+    void OnBackgrounded()
+    {
+        _inBackground = true;
+        bool otherApp = Platform is AndroidPlatform android && android.TakeOtherAppOpened();
+        if (Session is null)
+            return;
+        if (otherApp)
+        {
+            _leftAt = DateTime.UtcNow;
+            _lockTimer?.Dispose();
+            _lockTimer = DispatcherTimer.RunOnce(RequestLock, OtherAppGrace);
+        }
+        else
+        {
+            RequestLock();
+        }
+    }
+
+    void OnForegrounded()
+    {
+        _inBackground = false;
+        if (_lockTimer is null)
+            return;
+        _lockTimer.Dispose();
+        _lockTimer = null;
+        // Android may freeze a cached app, so the timer alone cannot be trusted to have fired.
+        if (DateTime.UtcNow - _leftAt >= OtherAppGrace)
+            RequestLock();
+    }
+
+    void RequestLock()
+    {
+        _lockTimer?.Dispose();
+        _lockTimer = null;
+        if (Session is null)
+            return;
+        _lockPending = true;
+        // Cancel what waits on the user (pickers, dialogs, the key sheet); work behind a progress card finishes first.
+        if (Platform is AndroidPlatform android)
+            android.CancelPendingResults();
+        foreach (var (_, onBack) in _overlays.ToList())
+            onBack?.Invoke();
+        if (_steps == 0)
+            _ = LockAsync();
     }
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
