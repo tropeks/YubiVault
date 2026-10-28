@@ -20,6 +20,8 @@
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
     <RunAOTCompilation>false</RunAOTCompilation>
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+    <!-- Register Java callbacks at run time: incremental Release builds could ship stale marshal-method stubs and crash at start. -->
+    <AndroidEnableMarshalMethods>false</AndroidEnableMarshalMethods>
   </PropertyGroup>
 
   <!-- Launcher icon: Resources/mipmap-* (adaptive, with a monochrome layer for themed icons). -->
