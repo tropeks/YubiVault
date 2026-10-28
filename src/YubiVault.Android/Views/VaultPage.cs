@@ -221,6 +221,7 @@ sealed class VaultPage : UserControl, IBackHandler
         if (_busy)
             return;
         _busy = true;
+        _main.BeginStep();
         try
         {
             await step();
@@ -232,6 +233,7 @@ sealed class VaultPage : UserControl, IBackHandler
         finally
         {
             _busy = false;
+            _main.EndStep();
         }
     }
 
@@ -323,10 +325,5 @@ sealed class VaultPage : UserControl, IBackHandler
         _main.ShowToast(Ui.Format(Strings.EncryptedInfo, added));
     });
 
-    async void Lock() => await Guard(async () =>
-    {
-        await _session.LockAsync(_main);
-        _main.Session = null;
-        _main.ShowStart();
-    });
+    async void Lock() => await Guard(_main.LockAsync);
 }

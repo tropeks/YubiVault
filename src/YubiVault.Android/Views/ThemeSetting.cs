@@ -32,6 +32,7 @@ static class ThemeSetting
     {
         try
         {
+            Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
             File.WriteAllText(FilePath, theme);
         }
         catch (IOException)
