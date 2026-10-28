@@ -53,8 +53,6 @@ public sealed class AndroidPlatform : IPlatform
 
     Context Context => _activity;
 
-    internal Activity Activity => _activity;
-
     ContentResolver Resolver => _activity.ContentResolver!;
 
     // ---- Leaving the screen ----

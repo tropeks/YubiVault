@@ -70,13 +70,4 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>फ़ोन के अनुसार</value>
   </data>
-  <data name="NativePromptFallback" xml:space="preserve">
-    <value>Android का कुंजी संकेत काम नहीं किया ({0})। YubiVault का अपना संकेत उपयोग हो रहा है।</value>
-  </data>
-  <data name="LegacyKeyTag" xml:space="preserve">
-    <value>पुराना पंजीकरण</value>
-  </data>
-  <data name="LegacyKeysHint" xml:space="preserve">
-    <value>“पुराना पंजीकरण” वाली कुंजियाँ YubiVault की अपनी स्क्रीन में PIN माँगती हैं। Android का संकेत उपयोग करने के लिए वही कुंजी फिर से जोड़ें, फिर पुराना पंजीकरण हटाएँ।</value>
-  </data>
 </root>

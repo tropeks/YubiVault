@@ -70,13 +70,4 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>ফোনের মতো</value>
   </data>
-  <data name="NativePromptFallback" xml:space="preserve">
-    <value>Android-এর কী প্রম্পট কাজ করেনি ({0})। YubiVault-এর নিজের প্রম্পট ব্যবহার করা হচ্ছে।</value>
-  </data>
-  <data name="LegacyKeyTag" xml:space="preserve">
-    <value>পুরনো নিবন্ধন</value>
-  </data>
-  <data name="LegacyKeysHint" xml:space="preserve">
-    <value>“পুরনো নিবন্ধন” চিহ্নিত কীগুলো YubiVault-এর নিজের স্ক্রিনে PIN চায়। Android-এর প্রম্পট ব্যবহার করতে একই কী আবার যোগ করুন, তারপর পুরনো নিবন্ধনটি সরান।</value>
-  </data>
 </root>

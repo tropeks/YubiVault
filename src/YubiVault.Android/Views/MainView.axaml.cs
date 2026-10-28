@@ -523,20 +523,11 @@ public partial class MainView : UserControl
                 waiting ? Strings.TouchKeyDetail : MobileStrings.KeyWorking, waiting ? Ui.TouchIcon : Ui.KeyIcon),
         };
 
-        // New credentials get Android's own prompt, which asks for the PIN and the touch itself.
-        var native = Platform is AndroidPlatform android ? new NativeSecurityKey(android.Activity, cancel.Token) : null;
-        var phoneKey = new PhoneSecurityKey(native, key, reason =>
-            Dispatcher.UIThread.Post(() => _ = AlertAsync(Strings.ErrorTitle, Ui.Format(MobileStrings.NativePromptFallback, reason))));
-
         try
         {
-            return (true, await Task.Run(() => work(phoneKey)));
+            return (true, await Task.Run(() => work(key)));
         }
-        catch (OperationCanceledException)
-        {
-            return (false, default!);
-        }
-        catch (Exception e) when (cancel.IsCancellationRequested && e is VaultException or CtapException)
+        catch (Exception e) when (cancel.IsCancellationRequested && e is VaultException or OperationCanceledException or CtapException)
         {
             return (false, default!);
         }

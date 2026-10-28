@@ -13,7 +13,6 @@ sealed class KeysPage : UserControl, IBackHandler
     readonly MainView _main;
     readonly VaultSession _session;
     readonly StackPanel _slots = new() { Spacing = 8 };
-    readonly TextBlock _legacyHint = Ui.Hint(MobileStrings.LegacyKeysHint);
     bool _busy;
 
     public KeysPage(MainView main, VaultSession session)
@@ -25,7 +24,6 @@ sealed class KeysPage : UserControl, IBackHandler
             Ui.Column(
                 Ui.Hint(Strings.KeysIntro),
                 _slots,
-                _legacyHint,
                 Ui.Button(Strings.AddSecurityKey, AddKey, accent: true, icon: Ui.KeyIcon),
                 Ui.Button(Strings.NewRecoveryCode, NewRecoveryCode),
                 Ui.Button(Strings.CreateHiddenVault, () => { if (!_busy) _main.Show(new CreateHiddenPage(_main, session)); }, icon: Ui.LockIcon)));
@@ -44,12 +42,7 @@ sealed class KeysPage : UserControl, IBackHandler
         _slots.Children.Clear();
         foreach (var slot in _session.Vault.Slots)
             _slots.Children.Add(Row(slot));
-        _legacyHint.IsVisible = _session.Vault.Slots.Any(IsLegacy);
     }
-
-    /// <summary>A security key registered before Android's own prompt could be used; it opens through the app's PIN prompt.</summary>
-    static bool IsLegacy(KeySlot slot) =>
-        slot.Type == KeySlotType.Fido2 && (slot.RelyingPartyId ?? Vault.LegacyFido2RelyingPartyId) != Vault.Fido2RelyingPartyId;
 
     Control Row(KeySlot slot)
     {
@@ -60,8 +53,6 @@ sealed class KeysPage : UserControl, IBackHandler
             KeySlotType.Recovery => Strings.KindRecovery,
             _ => slot.Type,
         };
-        if (IsLegacy(slot))
-            kind += " · " + MobileStrings.LegacyKeyTag;
         string label = slot.Type == KeySlotType.Recovery ? Strings.KindRecovery : slot.Label;
         var text = new StackPanel
         {

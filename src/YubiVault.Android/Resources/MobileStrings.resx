@@ -70,13 +70,4 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>Same as the phone</value>
   </data>
-  <data name="NativePromptFallback" xml:space="preserve">
-    <value>Android's key prompt didn't work ({0}). Using YubiVault's own prompt.</value>
-  </data>
-  <data name="LegacyKeyTag" xml:space="preserve">
-    <value>older registration</value>
-  </data>
-  <data name="LegacyKeysHint" xml:space="preserve">
-    <value>Keys marked “older registration” ask for the PIN in YubiVault's own prompt. To use Android's prompt instead, add the same key again, then remove the older entry.</value>
-  </data>
 </root>
