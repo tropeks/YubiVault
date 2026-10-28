@@ -3,6 +3,14 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # A release published from the GitHub web page creates its tag there; build and attach to it.
+  release:
+    types: [published]
+
+# Publishing from the web page can fire both events for the same tag; build it once.
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -125,5 +133,10 @@ jobs:
           cd upload
           sha256sum * > ../SHA256SUMS.txt && mv ../SHA256SUMS.txt .
           case "$version" in 0.*) prerelease=--prerelease ;; *) prerelease= ;; esac
-          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --title "YubiVault $version" \
-            --generate-notes $prerelease *
+          if gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            # Already published from the web page: attach the files to it.
+            gh release upload "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --clobber *
+          else
+            gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --title "YubiVault $version" \
+              --generate-notes $prerelease *
+          fi
