@@ -15,6 +15,7 @@ mkdir -p "$stage/share"
 install -m755 "$app/YubiVault" "$cli/yubivault-cli" "$here/install.sh" "$stage/"
 install -m644 "$here/yubivault.desktop" "$here/yubivault-mime.xml" "$here/70-yubivault-fido.rules" "$stage/share/"
 install -m644 "$root/assets/yubivault.png" "$stage/share/yubivault.png"
+install -m644 "$root/assets/yubivault-file.png" "$stage/share/application-x-yubivault.png"
 install -m644 "$root/LICENSE" "$here/README.txt" "$stage/"
 
 tar -C "$work" --owner=0 --group=0 -czf "$name.tar.gz" "$name"
@@ -29,7 +30,7 @@ case "$rid" in
 esac
 mkdir "$work/pkgroot"
 cp "$stage/YubiVault" "$stage/yubivault-cli" "$stage/share/yubivault.desktop" \
-   "$stage/share/yubivault.png" "$stage/share/yubivault-mime.xml" "$stage/LICENSE" "$work/pkgroot/"
+   "$stage/share/yubivault.png" "$stage/share/application-x-yubivault.png" "$stage/share/yubivault-mime.xml" "$stage/LICENSE" "$work/pkgroot/"
 cp "$here/nfpm.yaml" "$work/"
 out=$(pwd)
 for packager in deb rpm; do

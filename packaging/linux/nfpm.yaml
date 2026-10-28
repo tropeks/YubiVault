@@ -26,6 +26,8 @@ contents:
     dst: /usr/share/applications/yubivault.desktop
   - src: pkgroot/yubivault.png
     dst: /usr/share/icons/hicolor/512x512/apps/yubivault.png
+  - src: pkgroot/application-x-yubivault.png
+    dst: /usr/share/icons/hicolor/512x512/mimetypes/application-x-yubivault.png
   - src: pkgroot/yubivault-mime.xml
     dst: /usr/share/mime/packages/yubivault.xml
   - src: pkgroot/LICENSE
