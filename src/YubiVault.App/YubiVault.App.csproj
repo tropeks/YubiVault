@@ -27,6 +27,8 @@
   <ItemGroup>
     <AvaloniaResource Include="..\..\assets\yubivault.ico" Link="Assets\yubivault.ico" />
     <AvaloniaResource Include="..\..\assets\yubivault.png" Link="Assets\yubivault.png" />
+    <AvaloniaResource Include="..\..\assets\yubivault-file.ico" Link="Assets\yubivault-file.ico" />
+    <AvaloniaResource Include="..\..\assets\yubivault-file.png" Link="Assets\yubivault-file.png" />
   </ItemGroup>
 
   <ItemGroup>

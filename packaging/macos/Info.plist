@@ -37,7 +37,7 @@
       <key>UTTypeDescription</key>
       <string>YubiVault vault</string>
       <key>UTTypeIconFile</key>
-      <string>yubivault</string>
+      <string>yubivault-file</string>
       <key>UTTypeConformsTo</key>
       <array>
         <string>public.data</string>
@@ -64,7 +64,7 @@
       <key>LSHandlerRank</key>
       <string>Owner</string>
       <key>CFBundleTypeIconFile</key>
-      <string>yubivault</string>
+      <string>yubivault-file</string>
       <key>LSItemContentTypes</key>
       <array>
         <string>io.github.tropeks.yubivault.vault</string>

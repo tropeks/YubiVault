@@ -13,7 +13,8 @@ namespace YubiVault.App;
 /// executable's current location and is offered again if it moves.
 /// </summary>
 /// <remarks>
-/// Windows: HKCU\Software\Classes. Linux: a shared-mime-info type, a .desktop file and an icon under
+/// .yvault files get their own folder-with-key icon, distinct from the app icon.
+/// Windows: HKCU\Software\Classes, with the file icon copied to the local app data folder. Linux: a shared-mime-info type, a .desktop file and an icon under
 /// ~/.local/share. macOS: the app bundle's Info.plist declares the type, so nothing is done here.
 /// </remarks>
 static class FileAssociation
@@ -51,25 +52,31 @@ static class FileAssociation
 
     static string WindowsOpenCommand => $"\"{ExePath}\" \"%1\"";
 
+    static string WindowsFileIconPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YubiVault", "yubivault-file.ico");
+
     [SupportedOSPlatform("windows")]
     static bool IsRegisteredWindows()
     {
         using var extension = Registry.CurrentUser.OpenSubKey(ClassesKey + Vault.FileExtension);
         using var command = Registry.CurrentUser.OpenSubKey(ClassesKey + ProgId + @"\shell\open\command");
+        using var icon = Registry.CurrentUser.OpenSubKey(ClassesKey + ProgId + @"\DefaultIcon");
         return extension?.GetValue(null) as string == ProgId
+            && icon?.GetValue(null) as string == WindowsFileIconPath && File.Exists(WindowsFileIconPath)
             && string.Equals(command?.GetValue(null) as string, WindowsOpenCommand, StringComparison.OrdinalIgnoreCase);
     }
 
     [SupportedOSPlatform("windows")]
     static void RegisterWindows()
     {
+        CopyAsset("yubivault-file.ico", WindowsFileIconPath);
         using (var extension = Registry.CurrentUser.CreateSubKey(ClassesKey + Vault.FileExtension))
             extension.SetValue(null, ProgId);
         using (var progId = Registry.CurrentUser.CreateSubKey(ClassesKey + ProgId))
         {
             progId.SetValue(null, "YubiVault vault");
             using (var icon = progId.CreateSubKey("DefaultIcon"))
-                icon.SetValue(null, $"\"{ExePath}\",0");
+                icon.SetValue(null, WindowsFileIconPath);
             using (var command = progId.CreateSubKey(@"shell\open\command"))
                 command.SetValue(null, WindowsOpenCommand);
         }
@@ -113,7 +120,7 @@ static class FileAssociation
             <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
               <mime-type type="{MimeType}">
                 <comment>YubiVault vault</comment>
-                <icon name="yubivault"/>
+                <icon name="application-x-yubivault"/>
                 <magic priority="60"><match type="string" offset="0" value="YVAULT"/></magic>
                 <glob pattern="*{Vault.FileExtension}"/>
               </mime-type>
@@ -124,13 +131,8 @@ static class FileAssociation
         string iconFolder = Path.Combine(DataHome, "icons", "hicolor", "256x256");
         Directory.CreateDirectory(Path.Combine(iconFolder, "apps"));
         Directory.CreateDirectory(Path.Combine(iconFolder, "mimetypes"));
-        using (var icon = Avalonia.Platform.AssetLoader.Open(new Uri("avares://YubiVault/Assets/yubivault.png")))
-        {
-            using var app = File.Create(Path.Combine(iconFolder, "apps", "yubivault.png"));
-            icon.CopyTo(app);
-        }
-        File.Copy(Path.Combine(iconFolder, "apps", "yubivault.png"),
-            Path.Combine(iconFolder, "mimetypes", MimeType.Replace('/', '-') + ".png"), overwrite: true);
+        CopyAsset("yubivault.png", Path.Combine(iconFolder, "apps", "yubivault.png"));
+        CopyAsset("yubivault-file.png", Path.Combine(iconFolder, "mimetypes", MimeType.Replace('/', '-') + ".png"));
 
         Directory.CreateDirectory(Path.GetDirectoryName(DesktopFilePath)!);
         File.WriteAllText(DesktopFilePath, $"""
@@ -147,8 +149,17 @@ static class FileAssociation
             """);
 
         Run("update-mime-database", mimeFolder);
+        Run("gtk-update-icon-cache", "-q", "-t", Path.Combine(DataHome, "icons", "hicolor"));
         Run("update-desktop-database", Path.GetDirectoryName(DesktopFilePath)!);
         Run("xdg-mime", "default", DesktopFileName, MimeType);
+    }
+
+    static void CopyAsset(string name, string destination)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
+        using var asset = Avalonia.Platform.AssetLoader.Open(new Uri($"avares://YubiVault/Assets/{name}"));
+        using var file = File.Create(destination);
+        asset.CopyTo(file);
     }
 
     /// <summary>Runs a desktop helper if it is installed; the files above work without it after a re-login.</summary>

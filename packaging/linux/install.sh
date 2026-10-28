@@ -1,6 +1,6 @@
 #!/bin/sh
 # Installs YubiVault for the current user only (no root): the app and CLI in
-# ~/.local/bin, a menu entry, the icon and the .yvault file type.
+# ~/.local/bin, a menu entry, the icons and the .yvault file type.
 # Run it again to update, or with --uninstall to remove everything it added.
 set -eu
 
@@ -11,13 +11,15 @@ bin=$HOME/.local/bin
 if [ "${1:-}" = "--uninstall" ]; then
     rm -f "$bin/yubivault" "$bin/yubivault-cli" \
           "$data/applications/yubivault.desktop" \
-          "$data/icons/hicolor/512x512/apps/yubivault.png"
+          "$data/icons/hicolor/512x512/apps/yubivault.png" \
+          "$data/icons/hicolor/512x512/mimetypes/application-x-yubivault.png"
     rm -f "$data/mime/packages/yubivault.xml"
 else
     install -Dm755 "$here/YubiVault" "$bin/yubivault"
     install -Dm755 "$here/yubivault-cli" "$bin/yubivault-cli"
     install -Dm644 "$here/share/yubivault.desktop" "$data/applications/yubivault.desktop"
     install -Dm644 "$here/share/yubivault.png" "$data/icons/hicolor/512x512/apps/yubivault.png"
+    install -Dm644 "$here/share/application-x-yubivault.png" "$data/icons/hicolor/512x512/mimetypes/application-x-yubivault.png"
     install -Dm644 "$here/share/yubivault-mime.xml" "$data/mime/packages/yubivault.xml"
     # Menus may not search ~/.local/bin, so point the entry at the full path.
     sed -i "s|^Exec=yubivault |Exec=\"$bin/yubivault\" |" "$data/applications/yubivault.desktop"

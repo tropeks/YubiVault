@@ -16,17 +16,22 @@ install -m755 "$app/YubiVault" "$bundle/Contents/MacOS/YubiVault"
 sed "s/@VERSION@/$version/g" "$here/Info.plist" > "$bundle/Contents/Info.plist"
 plutil -lint "$bundle/Contents/Info.plist"
 
-# The .icns is built from the 512 px PNG at every size macOS asks for.
-iconset=$(mktemp -d)/yubivault.iconset
-mkdir -p "$iconset"
-for size in 16 32 128 256 512; do
-    sips -z $size $size "$root/assets/yubivault.png" --out "$iconset/icon_${size}x${size}.png" >/dev/null
-    double=$((size * 2))
-    if [ $double -le 512 ]; then
-        sips -z $double $double "$root/assets/yubivault.png" --out "$iconset/icon_${size}x${size}@2x.png" >/dev/null
-    fi
-done
-iconutil -c icns "$iconset" -o "$bundle/Contents/Resources/yubivault.icns"
+# Each .icns is built from a 512 px PNG at every size macOS asks for: the app icon, and the
+# folder-with-key icon that Finder shows on .yvault files.
+make_icns() {
+    iconset=$(mktemp -d)/icon.iconset
+    mkdir -p "$iconset"
+    for size in 16 32 128 256 512; do
+        sips -z $size $size "$1" --out "$iconset/icon_${size}x${size}.png" >/dev/null
+        double=$((size * 2))
+        if [ $double -le 512 ]; then
+            sips -z $double $double "$1" --out "$iconset/icon_${size}x${size}@2x.png" >/dev/null
+        fi
+    done
+    iconutil -c icns "$iconset" -o "$2"
+}
+make_icns "$root/assets/yubivault.png" "$bundle/Contents/Resources/yubivault.icns"
+make_icns "$root/assets/yubivault-file.png" "$bundle/Contents/Resources/yubivault-file.icns"
 
 install -m755 "$cli/yubivault-cli" "$stage/yubivault-cli"
 install -m644 "$root/LICENSE" "$here/README.txt" "$stage/"
