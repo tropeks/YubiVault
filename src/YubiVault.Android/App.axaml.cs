@@ -12,6 +12,7 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         Views.ThemeSetting.Apply();
+        Views.LanguageSetting.Apply();
         if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)
             singleView.MainView = new Views.MainView(AndroidPlatform.Current);
         base.OnFrameworkInitializationCompleted();

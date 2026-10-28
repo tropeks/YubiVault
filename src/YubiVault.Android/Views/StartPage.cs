@@ -40,12 +40,41 @@ sealed class StartPage : UserControl
             _recentHeader,
             _recent);
         content.MaxWidth = 560;
-        var theme = ThemeButton();
-        theme.HorizontalAlignment = HorizontalAlignment.Right;
-        theme.VerticalAlignment = VerticalAlignment.Top;
-        theme.Margin = new Thickness(8);
-        Content = new Panel { Children = { new ScrollViewer { Content = content }, theme } };
+        var settings = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(8),
+            Children = { LanguageButton(), ThemeButton() },
+        };
+        Content = new Panel { Children = { new ScrollViewer { Content = content }, settings } };
         LoadRecent();
+    }
+
+    /// <summary>Top-right button with the language choice; the pages are rebuilt in the new language at once.</summary>
+    Button LanguageButton()
+    {
+        var button = Ui.IconButton(Ui.LanguageIcon, Strings.Language);
+        var menu = new MenuFlyout();
+        foreach (var (code, name) in LanguageSetting.Languages.Prepend(("", Strings.LanguageSystem)))
+        {
+            var item = new MenuItem { Header = name, ToggleType = MenuItemToggleType.Radio, GroupName = "language", Tag = code };
+            item.Click += (_, _) =>
+            {
+                LanguageSetting.Set(code);
+                _main.Relocalize();
+            };
+            menu.Items.Add(item);
+        }
+        menu.Opening += (_, _) =>
+        {
+            string current = LanguageSetting.Current;
+            foreach (MenuItem item in menu.Items.Cast<MenuItem>())
+                item.IsChecked = (string)item.Tag! == current;
+        };
+        button.Flyout = menu;
+        return button;
     }
 
     /// <summary>Top-right button with the dark / light / same-as-phone choice.</summary>
@@ -135,9 +164,19 @@ sealed class StartPage : UserControl
         return Ui.Card(row, 0);
     }
 
-    /// <summary>Where the vault lives, when the document's address tells (local folders): "Download", "Documents/Work"; otherwise empty.</summary>
+    /// <summary>Where the vault lives: the cloud service ("Google Drive"), or the local folder ("Download", "Documents/Work"); otherwise empty.</summary>
     static string Location(VaultDocument document)
     {
+        // Cloud providers have opaque document ids; name the service instead of a folder.
+        string? cloud = Uri.TryCreate(document.Uri, UriKind.Absolute, out var parsed) ? parsed.Host.ToLowerInvariant() switch
+        {
+            "com.google.android.apps.docs.storage" => "Google Drive",
+            "com.microsoft.skydrive.content.storageaccessprovider" => "OneDrive",
+            "com.dropbox.product.android.dbapp.document_provider.documents" => "Dropbox",
+            _ => null,
+        } : null;
+        if (cloud is not null)
+            return cloud;
         try
         {
             string uri = Uri.UnescapeDataString(document.Uri);

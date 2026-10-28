@@ -65,6 +65,13 @@ public partial class MainView : UserControl
 
     internal void ShowStart() => Show(new StartPage(this));
 
+    /// <summary>Redraws the start page in the language just chosen (pages read their texts when built).</summary>
+    internal void Relocalize()
+    {
+        FlowDirection = Ui.IsRightToLeft ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+        ShowStart();
+    }
+
     internal void ShowVault(VaultSession session)
     {
         Session = session;
