@@ -14,6 +14,7 @@ public partial class StartPage : UserControl
     string? _vaultFile;
     bool _fido2;
     bool _recoveryMode;
+    bool _hiddenMode;
     bool _loadingLanguages;
 
     public StartPage() : this(null!, null) { }
@@ -110,32 +111,51 @@ public partial class StartPage : UserControl
             return;
         }
 
+        if (path != _vaultFile)
+            _hiddenMode = false;
         _vaultFile = path;
         _fido2 = Keys.PreferFido2(slots);
         VaultName.Text = Path.GetFileNameWithoutExtension(path);
         VaultLocation.Text = path;
-        bool needsPassword = !_fido2 && slots.Any(s => s.RequiresPassword);
+        // Every vault offers the hidden vault: whether one exists cannot be told from the file.
+        HiddenToggle.Content = _hiddenMode ? Strings.OpenNormalVault : Strings.OpenHiddenVault;
+        bool needsPassword = _hiddenMode || (!_fido2 && slots.Any(s => s.RequiresPassword));
         PasswordInput.IsVisible = needsPassword;
+        PasswordInput.Watermark = _hiddenMode ? Strings.HiddenPassword : Strings.Password;
         PasswordInput.Text = "";
-        SetRecoveryMode(false);
-        UnlockHint.Text = !_fido2 ? Strings.UnlockHintOtp
+        ShowRecoveryInput(false);
+        UnlockHint.Text = _hiddenMode ? Strings.UnlockHintHidden
+            : !_fido2 ? Strings.UnlockHintOtp
             : Keys.SystemAsksForPin ? Strings.UnlockHintFido2Windows : Strings.UnlockHintFido2;
         UnlockPanel.IsVisible = true;
         (needsPassword ? PasswordInput : (Control)UnlockButton).Focus();
     }
 
+    void OnToggleHidden(object? sender, RoutedEventArgs e)
+    {
+        if (_vaultFile is null)
+            return;
+        _hiddenMode = !_hiddenMode;
+        SelectVault(_vaultFile);
+    }
+
     void OnToggleRecovery(object? sender, RoutedEventArgs e) => SetRecoveryMode(!_recoveryMode);
 
-    void SetRecoveryMode(bool on)
+    void ShowRecoveryInput(bool on)
     {
         _recoveryMode = on;
         RecoveryInput.Text = "";
         RecoveryInput.IsVisible = on;
         RecoveryToggle.Content = on ? Strings.UseKeyInstead : Strings.UseRecoveryCode;
+    }
+
+    void SetRecoveryMode(bool on)
+    {
+        ShowRecoveryInput(on);
         if (on)
         {
             PasswordInput.IsVisible = false;
-            UnlockHint.Text = Strings.UnlockHintRecovery;
+            UnlockHint.Text = _hiddenMode ? Strings.UnlockHintHiddenRecovery : Strings.UnlockHintRecovery;
             RecoveryInput.Focus();
         }
         else if (_vaultFile is not null && UnlockPanel.IsVisible)
@@ -158,7 +178,23 @@ public partial class StartPage : UserControl
         string path = _vaultFile;
         try
         {
-            if (_recoveryMode)
+            if (_hiddenMode)
+            {
+                Vault vault;
+                if (_recoveryMode)
+                {
+                    string code = RecoveryInput.Text ?? "";
+                    vault = await _main.RunAsync(Strings.UnlockingRecovery, () => Vault.OpenHiddenWithRecoveryCode(path, code));
+                }
+                else
+                {
+                    string password = PasswordInput.Text ?? "";
+                    var key = Keys.SecurityKey(_main, _main);
+                    vault = await _main.RunAsync(Strings.WaitingForKey, () => Vault.OpenHidden(path, password, key));
+                }
+                _main.ShowVault(vault);
+            }
+            else if (_recoveryMode)
             {
                 string code = RecoveryInput.Text ?? "";
                 var vault = await _main.RunAsync(Strings.UnlockingRecovery, () => Vault.OpenWithRecoveryCode(path, code));

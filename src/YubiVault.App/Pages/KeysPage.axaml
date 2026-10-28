@@ -69,6 +69,12 @@
                     <TextBlock Text="{x:Static r:Strings.NewRecoveryCode}" />
                 </StackPanel>
             </Button>
+            <Button Margin="0,0,8,8" Click="OnCreateHiddenVault">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <PathIcon Data="{StaticResource LockClosedIcon}" Width="16" Height="16" />
+                    <TextBlock Text="{x:Static r:Strings.CreateHiddenVault}" />
+                </StackPanel>
+            </Button>
         </WrapPanel>
 
         <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,8,0,0" Spacing="10">

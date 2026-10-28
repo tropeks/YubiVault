@@ -381,4 +381,49 @@
   <data name="UnexpectedError" xml:space="preserve">
     <value>意外错误</value>
   </data>
+  <data name="OpenHiddenVault" xml:space="preserve">
+    <value>打开隐藏保险库</value>
+  </data>
+  <data name="OpenNormalVault" xml:space="preserve">
+    <value>打开普通保险库</value>
+  </data>
+  <data name="UnlockHintHidden" xml:space="preserve">
+    <value>输入隐藏保险库的密码。随后安全密钥会要求输入 PIN 并触摸。</value>
+  </data>
+  <data name="UnlockHintHiddenRecovery" xml:space="preserve">
+    <value>输入隐藏保险库专用的恢复码。</value>
+  </data>
+  <data name="HiddenPassword" xml:space="preserve">
+    <value>隐藏保险库密码</value>
+  </data>
+  <data name="HiddenVault" xml:space="preserve">
+    <value>隐藏保险库</value>
+  </data>
+  <data name="StatusHiddenFree" xml:space="preserve">
+    <value>{1} 中可用 {0}</value>
+  </data>
+  <data name="CreateHiddenVault" xml:space="preserve">
+    <value>创建隐藏保险库</value>
+  </data>
+  <data name="HiddenVaultIntro" xml:space="preserve">
+    <value>隐藏保险库位于此保险库的文件内，存放在看起来像随机填充的空间中。没有它的密码，任何人都无法知道它的存在，即使打开了此保险库也不行。它用自己的密码加上你的安全密钥打开，或用它自己的恢复码打开。</value>
+  </data>
+  <data name="HiddenVaultWarning" xml:space="preserve">
+    <value>这会替换此文件中已有的隐藏保险库，且之后无法更改其大小。保留了文件旧副本的人（例如云盘的版本历史）可以看出填充发生了变化。</value>
+  </data>
+  <data name="HiddenVaultSize" xml:space="preserve">
+    <value>大小 (MB)</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>请至少使用 8 个字符。</value>
+  </data>
+  <data name="CreatingHiddenVault" xml:space="preserve">
+    <value>正在创建隐藏保险库...</value>
+  </data>
+  <data name="HiddenVaultCreated" xml:space="preserve">
+    <value>隐藏保险库已就绪。要打开它，请在开始页面选择此保险库，然后使用“打开隐藏保险库”。</value>
+  </data>
+  <data name="InvalidSize" xml:space="preserve">
+    <value>请输入至少 1 MB 的大小。</value>
+  </data>
 </root>

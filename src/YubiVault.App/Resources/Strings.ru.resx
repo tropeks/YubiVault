@@ -381,4 +381,49 @@
   <data name="UnexpectedError" xml:space="preserve">
     <value>Непредвиденная ошибка</value>
   </data>
+  <data name="OpenHiddenVault" xml:space="preserve">
+    <value>Открыть скрытое хранилище</value>
+  </data>
+  <data name="OpenNormalVault" xml:space="preserve">
+    <value>Открыть обычное хранилище</value>
+  </data>
+  <data name="UnlockHintHidden" xml:space="preserve">
+    <value>Введите пароль скрытого хранилища. Затем ключ безопасности запросит PIN-код и касание.</value>
+  </data>
+  <data name="UnlockHintHiddenRecovery" xml:space="preserve">
+    <value>Введите собственный код восстановления скрытого хранилища.</value>
+  </data>
+  <data name="HiddenPassword" xml:space="preserve">
+    <value>Пароль скрытого хранилища</value>
+  </data>
+  <data name="HiddenVault" xml:space="preserve">
+    <value>Скрытое хранилище</value>
+  </data>
+  <data name="StatusHiddenFree" xml:space="preserve">
+    <value>Свободно {0} из {1}</value>
+  </data>
+  <data name="CreateHiddenVault" xml:space="preserve">
+    <value>Создать скрытое хранилище</value>
+  </data>
+  <data name="HiddenVaultIntro" xml:space="preserve">
+    <value>Скрытое хранилище находится внутри файла этого хранилища, в месте, которое выглядит как случайное заполнение. Без его пароля никто не узнает, что оно существует, даже тот, кто откроет это хранилище. Оно открывается своим паролем и вашим ключом безопасности или своим кодом восстановления.</value>
+  </data>
+  <data name="HiddenVaultWarning" xml:space="preserve">
+    <value>Это заменит скрытое хранилище, если оно уже есть в этом файле, а его размер нельзя будет изменить. Тот, кто хранит старые копии файла (например, историю версий облачного диска), увидит, что заполнение изменилось.</value>
+  </data>
+  <data name="HiddenVaultSize" xml:space="preserve">
+    <value>Размер (МБ)</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Используйте не менее 8 символов.</value>
+  </data>
+  <data name="CreatingHiddenVault" xml:space="preserve">
+    <value>Создание скрытого хранилища...</value>
+  </data>
+  <data name="HiddenVaultCreated" xml:space="preserve">
+    <value>Скрытое хранилище готово. Чтобы открыть его, выберите это хранилище на начальной странице и нажмите «Открыть скрытое хранилище».</value>
+  </data>
+  <data name="InvalidSize" xml:space="preserve">
+    <value>Укажите размер не менее 1 МБ.</value>
+  </data>
 </root>

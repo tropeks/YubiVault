@@ -13,11 +13,14 @@ sealed class UnlockPage : UserControl, IBackHandler
     readonly TextBlock _hint = Ui.Hint("");
     readonly TextBlock _error = Ui.Error();
     readonly TextBox _recoveryInput = new() { FontFamily = "monospace", IsVisible = false, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
+    readonly TextBox _passwordInput = new() { PasswordChar = '•', IsVisible = false };
     readonly Button _unlock;
     readonly Button _toggle;
+    readonly Button _hiddenToggle;
     string? _workingPath;
     bool _hasFido2 = true;
     bool _recoveryMode;
+    bool _hiddenMode;
     bool _busy;
 
     public UnlockPage(MainView main, VaultDocument document)
@@ -32,6 +35,19 @@ sealed class UnlockPage : UserControl, IBackHandler
         };
         _unlock = Ui.Button(Strings.Unlock, Unlock, accent: true, icon: Ui.KeyIcon);
         _toggle = Ui.TextButton(Strings.UseRecoveryCode, () => SetRecoveryMode(!_recoveryMode));
+        // Every vault offers the hidden vault: whether one exists cannot be told from the file.
+        _hiddenToggle = Ui.TextButton(Strings.OpenHiddenVault, () =>
+        {
+            _hiddenMode = !_hiddenMode;
+            _hiddenToggle!.Content = Ui.ButtonText(_hiddenMode ? Strings.OpenNormalVault : Strings.OpenHiddenVault);
+            SetRecoveryMode(!_hasFido2 && !_hiddenMode);
+        });
+        _passwordInput.Watermark = Strings.HiddenPassword;
+        _passwordInput.KeyDown += (_, e) =>
+        {
+            if (e.Key == Avalonia.Input.Key.Enter)
+                Unlock();
+        };
 
         var badge = Ui.IconBadge(Ui.ShieldLockIcon, 112);
         badge.Margin = new Avalonia.Thickness(0, 8, 0, 4);
@@ -41,7 +57,7 @@ sealed class UnlockPage : UserControl, IBackHandler
         file.TextAlignment = Avalonia.Media.TextAlignment.Center;
         file.Margin = new Avalonia.Thickness(0, -10, 0, 8);
         _hint.TextAlignment = Avalonia.Media.TextAlignment.Center;
-        var column = Ui.Column(badge, name, file, _hint, _recoveryInput, _error, _unlock, _toggle);
+        var column = Ui.Column(badge, name, file, _hint, _passwordInput, _recoveryInput, _error, _unlock, _toggle, _hiddenToggle);
         column.MaxWidth = 560;
         Content = Ui.Page(Ui.TopBar("", null, () => OnBack()), column);
         SetRecoveryMode(false);
@@ -90,7 +106,9 @@ sealed class UnlockPage : UserControl, IBackHandler
         Ui.ShowError(_error, message);
         _unlock.IsEnabled = false;
         _toggle.IsVisible = false;
+        _hiddenToggle.IsVisible = false;
         _recoveryInput.IsVisible = false;
+        _passwordInput.IsVisible = false;
     }
 
     void SetRecoveryMode(bool on)
@@ -99,13 +117,19 @@ sealed class UnlockPage : UserControl, IBackHandler
         Ui.ShowError(_error, null);
         _recoveryInput.IsVisible = on;
         _recoveryInput.Text = "";
-        _toggle.IsVisible = _hasFido2;
+        _passwordInput.IsVisible = _hiddenMode && !on;
+        _passwordInput.Text = "";
+        _toggle.IsVisible = _hasFido2 || _hiddenMode;
         _toggle.Content = Ui.ButtonText(on ? Strings.UseKeyInstead : Strings.UseRecoveryCode);
-        _hint.Text = on
+        _hint.Text = _hiddenMode
+            ? (on ? Strings.UnlockHintHiddenRecovery : Strings.UnlockHintHidden)
+            : on
             ? (_hasFido2 ? Strings.UnlockHintRecovery : MobileStrings.OtpNotSupported + "\n\n" + Strings.UnlockHintRecovery)
             : MobileStrings.UnlockHintMobile;
         if (on)
             _recoveryInput.Focus();
+        else if (_hiddenMode)
+            _passwordInput.Focus();
     }
 
     async void Unlock()
@@ -118,7 +142,20 @@ sealed class UnlockPage : UserControl, IBackHandler
         try
         {
             Vault vault;
-            if (_recoveryMode)
+            if (_hiddenMode && _recoveryMode)
+            {
+                string code = _recoveryInput.Text ?? "";
+                vault = await _main.RunAsync(Strings.UnlockingRecovery, () => Vault.OpenHiddenWithRecoveryCode(path, code));
+            }
+            else if (_hiddenMode)
+            {
+                string password = _passwordInput.Text ?? "";
+                var (done, opened) = await _main.WithSecurityKeyAsync(Strings.Unlocking, key => Vault.OpenHidden(path, password, key));
+                if (!done)
+                    return;
+                vault = opened;
+            }
+            else if (_recoveryMode)
             {
                 string code = _recoveryInput.Text ?? "";
                 vault = await _main.RunAsync(Strings.UnlockingRecovery, () => Vault.OpenWithRecoveryCode(path, code));

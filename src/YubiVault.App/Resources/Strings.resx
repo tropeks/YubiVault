@@ -408,4 +408,50 @@ Replace existing files?</value>
   <data name="UnexpectedError" xml:space="preserve">
     <value>Unexpected error</value>
   </data>
+  <data name="OpenHiddenVault" xml:space="preserve">
+    <value>Open hidden vault</value>
+  </data>
+  <data name="OpenNormalVault" xml:space="preserve">
+    <value>Open the normal vault</value>
+  </data>
+  <data name="UnlockHintHidden" xml:space="preserve">
+    <value>Enter the hidden vault's password. Your security key then asks for its PIN and a touch.</value>
+  </data>
+  <data name="UnlockHintHiddenRecovery" xml:space="preserve">
+    <value>Enter the hidden vault's own recovery code.</value>
+  </data>
+  <data name="HiddenPassword" xml:space="preserve">
+    <value>Hidden vault password</value>
+  </data>
+  <data name="HiddenVault" xml:space="preserve">
+    <value>Hidden vault</value>
+  </data>
+  <data name="StatusHiddenFree" xml:space="preserve">
+    <value>{0} free of {1}</value>
+    <comment>{0} and {1} are sizes, e.g. 12 MB.</comment>
+  </data>
+  <data name="CreateHiddenVault" xml:space="preserve">
+    <value>Create hidden vault</value>
+  </data>
+  <data name="HiddenVaultIntro" xml:space="preserve">
+    <value>A hidden vault lives inside this vault's file, in space that looks like random padding. Without its password nobody can tell it exists, not even someone who opens this vault. It opens with its own password and your security key, or with its own recovery code.</value>
+  </data>
+  <data name="HiddenVaultWarning" xml:space="preserve">
+    <value>This replaces any hidden vault already in this file, and its size cannot be changed later. Anyone who keeps older copies of the file, such as a cloud drive's version history, can see that the padding changed.</value>
+  </data>
+  <data name="HiddenVaultSize" xml:space="preserve">
+    <value>Size (MB)</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Use at least 8 characters.</value>
+  </data>
+  <data name="CreatingHiddenVault" xml:space="preserve">
+    <value>Creating the hidden vault...</value>
+  </data>
+  <data name="HiddenVaultCreated" xml:space="preserve">
+    <value>The hidden vault is ready. To open it, choose this vault on the start page and use “Open hidden vault”.</value>
+  </data>
+  <data name="InvalidSize" xml:space="preserve">
+    <value>Enter a size of at least 1 MB.</value>
+  </data>
 </root>

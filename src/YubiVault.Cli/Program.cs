@@ -23,6 +23,8 @@ static class Program
           yubivault-cli remove-key <vault> <slot-id>
           yubivault-cli new-recovery-code <vault>
           yubivault-cli compact <vault>
+          yubivault-cli hide <vault> <size>
+          yubivault-cli pad <vault> <size>
 
         <vault> is the vault file; ".yvault" is added to the name if it has no extension.
         By default the vault is protected by a FIDO2 security key (any YubiKey 5 or Security Key):
@@ -33,6 +35,14 @@ static class Program
           --otp            Use YubiKey 5 OTP challenge-response (slot 2) instead of FIDO2.
           --program-slot   With --otp: program slot 2 with a new secret, even if it is in use.
           --no-password    With --otp: use the YubiKey alone, without a password.
+          --hidden         Work in the hidden vault inside <vault>: asks its password and your
+                           security key (or, with --recovery, the hidden vault's recovery code).
+
+        Hidden vault:
+          "hide" creates a hidden vault of <size> (e.g. 200M, 1G) inside the vault file, opened by
+          its own password and your security key. It lives in random padding that looks the same
+          as the padding "pad" adds, so without its password nobody can tell it exists. Both
+          commands rewrite the padding and DESTROY any hidden vault already in the file.
 
         Use "/" as <vault-path> to extract everything.
         """;
@@ -58,7 +68,7 @@ static class Program
     }
 
     static readonly HashSet<string> Commands =
-        ["init", "add", "list", "extract", "remove", "keys", "add-key", "remove-key", "new-recovery-code", "compact"];
+        ["init", "add", "list", "extract", "remove", "keys", "add-key", "remove-key", "new-recovery-code", "compact", "hide", "pad"];
 
     static int Run(Arguments cli)
     {
@@ -84,6 +94,8 @@ static class Program
                 foreach (var entry in vault.Entries.OrderBy(e => e.Path, StringComparer.OrdinalIgnoreCase))
                     Console.WriteLine($"{FormatSize(entry.Size),10}  {entry.ModifiedUtc.ToLocalTime():yyyy-MM-dd HH:mm}  {entry.Path}");
                 Console.WriteLine($"{vault.Entries.Count} file(s), {FormatSize(vault.Entries.Sum(e => e.Size))}.");
+                if (vault.HiddenFreeBytes is long free)
+                    Console.WriteLine($"Hidden vault: {FormatSize(free)} free of {FormatSize(vault.HiddenCapacity!.Value)}.");
                 return 0;
 
             case "extract":
@@ -132,7 +144,29 @@ static class Program
             case "compact":
                 long before = vault.FileSize;
                 vault.Compact();
-                Console.WriteLine($"Vault file: {FormatSize(before)} -> {FormatSize(vault.FileSize)}.");
+                if (vault.IsHidden)
+                    Console.WriteLine($"Hidden vault: {FormatSize(vault.HiddenFreeBytes!.Value)} free.");
+                else
+                    Console.WriteLine($"Vault file: {FormatSize(before)} -> {FormatSize(vault.FileSize)}.");
+                return 0;
+
+            case "hide":
+                long hiddenSize = ParseSize(cli.Positional(1, "size"));
+                if (!Confirm("This replaces the vault's padding and destroys any hidden vault already in it. Continue?"))
+                    throw new VaultException("Cancelled.");
+                string hiddenPassword = AskHiddenPassword();
+                Console.WriteLine("Creating the hidden vault. You will be asked for your security key's PIN and a touch, twice.");
+                string hiddenRecovery = vault.CreateHiddenVault(hiddenPassword, SecurityKey(), hiddenSize);
+                Console.WriteLine($"Hidden vault created ({FormatSize(hiddenSize)}). Open it with --hidden.");
+                ShowRecoveryCode(hiddenRecovery);
+                return 0;
+
+            case "pad":
+                long padding = ParseSize(cli.Positional(1, "size"));
+                if (vault.Padding > 0 && !Confirm("This replaces the vault's padding and destroys any hidden vault in it. Continue?"))
+                    throw new VaultException("Cancelled.");
+                vault.SetPadding(padding);
+                Console.WriteLine($"Vault file: {FormatSize(vault.FileSize)}.");
                 return 0;
 
             default:
@@ -173,6 +207,16 @@ static class Program
     {
         if (!Vault.Exists(path))
             throw new VaultException($"No vault found at {Path.GetFullPath(path)}.");
+        if (cli.Flags.Contains("--hidden"))
+        {
+            if (cli.Flags.Contains("--recovery"))
+            {
+                Console.Write("Hidden vault recovery code: ");
+                return Vault.OpenHiddenWithRecoveryCode(path, Console.ReadLine() ?? "");
+            }
+            string password = ReadSecret("Hidden vault password: ");
+            return Vault.OpenHidden(path, password, SecurityKey());
+        }
         if (cli.Flags.Contains("--recovery"))
         {
             Console.Write("Recovery code: ");
@@ -284,6 +328,34 @@ static class Program
                 return password;
             Console.WriteLine("The passwords do not match. Try again.");
         }
+    }
+
+    static string AskHiddenPassword()
+    {
+        Console.WriteLine("Choose the hidden vault's password. It must differ from anything that opens the outer vault.");
+        while (true)
+        {
+            string password = ReadSecret("Hidden vault password: ");
+            if (password.Length < 8)
+                Console.WriteLine("Use at least 8 characters.");
+            else if (ReadSecret("Repeat password: ") == password)
+                return password;
+            else
+                Console.WriteLine("The passwords do not match. Try again.");
+        }
+    }
+
+    /// <summary>Parses sizes like 500K, 200M, 1.5G (binary units) or plain bytes.</summary>
+    static long ParseSize(string text)
+    {
+        text = text.Trim().ToUpperInvariant().TrimEnd('B');
+        long unit = text.EndsWith('K') ? 1L << 10 : text.EndsWith('M') ? 1L << 20 : text.EndsWith('G') ? 1L << 30 : 1;
+        if (unit > 1)
+            text = text[..^1];
+        if (!double.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out double value)
+            || value < 0)
+            throw new ArgumentException($"Not a size: \"{text}\". Use e.g. 200M or 1G.");
+        return (long)(value * unit);
     }
 
     static void ShowRecoveryCode(string code)

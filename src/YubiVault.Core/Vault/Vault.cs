@@ -26,12 +26,16 @@ public sealed class Vault : IDisposable
     readonly string _path;
     readonly VaultHeader _header;
     readonly VaultOptions _options;
+    const string NoHiddenVault = "No hidden vault opens with this password.";
+
     readonly byte[] _masterKey;
     VaultFile _file;
+    readonly HiddenStore? _hidden;
     List<VaultEntry> _entries;
     bool _disposed;
 
-    Vault(string path, VaultFile file, VaultHeader header, byte[] masterKey, List<VaultEntry> entries, VaultOptions options)
+    Vault(string path, VaultFile file, VaultHeader header, byte[] masterKey, List<VaultEntry> entries, VaultOptions options,
+        HiddenStore? hidden = null)
     {
         _path = path;
         _file = file;
@@ -39,18 +43,37 @@ public sealed class Vault : IDisposable
         _masterKey = masterKey;
         _entries = entries;
         _options = options;
+        _hidden = hidden;
     }
 
     /// <summary>Full path of the vault file.</summary>
     public string FilePath => _path;
-    public IReadOnlyList<KeySlot> Slots => _header.Slots;
+
+    /// <summary>Key slots of the vault; a hidden vault shows none (its slots are hidden too).</summary>
+    public IReadOnlyList<KeySlot> Slots => _hidden is null ? _header.Slots : [];
     public IReadOnlyList<VaultEntry> Entries => _entries;
+
+    /// <summary>True for a hidden vault opened from inside another vault's padding.</summary>
+    public bool IsHidden => _hidden is not null;
+
+    /// <summary>Bytes of random padding in the vault file (where a hidden vault may live).</summary>
+    public long Padding => _header.Padding;
 
     /// <summary>Size of the vault file in bytes.</summary>
     public long FileSize => _file.Length;
 
+    /// <summary>Space for files in a hidden vault; null for a normal vault.</summary>
+    public long? HiddenCapacity => _hidden?.Capacity;
+
+    /// <summary>Space still free in a hidden vault, counting space a compaction would free; null for a normal vault.</summary>
+    public long? HiddenFreeBytes => _hidden is null ? null : _hidden.Capacity - (_hidden.End - HiddenStore.RecordsStart) + WastedBytes;
+
     /// <summary>Bytes taken by deleted or replaced files, freed by <see cref="Compact"/>.</summary>
-    public long WastedBytes => _file.End - VaultFile.DataStart - _file.HeaderLength - _file.IndexLength - _entries.Sum(e => e.Length);
+    public long WastedBytes => _hidden is null
+        ? _file.End - VaultFile.DataStart - _header.Padding - _file.HeaderLength - _file.IndexLength - _entries.Sum(e => e.Length)
+        : _hidden.End - HiddenStore.RecordsStart - _hidden.IndexLength - _entries.Sum(e => e.Length);
+
+    IRecordStore Store => (IRecordStore?)_hidden ?? _file;
 
     public static bool Exists(string path) => VaultFile.LooksLikeVault(path);
 
@@ -58,7 +81,7 @@ public sealed class Vault : IDisposable
     public static IReadOnlyList<KeySlot> ReadKeySlots(string path)
     {
         using var file = VaultFile.Open(path, writable: false);
-        return ParseHeader(file.ReadHeader()).Slots;
+        return ReadHeader(file).Slots;
     }
 
     /// <summary>Creates an empty vault file opened by <paramref name="yubiKey"/> (plus <paramref name="password"/>, if given).</summary>
@@ -189,7 +212,7 @@ public sealed class Vault : IDisposable
         Vault? vault = null;
         try
         {
-            var header = ParseHeader(file.ReadHeader());
+            var header = ReadHeader(file);
             vault = new Vault(path, file, header, unwrapMasterKey(header), [], options ?? VaultOptions.Default);
             vault._entries = vault.ReadIndex();
             return vault;
@@ -204,12 +227,190 @@ public sealed class Vault : IDisposable
         }
     }
 
+    // ---- Hidden vault ----
+
+    /// <summary>Opens the hidden vault inside a vault file with its password and security key (one PIN entry and touch).</summary>
+    /// <exception cref="WrongKeyException">No hidden vault opens with this password and key.</exception>
+    public static Vault OpenHidden(string path, string password, IFido2Authenticator securityKey, VaultOptions? options = null)
+    {
+        options ??= VaultOptions.Default;
+        return OpenHiddenWith(path, options, (file, header) =>
+        {
+            byte[] slotKey = PasswordSlotKey(file, password, options);
+            try
+            {
+                var payload = HiddenSlots.Find(file, slotKey, header.VaultId);
+                if (payload is null || payload[0] != HiddenSlots.PasswordAndKey)
+                    throw new WrongKeyException(NoHiddenVault);
+                var (credentialId, salt) = HiddenSlots.ReadPasswordPayload(payload);
+                var (_, secret) = securityKey.GetSecret(Fido2RelyingPartyId, [(credentialId, salt)]);
+                byte[] kek = KeyWrap.HiddenFido2Kek(secret, slotKey, salt);
+                CryptographicOperations.ZeroMemory(secret);
+                byte[]? masterKey = HiddenSlots.UnwrapPasswordPayload(payload, kek, header.VaultId);
+                CryptographicOperations.ZeroMemory(kek);
+                CryptographicOperations.ZeroMemory(payload);
+                return masterKey ?? throw new WrongKeyException("This security key does not open the hidden vault.");
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(slotKey);
+            }
+        });
+    }
+
+    /// <summary>Opens the hidden vault inside a vault file with the hidden vault's own recovery code.</summary>
+    /// <exception cref="FormatException">The code is not a valid recovery code.</exception>
+    /// <exception cref="WrongKeyException">No hidden vault opens with this code.</exception>
+    public static Vault OpenHiddenWithRecoveryCode(string path, string recoveryCode, VaultOptions? options = null)
+    {
+        options ??= VaultOptions.Default;
+        byte[] code = RecoveryCode.Parse(recoveryCode);
+        try
+        {
+            return OpenHiddenWith(path, options, (file, header) =>
+            {
+                byte[] slotKey = KeyWrap.HiddenSlotKey(code, HiddenSlots.ReadSalt(file), options, HiddenSlots.RecoveryInfo);
+                var payload = HiddenSlots.Find(file, slotKey, header.VaultId);
+                CryptographicOperations.ZeroMemory(slotKey);
+                if (payload is null || payload[0] != HiddenSlots.Recovery)
+                    throw new WrongKeyException("No hidden vault opens with this recovery code.");
+                byte[] masterKey = HiddenSlots.ReadRecoveryPayload(payload);
+                CryptographicOperations.ZeroMemory(payload);
+                return masterKey;
+            });
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(code);
+        }
+    }
+
+    static Vault OpenHiddenWith(string path, VaultOptions options, Func<VaultFile, VaultHeader, byte[]> unwrapMasterKey)
+    {
+        path = Path.GetFullPath(path);
+        var file = VaultFile.Open(path, writable: true);
+        Vault? vault = null;
+        HiddenStore? store = null;
+        byte[]? masterKey = null;
+        try
+        {
+            var header = ReadHeader(file);
+            if (header.Version < 2 || header.Padding < HiddenStore.MinimumSize)
+                throw new WrongKeyException(NoHiddenVault);
+            masterKey = unwrapMasterKey(file, header);
+            store = HiddenStore.Open(file, VaultFile.DataStart, header.Padding, masterKey)
+                ?? throw new VaultException("The hidden vault is damaged.");
+            vault = new Vault(path, file, header, masterKey, [], options, store);
+            vault._entries = vault.ReadIndex();
+            return vault;
+        }
+        catch
+        {
+            if (vault is not null)
+            {
+                vault.Dispose();
+            }
+            else
+            {
+                store?.Dispose();
+                if (masterKey is not null)
+                    CryptographicOperations.ZeroMemory(masterKey);
+                file.Dispose();
+            }
+            throw;
+        }
+    }
+
+    static byte[] PasswordSlotKey(VaultFile file, string password, VaultOptions options)
+    {
+        byte[] bytes = Encoding.UTF8.GetBytes(password);
+        try
+        {
+            return KeyWrap.HiddenSlotKey(bytes, HiddenSlots.ReadSalt(file), options, HiddenSlots.PasswordInfo);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(bytes);
+        }
+    }
+
+    /// <summary>
+    /// Creates a hidden vault of <paramref name="size"/> bytes inside this vault's file, opened by
+    /// <paramref name="password"/> together with <paramref name="securityKey"/>. The file is rewritten
+    /// with fresh random padding, which destroys any hidden vault already in it.
+    /// </summary>
+    /// <returns>The hidden vault's own recovery code, to show the user once.</returns>
+    public string CreateHiddenVault(string password, IFido2Authenticator securityKey, long size)
+    {
+        ThrowIfDisposed();
+        ThrowIfHidden();
+        if (string.IsNullOrEmpty(password))
+            throw new VaultException("A hidden vault needs its own password.");
+        if (size < HiddenStore.MinimumSize)
+            throw new VaultException("The space for a hidden vault must be at least 1 MiB.");
+
+        // Talk to the key first: a cancelled PIN prompt then leaves the file untouched.
+        byte[] fido2Salt = RandomNumberGenerator.GetBytes(Fido2SaltSize);
+        byte[] credentialId = securityKey.MakeCredential(Fido2RelyingPartyId, RandomNumberGenerator.GetBytes(16), "YubiVault");
+        var (usedCredential, secret) = securityKey.GetSecret(Fido2RelyingPartyId, [(credentialId, fido2Salt)]);
+        if (!usedCredential.AsSpan().SequenceEqual(credentialId))
+            throw new VaultException("The security key answered with an unexpected credential.");
+
+        byte[] hiddenKey = RandomNumberGenerator.GetBytes(KeyWrap.MasterKeySize);
+        byte[] code = RecoveryCode.Generate();
+        byte[]? slotKey = null, kek = null, recoveryKey = null;
+        try
+        {
+            Rewrite(size, keepReserved: false);
+            byte[] salt = HiddenSlots.ReadSalt(_file);
+            slotKey = PasswordSlotKey(_file, password, _options);
+            kek = KeyWrap.HiddenFido2Kek(secret, slotKey, fido2Salt);
+            recoveryKey = KeyWrap.HiddenSlotKey(code, salt, _options, HiddenSlots.RecoveryInfo);
+
+            var (passwordSlot, recoverySlot) = HiddenSlots.PickTwo();
+            HiddenSlots.Write(_file, passwordSlot, slotKey,
+                HiddenSlots.PasswordPayload(credentialId, fido2Salt, kek, hiddenKey, _header.VaultId), _header.VaultId);
+            HiddenSlots.Write(_file, recoverySlot, recoveryKey, HiddenSlots.RecoveryPayload(hiddenKey), _header.VaultId);
+            using var store = HiddenStore.Create(_file, VaultFile.DataStart, size, hiddenKey);
+            store.Commit(output => WriteIndex([], output, hiddenKey));
+            return RecoveryCode.Format(code);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(secret);
+            CryptographicOperations.ZeroMemory(hiddenKey);
+            CryptographicOperations.ZeroMemory(code);
+            foreach (var key in new[] { slotKey, kek, recoveryKey })
+                if (key is not null)
+                    CryptographicOperations.ZeroMemory(key);
+        }
+    }
+
+    /// <summary>
+    /// Rewrites the vault file with <paramref name="size"/> bytes of fresh random padding (0 removes it).
+    /// Padding hides how much the vault really holds; it also destroys any hidden vault in the file.
+    /// </summary>
+    public void SetPadding(long size)
+    {
+        ThrowIfDisposed();
+        ThrowIfHidden();
+        ArgumentOutOfRangeException.ThrowIfNegative(size);
+        Rewrite(size, keepReserved: false);
+    }
+
+    void ThrowIfHidden()
+    {
+        if (_hidden is not null)
+            throw new VaultException("The keys of a hidden vault cannot be changed.");
+    }
+
     // ---- Key slots ----
 
     /// <summary>Registers another YubiKey. Files are not re-encrypted.</summary>
     public KeySlot AddYubiKey(IChallengeResponder yubiKey, string? password)
     {
         ThrowIfDisposed();
+        ThrowIfHidden();
         var slot = AddYubiKeySlot(yubiKey, password);
         SaveHeader();
         return slot;
@@ -219,6 +420,7 @@ public sealed class Vault : IDisposable
     public KeySlot AddSecurityKey(IFido2Authenticator securityKey)
     {
         ThrowIfDisposed();
+        ThrowIfHidden();
         var slot = AddFido2Slot(securityKey);
         SaveHeader();
         return slot;
@@ -228,6 +430,7 @@ public sealed class Vault : IDisposable
     public string RegenerateRecoveryCode()
     {
         ThrowIfDisposed();
+        ThrowIfHidden();
         _header.Slots.RemoveAll(s => s.Type == KeySlotType.Recovery);
         string code = AddRecoverySlot();
         SaveHeader();
@@ -237,6 +440,7 @@ public sealed class Vault : IDisposable
     public void RemoveSlot(string slotId)
     {
         ThrowIfDisposed();
+        ThrowIfHidden();
         var slot = _header.Slots.FirstOrDefault(s => s.Id == slotId)
             ?? throw new VaultException($"No key slot with id {slotId}.");
         if (_header.Slots.Count == 1)
@@ -371,10 +575,21 @@ public sealed class Vault : IDisposable
         progress?.Report(vaultPath);
         string blobId = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(16));
         var info = new FileInfo(sourceFile);
+        (long, long) Append()
+        {
+            using var input = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16);
+            return Store.Append(output => CascadeCipher.Encrypt(input, output, _masterKey, BlobContext(blobId), _options.ChunkSizeLog2));
+        }
         long offset, length;
-        using (var input = new FileStream(sourceFile, FileMode.Open, FileAccess.Read, FileShare.Read, 1 << 16))
-            (offset, length) = _file.Append(output =>
-                CascadeCipher.Encrypt(input, output, _masterKey, BlobContext(blobId), _options.ChunkSizeLog2));
+        try
+        {
+            (offset, length) = Append();
+        }
+        catch (HiddenVaultFullException) when (WastedBytes > 0)
+        {
+            Compact(); // a hidden vault cannot grow: reuse the space of deleted files
+            (offset, length) = Append();
+        }
 
         var entry = new VaultEntry
         {
@@ -413,7 +628,7 @@ public sealed class Vault : IDisposable
             string temp = target + ".yvpart";
             try
             {
-                using (var input = _file.OpenRecord(entry.Offset, entry.Length))
+                using (var input = Store.OpenRecord(entry.Offset, entry.Length))
                 using (var output = new FileStream(temp, FileMode.Create, FileAccess.Write, FileShare.None, 1 << 16))
                     CascadeCipher.Decrypt(input, output, _masterKey, BlobContext(entry.BlobId));
                 File.Move(temp, target, overwrite);
@@ -473,15 +688,33 @@ public sealed class Vault : IDisposable
     /// Rewrites the vault file without the space left by deleted or replaced files. The new file
     /// is written next to the old one and replaces it only once complete.
     /// </summary>
+    /// <remarks>A hidden vault is compacted in place instead, which an interruption can damage.</remarks>
     public void Compact()
     {
         ThrowIfDisposed();
+        if (_hidden is not null)
+        {
+            var moved = _hidden.Slide(_entries);
+            _hidden.Commit(output => WriteIndex(moved, output));
+            _entries = moved;
+            return;
+        }
+        Rewrite(_header.Padding, keepReserved: _header.Version >= 2);
+    }
+
+    /// <summary>Copies the live records into a new file with <paramref name="padding"/>, which then replaces the vault file.</summary>
+    /// <param name="keepReserved">Copy the key area and padding as they are (and any hidden vault in them); else fill them with random bytes.</param>
+    void Rewrite(long padding, bool keepReserved)
+    {
         string temp = _path + ".compacting";
         File.Delete(temp);
         var compacted = new List<VaultEntry>(_entries.Count);
+        var (oldVersion, oldPadding) = (_header.Version, _header.Padding);
+        _header.Version = VaultHeader.CurrentVersion;
+        _header.Padding = padding;
         try
         {
-            using (var target = VaultFile.Create(temp))
+            using (var target = VaultFile.Create(temp, padding, keepReserved ? _file : null))
             {
                 foreach (var entry in _entries)
                 {
@@ -499,6 +732,7 @@ public sealed class Vault : IDisposable
         catch
         {
             File.Delete(temp);
+            (_header.Version, _header.Padding) = (oldVersion, oldPadding);
             throw;
         }
 
@@ -521,6 +755,14 @@ public sealed class Vault : IDisposable
 
     // ---- Storage ----
 
+    static VaultHeader ReadHeader(VaultFile file)
+    {
+        var header = ParseHeader(file.ReadHeader());
+        if (header.Padding < 0 || VaultFile.DataStart + header.Padding > file.End || (header.Version < 2 && header.Padding != 0))
+            throw new VaultException("The vault header is damaged.");
+        return header;
+    }
+
     static VaultHeader ParseHeader(byte[] json)
     {
         VaultHeader? header;
@@ -534,7 +776,7 @@ public sealed class Vault : IDisposable
         }
         if (header is null || header.Format != VaultHeader.FormatName)
             throw new VaultException("Not a YubiVault vault.");
-        if (header.Version != VaultHeader.CurrentVersion)
+        if (header.Version is < VaultHeader.MinVersion or > VaultHeader.CurrentVersion)
             throw new VaultException($"Unsupported vault version {header.Version}; update YubiVault.");
         return header;
     }
@@ -545,7 +787,7 @@ public sealed class Vault : IDisposable
     {
         try
         {
-            using var input = _file.OpenIndex();
+            using var input = Store.OpenIndex();
             using var plain = new MemoryStream();
             CascadeCipher.Decrypt(input, plain, _masterKey, IndexContext);
             var entries = JsonSerializer.Deserialize<List<VaultEntry>>(plain.GetBuffer().AsSpan(0, (int)plain.Length)) ?? [];
@@ -558,13 +800,15 @@ public sealed class Vault : IDisposable
         }
     }
 
-    void WriteIndex(List<VaultEntry> entries, Stream output)
+    void WriteIndex(List<VaultEntry> entries, Stream output) => WriteIndex(entries, output, _masterKey);
+
+    void WriteIndex(List<VaultEntry> entries, Stream output, byte[] masterKey)
     {
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(entries);
         try
         {
             using var input = new MemoryStream(json, writable: false);
-            CascadeCipher.Encrypt(input, output, _masterKey, IndexContext, _options.ChunkSizeLog2);
+            CascadeCipher.Encrypt(input, output, masterKey, IndexContext, _options.ChunkSizeLog2);
         }
         finally
         {
@@ -575,6 +819,18 @@ public sealed class Vault : IDisposable
     /// <summary>Commits the index (and the header, if it changed), then compacts if a quarter of the file is unused.</summary>
     void Save(bool header = false)
     {
+        if (_hidden is not null)
+        {
+            try
+            {
+                _hidden.Commit(output => WriteIndex(_entries, output));
+            }
+            catch (HiddenVaultFullException) when (WastedBytes > 0)
+            {
+                Compact();
+            }
+            return;
+        }
         _file.Commit(header ? SerializeHeader() : null, output => WriteIndex(_entries, output));
         long wasted = WastedBytes;
         if (wasted >= MinWasteToCompact && wasted * 4 >= _file.End)
@@ -602,6 +858,7 @@ public sealed class Vault : IDisposable
         if (_disposed)
             return;
         CryptographicOperations.ZeroMemory(_masterKey);
+        _hidden?.Dispose();
         _file.Dispose();
         _disposed = true;
     }
