@@ -35,7 +35,22 @@ public class MainActivity : AvaloniaMainActivity<App>
     {
         AndroidPlatform.Attach(this);
         base.OnCreate(savedInstanceState);
+        // The vault locks when the app leaves the screen, but the recents screen would still show its files.
+        if (OperatingSystem.IsAndroidVersionAtLeast(33))
+            SetRecentsScreenshotEnabled(false);
         AndroidPlatform.Current.HandleIntent(Intent);
+    }
+
+    protected override void OnStart()
+    {
+        base.OnStart();
+        AndroidPlatform.Current.OnStarted();
+    }
+
+    protected override void OnStop()
+    {
+        base.OnStop();
+        AndroidPlatform.Current.OnStopped();
     }
 
     protected override void OnNewIntent(Intent? intent)

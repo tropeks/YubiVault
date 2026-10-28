@@ -84,6 +84,7 @@ sealed class KeysPage : UserControl, IBackHandler
         if (_busy)
             return;
         _busy = true;
+        _main.BeginStep();
         try
         {
             await step();
@@ -95,6 +96,7 @@ sealed class KeysPage : UserControl, IBackHandler
         finally
         {
             _busy = false;
+            _main.EndStep();
         }
     }
 
@@ -134,6 +136,13 @@ sealed class KeysPage : UserControl, IBackHandler
             return;
         string code = await _main.RunAsync(Strings.CreatingRecovery, () => _session.Vault.RegenerateRecoveryCode());
         await Save();
-        _main.Show(new RecoveryCodePage(_main, code, () => _main.Show(new KeysPage(_main, _session))));
+        // The vault may have locked while the code was on screen (the user left the app to store it).
+        _main.Show(new RecoveryCodePage(_main, code, () =>
+        {
+            if (_main.Session == _session)
+                _main.Show(new KeysPage(_main, _session));
+            else
+                _main.ShowStart();
+        }));
     });
 }
