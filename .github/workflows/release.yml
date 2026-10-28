@@ -12,8 +12,9 @@ concurrency:
   group: release-${{ github.ref_name }}
   cancel-in-progress: true
 
+# Read-only by default; only the job that publishes the release can write.
 permissions:
-  contents: write
+  contents: read
 
 env:
   # Every target is one self-contained executable with its native libraries inside.
@@ -44,7 +45,7 @@ jobs:
       - name: Publish
         shell: pwsh
         run: |
-          $version = "${{ github.ref_name }}".TrimStart("v")
+          $version = "$env:GITHUB_REF_NAME".TrimStart("v")
           $flags = "$env:PUBLISH_FLAGS" -split " "
           dotnet publish src/YubiVault.App -r win-x64 @flags -p:Version=$version -o out/app
           dotnet publish src/YubiVault.Cli -r win-x64 @flags -p:Version=$version -o out/cli
@@ -119,6 +120,8 @@ jobs:
   release:
     needs: [windows, linux, macos]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/download-artifact@v4
         with:

@@ -60,22 +60,40 @@ static class Cbor
         }
     }
 
+    /// <summary>Deepest nesting accepted from a key; CTAP2 responses need four or five levels.</summary>
+    const int MaxDepth = 16;
+
     public static CborMap DecodeMap(ReadOnlyMemory<byte> data)
     {
         var reader = new CborReader(data, CborConformanceMode.Lax, allowMultipleRootLevelValues: true);
-        return Read(reader) as CborMap ?? throw new CtapException("The security key sent an unexpected response.");
+        return ReadChecked(reader) as CborMap ?? throw new CtapException("The security key sent an unexpected response.");
     }
 
     /// <summary>Reads one value and tells how many bytes it took (for the extensions at the end of authenticator data).</summary>
     public static (object Value, int Length) DecodeFirst(ReadOnlyMemory<byte> data)
     {
         var reader = new CborReader(data, CborConformanceMode.Lax, allowMultipleRootLevelValues: true);
-        var value = Read(reader);
+        var value = ReadChecked(reader);
         return (value, data.Length - reader.BytesRemaining);
     }
 
-    static object Read(CborReader reader)
+    /// <summary>Malformed or too deeply nested data from the key becomes a <see cref="CtapException"/>.</summary>
+    static object ReadChecked(CborReader reader)
     {
+        try
+        {
+            return Read(reader, 0);
+        }
+        catch (Exception e) when (e is CborContentException or InvalidOperationException or OverflowException)
+        {
+            throw new CtapException("The security key sent malformed data.", e);
+        }
+    }
+
+    static object Read(CborReader reader, int depth)
+    {
+        if (depth > MaxDepth)
+            throw new CtapException("The security key sent data nested too deeply.");
         switch (reader.PeekState())
         {
             case CborReaderState.UnsignedInteger:
@@ -94,7 +112,7 @@ static class Cbor
                 int? count = reader.ReadStartArray();
                 var list = new List<object>();
                 while (reader.PeekState() != CborReaderState.EndArray)
-                    list.Add(Read(reader));
+                    list.Add(Read(reader, depth + 1));
                 reader.ReadEndArray();
                 return list;
             case CborReaderState.StartMap:
@@ -102,8 +120,8 @@ static class Cbor
                 var map = new CborMap();
                 while (reader.PeekState() != CborReaderState.EndMap)
                 {
-                    var key = Read(reader);
-                    map[key] = Read(reader);
+                    var key = Read(reader, depth + 1);
+                    map[key] = Read(reader, depth + 1);
                 }
                 reader.ReadEndMap();
                 return map;

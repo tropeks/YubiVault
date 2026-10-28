@@ -25,9 +25,9 @@ namespace YubiVault.Android;
 [MetaData(UsbManager.ActionUsbDeviceAttached, Resource = "@xml/device_filter")]
 // .yvault files opened from a file manager or another app. Most providers send no useful MIME type.
 [IntentFilter([Intent.ActionView], Categories = [Intent.CategoryDefault],
-    DataSchemes = ["content", "file"], DataMimeType = "application/octet-stream")]
+    DataSchemes = ["content"], DataMimeType = "application/octet-stream")]
 [IntentFilter([Intent.ActionView], Categories = [Intent.CategoryDefault],
-    DataSchemes = ["content", "file"], DataHost = "*", DataMimeType = "*/*",
+    DataSchemes = ["content"], DataHost = "*", DataMimeType = "*/*",
     DataPathPatterns = [".*\\.yvault", ".*\\..*\\.yvault", ".*\\..*\\..*\\.yvault", ".*\\..*\\..*\\..*\\.yvault"])]
 public class MainActivity : AvaloniaMainActivity<App>
 {

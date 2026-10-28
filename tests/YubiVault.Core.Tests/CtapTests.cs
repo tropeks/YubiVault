@@ -201,6 +201,54 @@ public class CtapTransportTests
         Assert.Equal(true, ext!.Get("hmac-secret"));
     }
 
+    [Theory]
+    [InlineData(40)] // credential flag set, data ends inside the AAGUID
+    [InlineData(54)] // data ends inside the credential id length
+    public void TruncatedAuthenticatorDataIsACtapError(int length)
+    {
+        byte[] authData = new byte[length];
+        authData[32] = 0x41;
+        Assert.Throws<CtapException>(() => Ctap2Session.ParseAuthenticatorData(authData));
+    }
+
+    [Fact]
+    public void CredentialIdLongerThanTheDataIsACtapError()
+    {
+        byte[] authData = [.. new byte[32], 0x41, 0, 0, 0, 1, .. new byte[16], 0xFF, 0xFF, 1, 2, 3];
+        Assert.Throws<CtapException>(() => Ctap2Session.ParseAuthenticatorData(authData));
+    }
+
+    [Fact]
+    public void MalformedCborIsACtapError()
+    {
+        Assert.Throws<CtapException>(() => Cbor.DecodeMap(new byte[] { 0xA2, 0x01 })); // map of 2, cut short
+        Assert.Throws<CtapException>(() => Cbor.DecodeMap(new byte[] { 0xFF }));
+        byte[] deep = [.. Enumerable.Repeat((byte)0x81, 5000), 0x00]; // arrays nested 5000 deep
+        Assert.Throws<CtapException>(() => Cbor.DecodeFirst(deep));
+    }
+
+    [Fact]
+    public void ANfcKeyThatStaysBusyTimesOut()
+    {
+        var connection = new CtapNfcConnection(new ScriptedCard(_ => [0x91, 0x00])) { PollInterval = TimeSpan.FromMilliseconds(1) };
+        Assert.Throws<CtapException>(() => connection.SendCbor([0x04], CancellationToken.None));
+    }
+
+    [Fact]
+    public void ANfcKeyThatNeverStopsSendingIsCut()
+    {
+        var connection = new CtapNfcConnection(new ScriptedCard(_ => [.. new byte[250], 0x61, 0xFF]));
+        Assert.Throws<CtapException>(() => connection.SendCbor([0x04], CancellationToken.None));
+    }
+
+    /// <summary>Selects the FIDO applet, then answers every other APDU with <paramref name="reply"/>.</summary>
+    sealed class ScriptedCard(Func<byte[], byte[]> reply) : IApduChannel
+    {
+        public byte[] Transceive(byte[] apdu) => apdu[1] == 0xA4 ? [.. "FIDO_2_0"u8.ToArray(), 0x90, 0x00] : reply(apdu);
+
+        public void Dispose() { }
+    }
+
     /// <summary>A USB FIDO device: reassembles CTAPHID packets, answers INIT, and sends keepalives before each CBOR reply.</summary>
     sealed class FakeHidDevice(SoftwareAuthenticator authenticator) : IHidReportChannel
     {
