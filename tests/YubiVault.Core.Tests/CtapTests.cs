@@ -110,6 +110,42 @@ public class CtapSecurityKeyTests : IDisposable
         Assert.True(authenticator.Disposed);
     }
 
+    [Fact]
+    public void RegistersAndReadsTheSecretOverOneConnection()
+    {
+        // Over NFC every connection is a tap, so creating a vault must not reconnect.
+        var authenticator = new SoftwareAuthenticator("1234");
+        int connections = 0;
+        var key = new CtapSecurityKey(_ => { connections++; return authenticator; }) { AskPin = _ => "1234" };
+        Vault.Create(VaultFilePath, key, Fast.Options).Vault.Dispose();
+        Assert.Equal(1, connections);
+
+        using (Vault.OpenWithFido2(VaultFilePath, KeyFor(authenticator, "1234"), Fast.Options)) { }
+    }
+
+    [Fact]
+    public void AShortPinIsAskedAgainWithoutCostingARetry()
+    {
+        var authenticator = new SoftwareAuthenticator("1234");
+        var answers = new Queue<string>(["12", "1234"]);
+        int invalid = 0;
+        var key = new CtapSecurityKey(_ => authenticator) { AskPin = _ => answers.Dequeue(), InvalidPin = () => invalid++ };
+        Vault.Create(VaultFilePath, key, Fast.Options).Vault.Dispose();
+        Assert.Equal(1, invalid);
+        Assert.Equal(8, authenticator.PinRetries);
+    }
+
+    [Fact]
+    public void KeepsOnlyTheHashOfThePinAndWipesIt()
+    {
+        var hash = PinHash.From("1234")!;
+        Assert.Equal(SHA256.HashData("1234"u8.ToArray())[..16], hash.Copy());
+        hash.Dispose();
+        Assert.Throws<ObjectDisposedException>(() => hash.Copy());
+        Assert.Null(PinHash.From("123"));
+        Assert.Null(PinHash.From(new string('1', 64)));
+    }
+
     public void Dispose() => _temp.Dispose();
 }
 

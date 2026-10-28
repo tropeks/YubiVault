@@ -12,6 +12,8 @@ sealed class SoftwareAuthenticator : ICtapConnection
 {
     readonly ECDiffieHellman _keyAgreement = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
     readonly byte[] _pinToken = RandomNumberGenerator.GetBytes(32);
+    // CTAP 2.1: makeCredential withdraws the token's permissions until a new one is issued.
+    bool _tokenSpent;
     readonly Dictionary<string, (string RpId, byte[] CredRandomWithUv, byte[] CredRandomWithoutUv)> _credentials = [];
     readonly int[] _protocols;
     string _pin;
@@ -91,6 +93,7 @@ sealed class SoftwareAuthenticator : ICtapConnection
                     throw new StatusException(PinRetries == 0 ? CtapStatus.PinBlocked : CtapStatus.PinInvalid);
                 }
                 PinRetries = 8;
+                _tokenSpent = false;
                 return new() { [2L] = Encrypt(protocol, shared, _pinToken) };
             default:
                 throw new StatusException(0x02);
@@ -105,6 +108,7 @@ sealed class SoftwareAuthenticator : ICtapConnection
         string rpId = (string)((Dictionary<object, object>)p[2L])["id"];
         bool hmacSecret = p.TryGetValue(6L, out var ext) && ((Dictionary<object, object>)ext).ContainsKey("hmac-secret");
         Touch();
+        _tokenSpent = true;
         byte[] id = RandomNumberGenerator.GetBytes(48);
         _credentials[Convert.ToHexString(id)] = (rpId, RandomNumberGenerator.GetBytes(32), RandomNumberGenerator.GetBytes(32));
 
@@ -165,6 +169,8 @@ sealed class SoftwareAuthenticator : ICtapConnection
 
     void CheckPinAuth(int protocol, byte[] clientDataHash, byte[] pinUvAuthParam)
     {
+        if (_tokenSpent)
+            throw new StatusException(CtapStatus.PinAuthInvalid);
         if (!Authenticate(protocol, _pinToken, clientDataHash).AsSpan().SequenceEqual(pinUvAuthParam))
             throw new StatusException(CtapStatus.PinAuthInvalid);
     }

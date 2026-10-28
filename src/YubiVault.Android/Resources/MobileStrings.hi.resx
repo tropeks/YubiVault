@@ -70,4 +70,7 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>फ़ोन के अनुसार</value>
   </data>
+  <data name="PinLength" xml:space="preserve">
+    <value>सुरक्षा कुंजी का PIN 4 से 63 अक्षरों का होता है।</value>
+  </data>
 </root>

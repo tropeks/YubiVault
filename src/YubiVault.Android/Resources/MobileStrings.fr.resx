@@ -70,4 +70,7 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>Comme le téléphone</value>
   </data>
+  <data name="PinLength" xml:space="preserve">
+    <value>Le PIN de la clé de sécurité compte de 4 à 63 caractères.</value>
+  </data>
 </root>

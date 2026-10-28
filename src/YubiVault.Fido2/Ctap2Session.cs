@@ -53,11 +53,10 @@ public sealed class Ctap2Session
     }
 
     /// <summary>Exchanges the PIN for a token allowed to make credentials and get assertions for <paramref name="rpId"/>.</summary>
-    public byte[] GetPinToken(string pin, string rpId)
+    public byte[] GetPinToken(PinHash pin, string rpId)
     {
         var (platformKey, sharedSecret) = KeyAgreement();
-        byte[] pinBytes = Encoding.UTF8.GetBytes(pin.Normalize(NormalizationForm.FormC));
-        byte[] pinHash = SHA256.HashData(pinBytes)[..16];
+        byte[] pinHash = pin.Copy();
         try
         {
             var request = new CborMap()
@@ -74,7 +73,6 @@ public sealed class Ctap2Session
         }
         finally
         {
-            CryptographicOperations.ZeroMemory(pinBytes);
             CryptographicOperations.ZeroMemory(pinHash);
             CryptographicOperations.ZeroMemory(sharedSecret);
         }

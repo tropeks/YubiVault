@@ -351,10 +351,7 @@ public sealed class Vault : IDisposable
 
         // Talk to the key first: a cancelled PIN prompt then leaves the file untouched.
         byte[] fido2Salt = RandomNumberGenerator.GetBytes(Fido2SaltSize);
-        byte[] credentialId = securityKey.MakeCredential(Fido2RelyingPartyId, RandomNumberGenerator.GetBytes(16), "YubiVault");
-        var (usedCredential, secret) = securityKey.GetSecret(Fido2RelyingPartyId, [(credentialId, fido2Salt)]);
-        if (!usedCredential.AsSpan().SequenceEqual(credentialId))
-            throw new VaultException("The security key answered with an unexpected credential.");
+        var (credentialId, secret) = Register(securityKey, fido2Salt);
 
         byte[] hiddenKey = RandomNumberGenerator.GetBytes(KeyWrap.MasterKeySize);
         byte[] code = RecoveryCode.Generate();
@@ -485,17 +482,26 @@ public sealed class Vault : IDisposable
             RelyingPartyId = Fido2RelyingPartyId,
             Challenge = RandomNumberGenerator.GetBytes(Fido2SaltSize),
         };
-        slot.CredentialId = securityKey.MakeCredential(Fido2RelyingPartyId, RandomNumberGenerator.GetBytes(16), "YubiVault");
-        // Registering already asks for the PIN and a touch; reading the secret asks once more.
-        var (usedCredential, secret) = securityKey.GetSecret(Fido2RelyingPartyId, [(slot.CredentialId, slot.Challenge)]);
-        if (!usedCredential.AsSpan().SequenceEqual(slot.CredentialId))
-            throw new VaultException("The security key answered with an unexpected credential.");
+        (slot.CredentialId, var secret) = Register(securityKey, slot.Challenge);
         byte[] kek = KeyWrap.Fido2Kek(secret, slot.Challenge);
         CryptographicOperations.ZeroMemory(secret);
         KeyWrap.Wrap(slot, kek, _masterKey, _header.VaultId);
         CryptographicOperations.ZeroMemory(kek);
         _header.Slots.Add(slot);
         return slot;
+    }
+
+    /// <summary>Creates a credential on the key and reads its secret for <paramref name="salt"/>, in one session when the key can.</summary>
+    static (byte[] CredentialId, byte[] Secret) Register(IFido2Authenticator securityKey, byte[] salt)
+    {
+        var (credentialId, secret) = securityKey.MakeCredential(Fido2RelyingPartyId, RandomNumberGenerator.GetBytes(16), "YubiVault", salt);
+        if (secret is not null)
+            return (credentialId, secret);
+        // Registering already asked for the PIN and a touch; reading the secret asks for a touch once more.
+        var (usedCredential, read) = securityKey.GetSecret(Fido2RelyingPartyId, [(credentialId, salt)]);
+        if (!usedCredential.AsSpan().SequenceEqual(credentialId))
+            throw new VaultException("The security key answered with an unexpected credential.");
+        return (credentialId, read);
     }
 
     string AddRecoverySlot()
