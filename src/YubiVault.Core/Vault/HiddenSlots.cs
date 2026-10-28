@@ -11,7 +11,7 @@ namespace YubiVault.Core;
 /// </summary>
 /// <remarks>
 /// Key area: Argon2id salt (16 bytes), then <see cref="SlotCount"/> slots of <see cref="SlotSize"/> bytes.
-/// Payloads: <c>1 | credential id length | credential id (256) | hmac-secret salt (32) | nonce (12) | wrapped master key (48)</c>
+/// Payloads: <c>3 (1 for the legacy relying party) | credential id length | credential id (256) | hmac-secret salt (32) | nonce (12) | wrapped master key (48)</c>
 /// for password and security key, <c>2 | master key (32)</c> for the recovery code.
 /// </remarks>
 static class HiddenSlots
@@ -25,8 +25,11 @@ static class HiddenSlots
     const int MaxCredentialIdSize = 256;
     const long FirstSlot = VaultFile.KeyAreaStart + SaltSize;
 
-    public const byte PasswordAndKey = 1;
+    /// <summary>Password and a security key credential of <see cref="Vault.LegacyFido2RelyingPartyId"/>.</summary>
+    public const byte PasswordAndLegacyKey = 1;
     public const byte Recovery = 2;
+    /// <summary>Password and a security key credential of <see cref="Vault.Fido2RelyingPartyId"/>.</summary>
+    public const byte PasswordAndKey = 3;
 
     public static readonly byte[] PasswordInfo = "YubiVault v2 hidden password"u8.ToArray();
     public static readonly byte[] RecoveryInfo = "YubiVault v2 hidden recovery"u8.ToArray();
@@ -75,12 +78,12 @@ static class HiddenSlots
         file.WriteAt(FirstSlot + index * SlotSize, slot);
     }
 
-    public static byte[] PasswordPayload(byte[] credentialId, byte[] fido2Salt, byte[] kek, ReadOnlySpan<byte> masterKey, byte[] vaultId)
+    public static byte[] PasswordPayload(byte type, byte[] credentialId, byte[] fido2Salt, byte[] kek, ReadOnlySpan<byte> masterKey, byte[] vaultId)
     {
         if (credentialId.Length > MaxCredentialIdSize)
             throw new VaultException("This security key's credential is too long for a hidden vault.");
         var payload = new byte[2 + MaxCredentialIdSize + 32 + NonceSize + KeyWrap.MasterKeySize + TagSize];
-        payload[0] = PasswordAndKey;
+        payload[0] = type;
         payload[1] = (byte)(credentialId.Length - 1); // 1..256
         credentialId.CopyTo(payload, 2);
         int at = 2 + MaxCredentialIdSize;

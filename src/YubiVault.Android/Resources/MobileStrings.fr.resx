@@ -70,4 +70,13 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>Comme le téléphone</value>
   </data>
+  <data name="NativePromptFallback" xml:space="preserve">
+    <value>L’invite de clé d’Android n’a pas fonctionné ({0}). Utilisation de l’invite de YubiVault.</value>
+  </data>
+  <data name="LegacyKeyTag" xml:space="preserve">
+    <value>ancien enregistrement</value>
+  </data>
+  <data name="LegacyKeysHint" xml:space="preserve">
+    <value>Les clés marquées « ancien enregistrement » demandent le PIN dans l’écran de YubiVault. Pour utiliser l’invite d’Android, ajoutez à nouveau la même clé, puis supprimez l’ancien enregistrement.</value>
+  </data>
 </root>

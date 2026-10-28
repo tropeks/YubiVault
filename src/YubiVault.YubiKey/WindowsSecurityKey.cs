@@ -164,10 +164,12 @@ public sealed class WindowsSecurityKey(IntPtr ownerWindow) : IFido2Authenticator
     {
         if (hr == 0)
             return;
+        // Not registered: the vault then tries the credentials of its other relying party, if any.
+        if (hr == NteNotFound)
+            throw new WrongKeyException("This security key is not registered in this vault.");
         string message = hr switch
         {
             NteUserCancelled => "The security key request was cancelled or timed out.",
-            NteNotFound => "This security key is not registered in this vault.",
             _ => $"Could not {action}: {ErrorName(hr)} (0x{hr:X8}).",
         };
         throw new VaultException(message);

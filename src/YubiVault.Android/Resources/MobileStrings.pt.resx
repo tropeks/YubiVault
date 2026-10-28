@@ -70,4 +70,13 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>Igual ao celular</value>
   </data>
+  <data name="NativePromptFallback" xml:space="preserve">
+    <value>O pedido de chave do Android não funcionou ({0}). Usando o pedido do próprio YubiVault.</value>
+  </data>
+  <data name="LegacyKeyTag" xml:space="preserve">
+    <value>registro antigo</value>
+  </data>
+  <data name="LegacyKeysHint" xml:space="preserve">
+    <value>Chaves marcadas como “registro antigo” pedem o PIN na tela do próprio YubiVault. Para usar o pedido do Android, adicione a mesma chave de novo e depois remova o registro antigo.</value>
+  </data>
 </root>

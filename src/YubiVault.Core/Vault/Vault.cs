@@ -15,7 +15,14 @@ public sealed class Vault : IDisposable
     public const string FileExtension = ".yvault";
     public const int ChallengeSize = 64;
     public const int Fido2SaltSize = 32;
-    public const string Fido2RelyingPartyId = "yubivault";
+    /// <summary>
+    /// Relying party of new security key credentials. It is a web domain that lists the Android app in its
+    /// <c>/.well-known/assetlinks.json</c>, so Android's own security key prompt (Credential Manager) can use them.
+    /// </summary>
+    public const string Fido2RelyingPartyId = "tropeks.github.io";
+
+    /// <summary>Relying party of credentials registered before <see cref="Fido2RelyingPartyId"/>; only apps' own CTAP clients can use it.</summary>
+    public const string LegacyFido2RelyingPartyId = "yubivault";
 
     /// <summary>Saves compact the file by themselves once this much (and a quarter of it) is unused.</summary>
     const long MinWasteToCompact = 1 << 20;
@@ -132,10 +139,23 @@ public sealed class Vault : IDisposable
             if (slots.Count == 0)
                 throw new WrongKeyException("This vault has no security key registered.");
 
-            foreach (var group in slots.GroupBy(s => s.RelyingPartyId ?? Fido2RelyingPartyId))
+            // Current credentials first: on Android they get the phone's own prompt.
+            WrongKeyException? notRegistered = null;
+            foreach (var group in slots.GroupBy(s => s.RelyingPartyId ?? LegacyFido2RelyingPartyId)
+                         .OrderBy(g => g.Key == Fido2RelyingPartyId ? 0 : 1))
             {
-                var (credentialId, secret) = securityKey.GetSecret(group.Key,
-                    group.Select(s => (s.CredentialId!, s.Challenge!)).ToList());
+                byte[] credentialId, secret;
+                try
+                {
+                    (credentialId, secret) = securityKey.GetSecret(group.Key,
+                        group.Select(s => (s.CredentialId!, s.Challenge!)).ToList());
+                }
+                catch (WrongKeyException e)
+                {
+                    // The key may still hold a credential of the other relying party.
+                    notRegistered = e;
+                    continue;
+                }
                 var slot = group.FirstOrDefault(s => s.CredentialId!.AsSpan().SequenceEqual(credentialId));
                 if (slot is null)
                     continue;
@@ -146,7 +166,7 @@ public sealed class Vault : IDisposable
                 if (masterKey is not null)
                     return masterKey;
             }
-            throw new WrongKeyException("This security key is not registered in this vault.");
+            throw notRegistered ?? new WrongKeyException("This security key is not registered in this vault.");
         });
 
     /// <summary>Opens the vault with a YubiKey. <paramref name="askPassword"/> is called only if the key's slot needs one.</summary>
@@ -240,10 +260,16 @@ public sealed class Vault : IDisposable
             try
             {
                 var payload = HiddenSlots.Find(file, slotKey, header.VaultId);
-                if (payload is null || payload[0] != HiddenSlots.PasswordAndKey)
+                string? relyingPartyId = payload?[0] switch
+                {
+                    HiddenSlots.PasswordAndKey => Fido2RelyingPartyId,
+                    HiddenSlots.PasswordAndLegacyKey => LegacyFido2RelyingPartyId,
+                    _ => null,
+                };
+                if (payload is null || relyingPartyId is null)
                     throw new WrongKeyException(NoHiddenVault);
                 var (credentialId, salt) = HiddenSlots.ReadPasswordPayload(payload);
-                var (_, secret) = securityKey.GetSecret(Fido2RelyingPartyId, [(credentialId, salt)]);
+                var (_, secret) = securityKey.GetSecret(relyingPartyId, [(credentialId, salt)]);
                 byte[] kek = KeyWrap.HiddenFido2Kek(secret, slotKey, salt);
                 CryptographicOperations.ZeroMemory(secret);
                 byte[]? masterKey = HiddenSlots.UnwrapPasswordPayload(payload, kek, header.VaultId);
@@ -340,7 +366,10 @@ public sealed class Vault : IDisposable
     /// with fresh random padding, which destroys any hidden vault already in it.
     /// </summary>
     /// <returns>The hidden vault's own recovery code, to show the user once.</returns>
-    public string CreateHiddenVault(string password, IFido2Authenticator securityKey, long size)
+    public string CreateHiddenVault(string password, IFido2Authenticator securityKey, long size) =>
+        CreateHiddenVault(password, securityKey, size, Fido2RelyingPartyId);
+
+    internal string CreateHiddenVault(string password, IFido2Authenticator securityKey, long size, string relyingPartyId)
     {
         ThrowIfDisposed();
         ThrowIfHidden();
@@ -351,8 +380,8 @@ public sealed class Vault : IDisposable
 
         // Talk to the key first: a cancelled PIN prompt then leaves the file untouched.
         byte[] fido2Salt = RandomNumberGenerator.GetBytes(Fido2SaltSize);
-        byte[] credentialId = securityKey.MakeCredential(Fido2RelyingPartyId, RandomNumberGenerator.GetBytes(16), "YubiVault");
-        var (usedCredential, secret) = securityKey.GetSecret(Fido2RelyingPartyId, [(credentialId, fido2Salt)]);
+        byte[] credentialId = securityKey.MakeCredential(relyingPartyId, RandomNumberGenerator.GetBytes(16), "YubiVault");
+        var (usedCredential, secret) = securityKey.GetSecret(relyingPartyId, [(credentialId, fido2Salt)]);
         if (!usedCredential.AsSpan().SequenceEqual(credentialId))
             throw new VaultException("The security key answered with an unexpected credential.");
 
@@ -369,7 +398,8 @@ public sealed class Vault : IDisposable
 
             var (passwordSlot, recoverySlot) = HiddenSlots.PickTwo();
             HiddenSlots.Write(_file, passwordSlot, slotKey,
-                HiddenSlots.PasswordPayload(credentialId, fido2Salt, kek, hiddenKey, _header.VaultId), _header.VaultId);
+                HiddenSlots.PasswordPayload(relyingPartyId == Fido2RelyingPartyId ? HiddenSlots.PasswordAndKey : HiddenSlots.PasswordAndLegacyKey,
+                    credentialId, fido2Salt, kek, hiddenKey, _header.VaultId), _header.VaultId);
             HiddenSlots.Write(_file, recoverySlot, recoveryKey, HiddenSlots.RecoveryPayload(hiddenKey), _header.VaultId);
             using var store = HiddenStore.Create(_file, VaultFile.DataStart, size, hiddenKey);
             store.Commit(output => WriteIndex([], output, hiddenKey));
@@ -417,11 +447,13 @@ public sealed class Vault : IDisposable
     }
 
     /// <summary>Registers another FIDO2 security key. Files are not re-encrypted.</summary>
-    public KeySlot AddSecurityKey(IFido2Authenticator securityKey)
+    public KeySlot AddSecurityKey(IFido2Authenticator securityKey) => AddSecurityKey(securityKey, Fido2RelyingPartyId);
+
+    internal KeySlot AddSecurityKey(IFido2Authenticator securityKey, string relyingPartyId)
     {
         ThrowIfDisposed();
         ThrowIfHidden();
-        var slot = AddFido2Slot(securityKey);
+        var slot = AddFido2Slot(securityKey, relyingPartyId);
         SaveHeader();
         return slot;
     }
@@ -474,7 +506,7 @@ public sealed class Vault : IDisposable
         return slot;
     }
 
-    KeySlot AddFido2Slot(IFido2Authenticator securityKey)
+    KeySlot AddFido2Slot(IFido2Authenticator securityKey, string relyingPartyId = Fido2RelyingPartyId)
     {
         var slot = new KeySlot
         {
@@ -482,12 +514,12 @@ public sealed class Vault : IDisposable
             Type = KeySlotType.Fido2,
             Label = securityKey.Description,
             CreatedUtc = DateTime.UtcNow,
-            RelyingPartyId = Fido2RelyingPartyId,
+            RelyingPartyId = relyingPartyId,
             Challenge = RandomNumberGenerator.GetBytes(Fido2SaltSize),
         };
-        slot.CredentialId = securityKey.MakeCredential(Fido2RelyingPartyId, RandomNumberGenerator.GetBytes(16), "YubiVault");
+        slot.CredentialId = securityKey.MakeCredential(relyingPartyId, RandomNumberGenerator.GetBytes(16), "YubiVault");
         // Registering already asks for the PIN and a touch; reading the secret asks once more.
-        var (usedCredential, secret) = securityKey.GetSecret(Fido2RelyingPartyId, [(slot.CredentialId, slot.Challenge)]);
+        var (usedCredential, secret) = securityKey.GetSecret(relyingPartyId, [(slot.CredentialId, slot.Challenge)]);
         if (!usedCredential.AsSpan().SequenceEqual(slot.CredentialId))
             throw new VaultException("The security key answered with an unexpected credential.");
         byte[] kek = KeyWrap.Fido2Kek(secret, slot.Challenge);

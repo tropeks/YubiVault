@@ -70,4 +70,13 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>Как в телефоне</value>
   </data>
+  <data name="NativePromptFallback" xml:space="preserve">
+    <value>Запрос ключа Android не сработал ({0}). Используется запрос YubiVault.</value>
+  </data>
+  <data name="LegacyKeyTag" xml:space="preserve">
+    <value>старая регистрация</value>
+  </data>
+  <data name="LegacyKeysHint" xml:space="preserve">
+    <value>Ключи с пометкой «старая регистрация» запрашивают PIN в окне YubiVault. Чтобы использовать запрос Android, добавьте тот же ключ ещё раз, а затем удалите старую запись.</value>
+  </data>
 </root>

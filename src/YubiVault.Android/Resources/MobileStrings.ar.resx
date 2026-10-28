@@ -70,4 +70,13 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>مثل الهاتف</value>
   </data>
+  <data name="NativePromptFallback" xml:space="preserve">
+    <value>لم تعمل نافذة المفتاح في Android ‏({0}). سيُستخدم طلب YubiVault الخاص.</value>
+  </data>
+  <data name="LegacyKeyTag" xml:space="preserve">
+    <value>تسجيل قديم</value>
+  </data>
+  <data name="LegacyKeysHint" xml:space="preserve">
+    <value>المفاتيح المعلَّمة بـ «تسجيل قديم» تطلب رقم PIN في شاشة YubiVault نفسها. لاستخدام نافذة Android بدلًا منها، أضف المفتاح نفسه مرة أخرى ثم احذف التسجيل القديم.</value>
+  </data>
 </root>

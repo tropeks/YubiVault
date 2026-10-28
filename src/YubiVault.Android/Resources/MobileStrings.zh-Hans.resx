@@ -70,4 +70,13 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>跟随手机</value>
   </data>
+  <data name="NativePromptFallback" xml:space="preserve">
+    <value>Android 的安全密钥提示无法使用（{0}）。改用 YubiVault 自己的提示。</value>
+  </data>
+  <data name="LegacyKeyTag" xml:space="preserve">
+    <value>旧注册</value>
+  </data>
+  <data name="LegacyKeysHint" xml:space="preserve">
+    <value>标为“旧注册”的密钥会在 YubiVault 自己的界面中要求输入 PIN。若要改用 Android 的提示，请再次添加同一把密钥，然后删除旧注册。</value>
+  </data>
 </root>

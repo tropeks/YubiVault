@@ -70,4 +70,13 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>スマートフォンの設定に合わせる</value>
   </data>
+  <data name="NativePromptFallback" xml:space="preserve">
+    <value>Android のキー確認が使えませんでした（{0}）。YubiVault の確認画面を使います。</value>
+  </data>
+  <data name="LegacyKeyTag" xml:space="preserve">
+    <value>以前の登録</value>
+  </data>
+  <data name="LegacyKeysHint" xml:space="preserve">
+    <value>「以前の登録」と表示されたキーは YubiVault の画面で PIN を入力します。Android の確認画面を使うには、同じキーをもう一度追加してから以前の登録を削除してください。</value>
+  </data>
 </root>
