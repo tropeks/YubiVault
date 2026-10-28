@@ -35,6 +35,8 @@ public class MainActivity : AvaloniaMainActivity<App>
     {
         AndroidPlatform.Attach(this);
         base.OnCreate(savedInstanceState);
+        // No screenshots, screen recording or casting of the PIN prompt and the vault's files.
+        Window?.SetFlags(global::Android.Views.WindowManagerFlags.Secure, global::Android.Views.WindowManagerFlags.Secure);
         // The vault locks when the app leaves the screen, but the recents screen would still show its files.
         if (OperatingSystem.IsAndroidVersionAtLeast(33))
             SetRecentsScreenshotEnabled(false);

@@ -70,4 +70,7 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>スマートフォンの設定に合わせる</value>
   </data>
+  <data name="PinLength" xml:space="preserve">
+    <value>セキュリティキーの PIN は 4～63 文字です。</value>
+  </data>
 </root>

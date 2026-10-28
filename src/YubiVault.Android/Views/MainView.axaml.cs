@@ -353,10 +353,18 @@ public partial class MainView : UserControl
         var done = new TaskCompletionSource<string?>();
         var input = new TextBox { Text = initial };
         if (secret)
+        {
             input.PasswordChar = '•';
+            // No suggestions, learning or autofill from the keyboard; the text is cleared once read.
+            Avalonia.Input.TextInput.TextInputOptions.SetContentType(input, Avalonia.Input.TextInput.TextInputContentType.Password);
+            Avalonia.Input.TextInput.TextInputOptions.SetIsSensitive(input, true);
+            Avalonia.Input.TextInput.TextInputOptions.SetAutoCapitalization(input, false);
+        }
         Border? card = null;
         void Close(string? result)
         {
+            if (secret)
+                input.Text = "";
             PopOverlay(card!);
             done.TrySetResult(result);
         }
@@ -501,7 +509,8 @@ public partial class MainView : UserControl
             }
         });
 
-        var key = new CtapSecurityKey(token =>
+        bool pinTooShort = false;
+        using var key = new CtapSecurityKey(token =>
         {
             Update(MobileStrings.ConnectKeyTitle, Platform.NfcAvailable ? MobileStrings.ConnectKeyDetail : MobileStrings.ConnectKeyDetailUsb,
                 Platform.NfcAvailable ? Ui.NfcIcon : Ui.UsbIcon);
@@ -513,12 +522,15 @@ public partial class MainView : UserControl
             CancellationToken = cancel.Token,
             AskPin = retries =>
             {
+                string? error = pinTooShort ? MobileStrings.PinLength : retries is int left ? Ui.Format(Strings.PinRetry, left) : null;
+                pinTooShort = false;
                 string? pin = Dispatcher.UIThread.InvokeAsync(() => PromptAsync(Strings.PinTitle, Strings.PinPrompt, secret: true,
-                    error: retries is int left ? Ui.Format(Strings.PinRetry, left) : null)).GetAwaiter().GetResult();
+                    error: error)).GetAwaiter().GetResult();
                 if (pin is null)
                     cancel.Cancel();
                 return pin;
             },
+            InvalidPin = () => pinTooShort = true,
             TouchNotifier = waiting => Update(waiting ? Strings.TouchKeyTitle : status,
                 waiting ? Strings.TouchKeyDetail : MobileStrings.KeyWorking, waiting ? Ui.TouchIcon : Ui.KeyIcon),
         };

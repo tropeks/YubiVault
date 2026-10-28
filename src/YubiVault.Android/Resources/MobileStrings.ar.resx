@@ -70,4 +70,7 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>مثل الهاتف</value>
   </data>
+  <data name="PinLength" xml:space="preserve">
+    <value>يتكوّن رقم PIN لمفتاح الأمان من 4 إلى 63 حرفًا.</value>
+  </data>
 </root>

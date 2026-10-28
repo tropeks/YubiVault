@@ -70,4 +70,7 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>Как в телефоне</value>
   </data>
+  <data name="PinLength" xml:space="preserve">
+    <value>PIN ключа безопасности содержит от 4 до 63 символов.</value>
+  </data>
 </root>

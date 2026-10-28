@@ -70,4 +70,7 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>跟随手机</value>
   </data>
+  <data name="PinLength" xml:space="preserve">
+    <value>安全密钥的 PIN 为 4 到 63 个字符。</value>
+  </data>
 </root>

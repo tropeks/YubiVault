@@ -70,4 +70,7 @@
   <data name="ThemeSystem" xml:space="preserve">
     <value>ফোনের মতো</value>
   </data>
+  <data name="PinLength" xml:space="preserve">
+    <value>নিরাপত্তা কী-এর PIN ৪ থেকে ৬৩ অক্ষরের হয়।</value>
+  </data>
 </root>
