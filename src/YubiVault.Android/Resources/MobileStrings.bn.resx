@@ -58,4 +58,16 @@
   <data name="RemoveFromList" xml:space="preserve">
     <value>তালিকা থেকে সরান</value>
   </data>
+  <data name="Theme" xml:space="preserve">
+    <value>থিম</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>ডার্ক</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>লাইট</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>ফোনের মতো</value>
+  </data>
 </root>

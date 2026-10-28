@@ -1,8 +1,8 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="YubiVault.Android.App"
-             RequestedThemeVariant="Default">
-    <!-- Light or dark mode and the accent color follow the phone's settings. -->
+             RequestedThemeVariant="Dark">
+    <!-- YubiVault's own blue (from the icon) in both modes; dark by default, the user can switch on the start page. -->
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.ThemeDictionaries>
@@ -36,7 +36,12 @@
     </Application.Resources>
 
     <Application.Styles>
-        <FluentTheme />
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Light" Accent="#1F6FD1" />
+                <ColorPaletteResources x:Key="Dark" Accent="#2F86EB" />
+            </FluentTheme.Palettes>
+        </FluentTheme>
 
         <!-- Buttons: pill shapes, filled for the main action ("accent"), tonal by default, text-only for links. -->
         <Style Selector="Button">

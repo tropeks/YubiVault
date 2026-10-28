@@ -40,8 +40,39 @@ sealed class StartPage : UserControl
             _recentHeader,
             _recent);
         content.MaxWidth = 560;
-        Content = new ScrollViewer { Content = content };
+        var theme = ThemeButton();
+        theme.HorizontalAlignment = HorizontalAlignment.Right;
+        theme.VerticalAlignment = VerticalAlignment.Top;
+        theme.Margin = new Thickness(8);
+        Content = new Panel { Children = { new ScrollViewer { Content = content }, theme } };
         LoadRecent();
+    }
+
+    /// <summary>Top-right button with the dark / light / same-as-phone choice.</summary>
+    static Button ThemeButton()
+    {
+        var button = Ui.IconButton(Ui.ThemeIcon, MobileStrings.Theme);
+        var menu = new MenuFlyout();
+        foreach (var (value, label) in new[]
+        {
+            (ThemeSetting.Dark, MobileStrings.ThemeDark),
+            (ThemeSetting.Light, MobileStrings.ThemeLight),
+            (ThemeSetting.System, MobileStrings.ThemeSystem),
+        })
+        {
+            var item = new MenuItem { Header = label, ToggleType = MenuItemToggleType.Radio, GroupName = "theme" };
+            item.Click += (_, _) => ThemeSetting.Set(value);
+            menu.Items.Add(item);
+        }
+        menu.Opening += (_, _) =>
+        {
+            string current = ThemeSetting.Current;
+            int index = current == ThemeSetting.Light ? 1 : current == ThemeSetting.System ? 2 : 0;
+            for (int i = 0; i < menu.Items.Count; i++)
+                ((MenuItem)menu.Items[i]!).IsChecked = i == index;
+        };
+        button.Flyout = menu;
+        return button;
     }
 
     void LoadRecent()

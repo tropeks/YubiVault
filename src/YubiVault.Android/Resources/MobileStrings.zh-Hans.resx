@@ -58,4 +58,16 @@
   <data name="RemoveFromList" xml:space="preserve">
     <value>从列表中移除</value>
   </data>
+  <data name="Theme" xml:space="preserve">
+    <value>主题</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>浅色</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>跟随手机</value>
+  </data>
 </root>

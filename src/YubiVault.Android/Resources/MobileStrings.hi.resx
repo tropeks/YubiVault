@@ -58,4 +58,16 @@
   <data name="RemoveFromList" xml:space="preserve">
     <value>सूची से हटाएँ</value>
   </data>
+  <data name="Theme" xml:space="preserve">
+    <value>थीम</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>डार्क</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>लाइट</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>फ़ोन के अनुसार</value>
+  </data>
 </root>

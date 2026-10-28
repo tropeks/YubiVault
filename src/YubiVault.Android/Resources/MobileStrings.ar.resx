@@ -58,4 +58,16 @@
   <data name="RemoveFromList" xml:space="preserve">
     <value>إزالة من القائمة</value>
   </data>
+  <data name="Theme" xml:space="preserve">
+    <value>السمة</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>داكنة</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>فاتحة</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>مثل الهاتف</value>
+  </data>
 </root>
