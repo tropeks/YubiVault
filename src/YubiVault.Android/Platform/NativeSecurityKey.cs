@@ -28,7 +28,26 @@ sealed class NativeSecurityKey(Activity activity, CancellationToken cancellation
 
     /// <exception cref="System.OperationCanceledException">The user closed the prompt.</exception>
     /// <exception cref="NativeKeyUnavailableException">The phone's prompt failed; try the app's own.</exception>
-    public byte[] MakeCredential(string relyingPartyId, byte[] userId, string userName)
+    public byte[] MakeCredential(string relyingPartyId, byte[] userId, string userName) =>
+        Create(relyingPartyId, userId, userName, null).CredentialId;
+
+    /// <summary>Registers and, when Android returns it, reads the PRF secret in the same prompt.</summary>
+    /// <exception cref="System.OperationCanceledException">The user closed the prompt.</exception>
+    /// <exception cref="NativeKeyUnavailableException">The phone's prompt failed; try the app's own.</exception>
+    public (byte[] CredentialId, byte[]? Secret) MakeCredential(string relyingPartyId, byte[] userId, string userName, byte[] salt)
+    {
+        try
+        {
+            return Create(relyingPartyId, userId, userName, salt);
+        }
+        catch (NativeKeyUnavailableException)
+        {
+            // Some phones may refuse the PRF input on registration; register plainly and read the secret after.
+            return Create(relyingPartyId, userId, userName, null);
+        }
+    }
+
+    (byte[] CredentialId, byte[]? Secret) Create(string relyingPartyId, byte[] userId, string userName, byte[]? salt)
     {
         var create = new JsonObject
         {
@@ -46,13 +65,18 @@ sealed class NativeSecurityKey(Activity activity, CancellationToken cancellation
                 ["userVerification"] = "required",
             },
         };
+        if (salt is not null)
+            create["extensions"] = new JsonObject { ["prf"] = new JsonObject { ["eval"] = new JsonObject { ["first"] = Base64Url(salt) } } };
         var response = Await<CreatePublicKeyCredentialResponse>("register", (manager, callback, signal, executor) =>
             manager.CreateCredentialAsync(activity, new CreatePublicKeyCredentialRequest(create.ToJsonString()), signal, executor, callback));
         var registration = JsonNode.Parse(response.RegistrationResponseJson)!;
         // Without the attachment Android also offers passkey managers; a vault needs the hardware key.
         if ((string?)registration["authenticatorAttachment"] == "platform")
             throw new VaultException("That passkey was saved on the phone or in a password manager. Choose your security key instead (\"Save another way\", then NFC or USB).");
-        return FromBase64Url((string?)registration["rawId"] ?? (string)registration["id"]!);
+        byte[] credentialId = FromBase64Url((string?)registration["rawId"] ?? (string)registration["id"]!);
+        string? first = salt is null ? null : (string?)registration["clientExtensionResults"]?["prf"]?["results"]?["first"];
+        byte[]? secret = first is null ? null : FromBase64Url(first);
+        return (credentialId, secret is { Length: 32 } ? secret : null);
     }
 
     /// <exception cref="System.OperationCanceledException">The user closed the prompt.</exception>
@@ -210,6 +234,9 @@ sealed class PhoneSecurityKey(NativeSecurityKey? native, IFido2Authenticator cta
 
     public byte[] MakeCredential(string relyingPartyId, byte[] userId, string userName) =>
         Route(relyingPartyId, key => key.MakeCredential(relyingPartyId, userId, userName));
+
+    public (byte[] CredentialId, byte[]? Secret) MakeCredential(string relyingPartyId, byte[] userId, string userName, byte[] salt) =>
+        Route(relyingPartyId, key => key.MakeCredential(relyingPartyId, userId, userName, salt));
 
     public (byte[] CredentialId, byte[] Secret) GetSecret(string relyingPartyId, IReadOnlyList<(byte[] CredentialId, byte[] Salt)> credentials) =>
         Route(relyingPartyId, key => key.GetSecret(relyingPartyId, credentials));

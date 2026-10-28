@@ -76,6 +76,20 @@ public class RelyingPartyTests : IDisposable
         Assert.Equal([relyingPartyId], key.RelyingParties);
     }
 
+    [Fact]
+    public void AKeyThatReturnsTheSecretOnCreationIsAskedOnce()
+    {
+        var key = new RelyingPartyKey("key-1") { SecretOnCreation = true };
+        var (vault, _) = Vault.Create(VaultFilePath, key, Fast.Options);
+        vault.Dispose();
+        Assert.Single(key.RelyingParties);
+
+        key.SecretOnCreation = false;
+        using (Vault.OpenWithFido2(VaultFilePath, key, Fast.Options))
+        {
+        }
+    }
+
     /// <summary>A security key whose credentials belong to the relying party they were made for, like a real one.</summary>
     sealed class RelyingPartyKey(string deviceSecret) : IFido2Authenticator
     {
@@ -83,6 +97,13 @@ public class RelyingPartyTests : IDisposable
         readonly Dictionary<string, string> _owners = [];
 
         public List<string> RelyingParties { get; } = [];
+        public bool SecretOnCreation { get; set; }
+
+        public (byte[] CredentialId, byte[]? Secret) MakeCredential(string relyingPartyId, byte[] userId, string userName, byte[] salt)
+        {
+            byte[] id = MakeCredential(relyingPartyId, userId, userName);
+            return (id, SecretOnCreation ? _device.GetSecret(relyingPartyId, [(id, salt)]).Secret : null);
+        }
         public string Description => "Fake security key";
 
         public byte[] MakeCredential(string relyingPartyId, byte[] userId, string userName)
