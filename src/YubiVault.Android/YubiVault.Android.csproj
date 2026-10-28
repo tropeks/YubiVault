@@ -22,9 +22,9 @@
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
   </PropertyGroup>
 
+  <!-- Launcher icon: Resources/mipmap-* (adaptive, with a monochrome layer for themed icons). -->
   <ItemGroup>
-    <AndroidResource Include="..\..\assets\yubivault.png" Link="Resources\mipmap\yubivault.png" />
-    <AvaloniaResource Include="..\..\assets\yubivault.png" Link="Assets\yubivault.png" />
+    <AvaloniaResource Include="Assets\app-icon.png" />
   </ItemGroup>
 
   <!-- The desktop app's texts are shared; texts only the phone needs live in MobileStrings*.resx. -->

@@ -21,7 +21,7 @@ sealed class StartPage : UserControl
         _main = main;
         var logo = new Image
         {
-            Source = new Bitmap(AssetLoader.Open(new Uri("avares://YubiVault.Android/Assets/yubivault.png"))),
+            Source = new Bitmap(AssetLoader.Open(new Uri("avares://YubiVault.Android/Assets/app-icon.png"))),
             Width = 96,
             Height = 96,
             HorizontalAlignment = HorizontalAlignment.Center,

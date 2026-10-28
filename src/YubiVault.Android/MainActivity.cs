@@ -12,7 +12,8 @@ namespace YubiVault.Android;
 [Activity(
     Label = "YubiVault",
     Theme = "@style/YubiVaultTheme",
-    Icon = "@mipmap/yubivault",
+    Icon = "@mipmap/ic_launcher",
+    RoundIcon = "@mipmap/ic_launcher_round",
     MainLauncher = true,
     Exported = true,
     LaunchMode = LaunchMode.SingleTask,
