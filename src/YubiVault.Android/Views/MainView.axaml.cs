@@ -526,7 +526,7 @@ public partial class MainView : UserControl
         // New credentials get Android's own prompt, which asks for the PIN and the touch itself.
         var native = Platform is AndroidPlatform android ? new NativeSecurityKey(android.Activity, cancel.Token) : null;
         var phoneKey = new PhoneSecurityKey(native, key, reason =>
-            Dispatcher.UIThread.Post(() => ShowToast(Ui.Format(MobileStrings.NativePromptFallback, reason))));
+            Dispatcher.UIThread.Post(() => _ = AlertAsync(Strings.ErrorTitle, Ui.Format(MobileStrings.NativePromptFallback, reason))));
 
         try
         {

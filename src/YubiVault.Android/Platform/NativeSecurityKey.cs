@@ -45,9 +45,8 @@ sealed class NativeSecurityKey(Activity activity, CancellationToken cancellation
                 ["requireResidentKey"] = false,
                 ["userVerification"] = "required",
             },
-            ["hints"] = new JsonArray("security-key"),
         };
-        var response = Await<CreatePublicKeyCredentialResponse>((manager, callback, signal, executor) =>
+        var response = Await<CreatePublicKeyCredentialResponse>("register", (manager, callback, signal, executor) =>
             manager.CreateCredentialAsync(activity, new CreatePublicKeyCredentialRequest(create.ToJsonString()), signal, executor, callback));
         var registration = JsonNode.Parse(response.RegistrationResponseJson)!;
         // Without the attachment Android also offers passkey managers; a vault needs the hardware key.
@@ -78,26 +77,26 @@ sealed class NativeSecurityKey(Activity activity, CancellationToken cancellation
             ["timeout"] = 120000,
             ["userVerification"] = "required",
             ["allowCredentials"] = allow,
-            ["hints"] = new JsonArray("security-key"),
             ["extensions"] = new JsonObject { ["prf"] = prf },
         };
         var request = new GetCredentialRequest.Builder().AddCredentialOption(new GetPublicKeyCredentialOption(get.ToJsonString())).Build();
-        var response = Await<GetCredentialResponse>((manager, callback, signal, executor) =>
+        var response = Await<GetCredentialResponse>("read", (manager, callback, signal, executor) =>
             manager.GetCredentialAsync(activity, request, signal, executor, callback));
-        if (response.Credential is not PublicKeyCredential credential)
-            throw new NativeKeyUnavailableException("Android returned something other than a security key credential.");
+        var credential = Cast<PublicKeyCredential>(response.Credential)
+            ?? throw new NativeKeyUnavailableException($"read: Android returned a {response.Credential.Type} credential, not a security key one.");
         var assertion = JsonNode.Parse(credential.AuthenticationResponseJson)!;
         string? first = (string?)assertion["clientExtensionResults"]?["prf"]?["results"]?["first"];
         if (first is null)
-            throw new NativeKeyUnavailableException("Android's prompt did not return the key's PRF secret.");
+            throw new NativeKeyUnavailableException("read: no PRF secret in the answer; extensions: "
+                + (assertion["clientExtensionResults"]?.ToJsonString() ?? "none"));
         byte[] used = FromBase64Url((string?)assertion["rawId"] ?? (string)assertion["id"]!);
         byte[] secret = FromBase64Url(first);
         if (secret.Length != 32)
-            throw new NativeKeyUnavailableException("Android's prompt returned a PRF secret of unexpected length.");
+            throw new NativeKeyUnavailableException("read: Android's prompt returned a PRF secret of unexpected length.");
         return (used, secret);
     }
 
-    T Await<T>(Action<ICredentialManager, ICredentialManagerCallback, CancellationSignal, Java.Util.Concurrent.IExecutor> start)
+    T Await<T>(string step, Action<ICredentialManager, ICredentialManagerCallback, CancellationSignal, Java.Util.Concurrent.IExecutor> start)
         where T : Java.Lang.Object
     {
         var completion = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -114,14 +113,21 @@ sealed class NativeSecurityKey(Activity activity, CancellationToken cancellation
                 completion.TrySetException(new NativeKeyUnavailableException(e.Message));
             }
         });
-        return completion.Task.GetAwaiter().GetResult();
+        try
+        {
+            return completion.Task.GetAwaiter().GetResult();
+        }
+        catch (NativeKeyUnavailableException e)
+        {
+            throw new NativeKeyUnavailableException($"{step}: {e.Message}");
+        }
     }
 
     sealed class Callback<T>(TaskCompletionSource<T> completion) : Java.Lang.Object, ICredentialManagerCallback where T : Java.Lang.Object
     {
         public void OnResult(Java.Lang.Object? result)
         {
-            if (result is T value)
+            if (result is not null && Cast<T>(result) is { } value)
                 completion.TrySetResult(value);
             else
                 completion.TrySetException(new NativeKeyUnavailableException("Android returned no credential."));
@@ -153,6 +159,21 @@ sealed class NativeSecurityKey(Activity activity, CancellationToken cancellation
         } ?? error?.Message;
         string text = string.Join(": ", new[] { type, message }.Where(t => !string.IsNullOrEmpty(t)));
         return text.Length > 0 ? text : raw.ToString();
+    }
+
+    /// <summary>The object as <typeparamref name="T"/>, also when the binding wrapped it as a base type; null if it is not one.</summary>
+    static T? Cast<T>(Java.Lang.Object value) where T : Java.Lang.Object
+    {
+        if (value is T typed)
+            return typed;
+        try
+        {
+            return Java.Lang.Class.FromType(typeof(T)).IsInstance(value) ? global::Android.Runtime.Extensions.JavaCast<T>(value) : null;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     static Java.Lang.Throwable? Throwable(Java.Lang.Object error)
