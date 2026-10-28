@@ -43,8 +43,8 @@ sealed class TempFolder : IDisposable
 
 static class Fast
 {
-    // Cheap Argon2id and small chunks keep the tests fast; real vaults use the defaults.
-    public static readonly VaultOptions Options = new() { Argon2MemoryKiB = 64, Argon2Passes = 1, ChunkSizeLog2 = 10 };
+    // The cheapest accepted Argon2id and small chunks keep the tests fast; real vaults use the defaults.
+    public static readonly VaultOptions Options = new() { Argon2MemoryKiB = 8 * 1024, Argon2Passes = 1, ChunkSizeLog2 = 10 };
 }
 
 /// <summary>Software stand-in for a FIDO2 key with hmac-secret: per-credential secrets derived from a device secret.</summary>

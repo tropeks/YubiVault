@@ -155,13 +155,13 @@ sealed class VaultFile : IRecordStore, IDisposable
 
     void CheckReserved(long offset, int length)
     {
-        if (offset < KeyAreaStart || offset + length > Math.Max(_current.End, DataStart))
+        if (!Within(offset, length, KeyAreaStart, Math.Max(_current.End, DataStart)))
             throw new VaultException("A reserved area points outside the vault file.");
     }
 
     public byte[] ReadHeader()
     {
-        if (_current.HeaderLength is <= 0 or > 16 << 20)
+        if (_current.HeaderLength is <= 0 or > 16 << 20 || !Within(_current.HeaderOffset, _current.HeaderLength, DataStart, _current.End))
             throw new VaultException("The vault header is damaged.");
         var bytes = new byte[_current.HeaderLength];
         _stream.Position = _current.HeaderOffset;
@@ -174,7 +174,7 @@ sealed class VaultFile : IRecordStore, IDisposable
     /// <summary>A read-only view of one record.</summary>
     public Stream OpenRecord(long offset, long length)
     {
-        if (offset < DataStart || length < 0 || offset + length > _current.End)
+        if (!Within(offset, length, DataStart, _current.End))
             throw new VaultException("A record points outside the vault file.");
         return new RecordStream(_stream, offset, length);
     }
@@ -238,10 +238,14 @@ sealed class VaultFile : IRecordStore, IDisposable
             BinaryPrimitives.ReadInt64LittleEndian(block[40..]),
             BinaryPrimitives.ReadInt64LittleEndian(block[48..]));
         bool sane = sb.Generation > 0 && sb.End >= DataStart
-            && sb.HeaderOffset >= DataStart && sb.HeaderLength > 0 && sb.HeaderOffset + sb.HeaderLength <= sb.End
-            && sb.IndexOffset >= DataStart && sb.IndexLength > 0 && sb.IndexOffset + sb.IndexLength <= sb.End;
+            && sb.HeaderLength > 0 && Within(sb.HeaderOffset, sb.HeaderLength, DataStart, sb.End)
+            && sb.IndexLength > 0 && Within(sb.IndexOffset, sb.IndexLength, DataStart, sb.End);
         return sane ? sb : null;
     }
+
+    /// <summary>True if <paramref name="length"/> bytes at <paramref name="offset"/> lie between <paramref name="start"/> and <paramref name="end"/>; never overflows.</summary>
+    static bool Within(long offset, long length, long start, long end) =>
+        offset >= start && offset <= end && length >= 0 && length <= end - offset;
 
     void IRecordStore.Commit(Action<Stream> writeIndex) => Commit(null, writeIndex);
 

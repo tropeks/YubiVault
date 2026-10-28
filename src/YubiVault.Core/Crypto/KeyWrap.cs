@@ -14,6 +14,19 @@ static class KeyWrap
     static readonly byte[] Fido2KekInfo = "YubiVault v1 fido2 kek"u8.ToArray();
     static readonly byte[] RecoveryKekInfo = "YubiVault v1 recovery kek"u8.ToArray();
 
+    // Accepted Argon2id cost. The header is not authenticated, so a vault outside this range is refused
+    // before any derivation runs. The app writes 64 MiB and 3 passes.
+    public const long MinArgon2MemoryKiB = 8 * 1024;
+    public const long MaxArgon2MemoryKiB = 1024 * 1024;
+    public const long MinArgon2Passes = 1;
+    public const long MaxArgon2Passes = 20;
+    public const int MinArgon2SaltSize = 16;
+
+    public static bool IsAcceptable(Argon2Settings settings) =>
+        settings.MemoryKiB is >= MinArgon2MemoryKiB and <= MaxArgon2MemoryKiB
+        && settings.Passes is >= MinArgon2Passes and <= MaxArgon2Passes
+        && settings.Salt is { Length: >= MinArgon2SaltSize };
+
     public static byte[] YubiKeyKek(ReadOnlySpan<byte> response, ReadOnlySpan<byte> challenge, string? password, Argon2Settings? argon2)
     {
         if ((password is null) != (argon2 is null))
@@ -91,6 +104,8 @@ static class KeyWrap
 
     static byte[] Argon2(ReadOnlySpan<byte> secret, Argon2Settings settings)
     {
+        if (!IsAcceptable(settings))
+            throw new VaultException("The Argon2id settings are outside the supported range.");
         var parameters = new Argon2Parameters
         {
             DegreeOfParallelism = 1,
