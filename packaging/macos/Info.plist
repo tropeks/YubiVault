@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key>
+  <string>YubiVault</string>
+  <key>CFBundleDisplayName</key>
+  <string>YubiVault</string>
+  <key>CFBundleIdentifier</key>
+  <string>io.github.tropeks.yubivault</string>
+  <key>CFBundleExecutable</key>
+  <string>YubiVault</string>
+  <key>CFBundleIconFile</key>
+  <string>yubivault</string>
+  <key>CFBundlePackageType</key>
+  <string>APPL</string>
+  <key>CFBundleInfoDictionaryVersion</key>
+  <string>6.0</string>
+  <key>CFBundleShortVersionString</key>
+  <string>@VERSION@</string>
+  <key>CFBundleVersion</key>
+  <string>@VERSION@</string>
+  <key>LSMinimumSystemVersion</key>
+  <string>14.0</string>
+  <key>LSApplicationCategoryType</key>
+  <string>public.app-category.utilities</string>
+  <key>NSHighResolutionCapable</key>
+  <true/>
+  <key>NSHumanReadableCopyright</key>
+  <string>GPLv3. Not affiliated with Yubico.</string>
+
+  <key>UTExportedTypeDeclarations</key>
+  <array>
+    <dict>
+      <key>UTTypeIdentifier</key>
+      <string>io.github.tropeks.yubivault.vault</string>
+      <key>UTTypeDescription</key>
+      <string>YubiVault vault</string>
+      <key>UTTypeIconFile</key>
+      <string>yubivault-file</string>
+      <key>UTTypeConformsTo</key>
+      <array>
+        <string>public.data</string>
+      </array>
+      <key>UTTypeTagSpecification</key>
+      <dict>
+        <key>public.filename-extension</key>
+        <array>
+          <string>yvault</string>
+        </array>
+        <key>public.mime-type</key>
+        <string>application/x-yubivault</string>
+      </dict>
+    </dict>
+  </array>
+
+  <key>CFBundleDocumentTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>YubiVault vault</string>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>LSHandlerRank</key>
+      <string>Owner</string>
+      <key>CFBundleTypeIconFile</key>
+      <string>yubivault-file</string>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>io.github.tropeks.yubivault.vault</string>
+      </array>
+    </dict>
+  </array>
+</dict>
+</plist>

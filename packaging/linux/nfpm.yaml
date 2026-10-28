@@ -1,0 +1,56 @@
+# .deb and .rpm packages, built by package.sh with nfpm from a staged tree in ./pkgroot.
+name: yubivault
+version: ${VERSION}
+arch: ${ARCH}
+platform: linux
+section: utils
+priority: optional
+maintainer: YubiVault contributors <https://github.com/tropeks/YubiVault>
+homepage: https://github.com/tropeks/YubiVault
+license: GPL-3.0-or-later
+description: |-
+  Portable vault that encrypts files and folders with a YubiKey
+  YubiVault keeps files and folders in a single encrypted .yvault file that
+  only opens with your YubiKey or other FIDO2 security key (hmac-secret),
+  with a recovery code as a backup. Includes the desktop app and the
+  yubivault-cli command-line tool.
+
+contents:
+  - src: pkgroot/YubiVault
+    dst: /usr/bin/yubivault
+    file_info: {mode: 0755}
+  - src: pkgroot/yubivault-cli
+    dst: /usr/bin/yubivault-cli
+    file_info: {mode: 0755}
+  - src: pkgroot/yubivault.desktop
+    dst: /usr/share/applications/yubivault.desktop
+  - src: pkgroot/yubivault.png
+    dst: /usr/share/icons/hicolor/512x512/apps/yubivault.png
+  - src: pkgroot/application-x-yubivault.png
+    dst: /usr/share/icons/hicolor/512x512/mimetypes/application-x-yubivault.png
+  - src: pkgroot/yubivault-mime.xml
+    dst: /usr/share/mime/packages/yubivault.xml
+  - src: pkgroot/LICENSE
+    dst: /usr/share/licenses/yubivault/LICENSE
+    packager: rpm
+  - src: pkgroot/LICENSE
+    dst: /usr/share/doc/yubivault/copyright
+    packager: deb
+
+# The binaries are self-contained .NET; these are what .NET and the UI load from the system.
+overrides:
+  deb:
+    depends:
+      - libc6
+      - libicu78 | libicu76 | libicu74 | libicu72 | libicu71 | libicu70 | libicu67
+      - libfontconfig1
+      - libx11-6
+      - libice6
+      - libsm6
+  rpm:
+    depends:
+      - libicu
+      - fontconfig
+      - libX11
+      - libICE
+      - libSM

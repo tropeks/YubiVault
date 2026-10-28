@@ -7,39 +7,123 @@ on:
 permissions:
   contents: write
 
+env:
+  # Every target is one self-contained executable with its native libraries inside.
+  PUBLISH_FLAGS: >-
+    -c Release --self-contained -p:PublishSingleFile=true
+    -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
+    -p:DebugType=none
+
 jobs:
-  release:
-    runs-on: windows-latest
+  test:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
+      - run: dotnet test -c Release
 
-      - name: Test
-        run: dotnet test -c Release
+  windows:
+    needs: test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
 
       - name: Publish
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}".TrimStart("v")
-          dotnet publish src/YubiVault.App -c Release -r win-x64 -p:Version=$version -o out/app
-          dotnet publish src/YubiVault.Cli -c Release -r win-x64 -p:Version=$version -o out/cli
+          $flags = "$env:PUBLISH_FLAGS" -split " "
+          dotnet publish src/YubiVault.App -r win-x64 @flags -p:Version=$version -o out/app
+          dotnet publish src/YubiVault.Cli -r win-x64 @flags -p:Version=$version -o out/cli
           New-Item -ItemType Directory dist | Out-Null
           Copy-Item out/app/YubiVault.exe, out/cli/yubivault-cli.exe, LICENSE, README.md dist/
-          Compress-Archive dist/* "YubiVault-$version-win-x64.zip"
-          Copy-Item out/app/YubiVault.exe "YubiVault-$version-win-x64.exe"
-          Get-FileHash "YubiVault-$version-win-x64.*" -Algorithm SHA256 |
-            ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" } |
-            Set-Content SHA256SUMS.txt
+          New-Item -ItemType Directory upload | Out-Null
+          Compress-Archive dist/* "upload/YubiVault-$version-win-x64.zip"
+          Copy-Item out/app/YubiVault.exe "upload/YubiVault-$version-win-x64.exe"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: win-x64
+          path: upload/*
+
+  linux:
+    needs: test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rid: [linux-x64, linux-arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+      - name: Install nfpm (.deb and .rpm)
+        run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@v2.46.3
+
+      - name: Publish and package
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          dotnet publish src/YubiVault.App -r ${{ matrix.rid }} $PUBLISH_FLAGS -p:Version=$version -o out/app
+          dotnet publish src/YubiVault.Cli -r ${{ matrix.rid }} $PUBLISH_FLAGS -p:Version=$version -o out/cli
+          mkdir upload && cd upload
+          ../packaging/linux/package.sh "$version" ${{ matrix.rid }} ../out/app ../out/cli
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.rid }}
+          path: upload/*
+
+  macos:
+    needs: test
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        rid: [osx-arm64, osx-x64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Publish and package
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          dotnet publish src/YubiVault.App -r ${{ matrix.rid }} $PUBLISH_FLAGS -p:Version=$version -o out/app
+          dotnet publish src/YubiVault.Cli -r ${{ matrix.rid }} $PUBLISH_FLAGS -p:Version=$version -o out/cli
+          mkdir upload && cd upload
+          ../packaging/macos/package.sh "$version" ${{ matrix.rid }} ../out/app ../out/cli
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.rid }}
+          path: upload/*
+
+  release:
+    needs: [windows, linux, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: upload
+          merge-multiple: true
 
       - name: Create the release
-        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          $version = "${{ github.ref_name }}".TrimStart("v")
-          $prerelease = if ($version.StartsWith("0.")) { "--prerelease" } else { "" }
-          gh release create "${{ github.ref_name }}" --title "YubiVault $version" --generate-notes $prerelease `
-            "YubiVault-$version-win-x64.zip" "YubiVault-$version-win-x64.exe" SHA256SUMS.txt
+          version="${GITHUB_REF_NAME#v}"
+          cd upload
+          sha256sum * > ../SHA256SUMS.txt && mv ../SHA256SUMS.txt .
+          case "$version" in 0.*) prerelease=--prerelease ;; *) prerelease= ;; esac
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --title "YubiVault $version" \
+            --generate-notes $prerelease *
