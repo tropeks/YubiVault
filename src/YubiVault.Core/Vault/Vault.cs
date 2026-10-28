@@ -758,8 +758,13 @@ public sealed class Vault : IDisposable
     static VaultHeader ReadHeader(VaultFile file)
     {
         var header = ParseHeader(file.ReadHeader());
-        if (header.Padding < 0 || VaultFile.DataStart + header.Padding > file.End || (header.Version < 2 && header.Padding != 0))
+        if (header.Padding < 0 || header.Padding > file.End - VaultFile.DataStart || (header.Version < 2 && header.Padding != 0)
+            || header.Slots is null || header.Slots.Contains(null!))
             throw new VaultException("The vault header is damaged.");
+        if (header.Slots.Any(s => s.Argon2id is not null && !KeyWrap.IsAcceptable(s.Argon2id)))
+            throw new VaultException("The vault header asks for Argon2id settings outside the supported range "
+                + $"({KeyWrap.MinArgon2MemoryKiB / 1024} MiB to {KeyWrap.MaxArgon2MemoryKiB / 1024} MiB, "
+                + $"{KeyWrap.MinArgon2Passes} to {KeyWrap.MaxArgon2Passes} passes, salt of at least {KeyWrap.MinArgon2SaltSize} bytes).");
         return header;
     }
 
