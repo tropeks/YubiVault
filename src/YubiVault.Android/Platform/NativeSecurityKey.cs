@@ -26,7 +26,7 @@ sealed class NativeSecurityKey(Activity activity, CancellationToken cancellation
 
     public static bool Supports(string relyingPartyId) => relyingPartyId == Vault.Fido2RelyingPartyId;
 
-    /// <exception cref="OperationCanceledException">The user closed the prompt.</exception>
+    /// <exception cref="System.OperationCanceledException">The user closed the prompt.</exception>
     /// <exception cref="NativeKeyUnavailableException">The phone's prompt failed; try the app's own.</exception>
     public byte[] MakeCredential(string relyingPartyId, byte[] userId, string userName)
     {
@@ -56,7 +56,7 @@ sealed class NativeSecurityKey(Activity activity, CancellationToken cancellation
         return FromBase64Url((string?)registration["rawId"] ?? (string)registration["id"]!);
     }
 
-    /// <exception cref="OperationCanceledException">The user closed the prompt.</exception>
+    /// <exception cref="System.OperationCanceledException">The user closed the prompt.</exception>
     /// <exception cref="NativeKeyUnavailableException">The phone's prompt failed; try the app's own.</exception>
     public (byte[] CredentialId, byte[] Secret) GetSecret(string relyingPartyId, IReadOnlyList<(byte[] CredentialId, byte[] Salt)> credentials)
     {
@@ -97,7 +97,7 @@ sealed class NativeSecurityKey(Activity activity, CancellationToken cancellation
         return (used, secret);
     }
 
-    T Await<T>(Action<CredentialManager, ICredentialManagerCallback, CancellationSignal, Java.Util.Concurrent.IExecutor> start)
+    T Await<T>(Action<ICredentialManager, ICredentialManagerCallback, CancellationSignal, Java.Util.Concurrent.IExecutor> start)
         where T : Java.Lang.Object
     {
         var completion = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -131,7 +131,7 @@ sealed class NativeSecurityKey(Activity activity, CancellationToken cancellation
         {
             var error = Throwable(e);
             if (error is CreateCredentialCancellationException or GetCredentialCancellationException)
-                completion.TrySetException(new OperationCanceledException());
+                completion.TrySetException(new System.OperationCanceledException());
             else
                 completion.TrySetException(new NativeKeyUnavailableException(Describe(error, e)));
         }
