@@ -15,7 +15,7 @@
                 <TextBlock x:Name="VaultLocation" TextTrimming="CharacterEllipsis"
                            Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
             </StackPanel>
-            <Button Grid.Column="2" Margin="0,0,8,0" Click="OnKeys">
+            <Button x:Name="KeysButton" Grid.Column="2" Margin="0,0,8,0" Click="OnKeys">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <PathIcon Data="{StaticResource KeyIcon}" Width="16" Height="16" />
                     <TextBlock Text="{x:Static r:Strings.Keys}" />

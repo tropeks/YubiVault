@@ -9,14 +9,18 @@ namespace YubiVault.Core;
 /// newest header and index, so an interrupted write leaves the previous state intact.
 /// </summary>
 /// <remarks>
-/// Layout: superblock A at 0, superblock B at 512, records from <see cref="DataStart"/> on.
+/// Layout: superblock A at 0, superblock B at 512, the random key area from <see cref="KeyAreaStart"/>,
+/// random padding (if any) from <see cref="DataStart"/>, then records.
 /// Superblock: magic (8) | generation (8) | header offset (8) | header length (8) | index offset (8)
 /// | index length (8) | end of data (8) | SHA-256 of the previous bytes (32), little-endian.
 /// The valid superblock with the highest generation wins.
 /// </remarks>
-sealed class VaultFile : IDisposable
+sealed class VaultFile : IRecordStore, IDisposable
 {
     public const int DataStart = 4096;
+
+    /// <summary>Random bytes between the superblocks and the data, where hidden vault slots can live.</summary>
+    public const int KeyAreaStart = 1024;
     const int SuperblockSlotSize = 512;
     const int SuperblockSize = 56 + 32;
     static readonly byte[] Magic = "YVAULT\0\x01"u8.ToArray();
@@ -60,11 +64,38 @@ sealed class VaultFile : IDisposable
     }
 
     /// <summary>Creates an empty container; nothing is valid in it until the first <see cref="Commit"/>.</summary>
-    public static VaultFile Create(string path)
+    /// <param name="padding">Bytes reserved after <see cref="DataStart"/>, before the first record.</param>
+    /// <param name="copyReservedFrom">
+    /// Copies the key area and padding from this file; otherwise they are filled with random bytes.
+    /// </param>
+    public static VaultFile Create(string path, long padding = 0, VaultFile? copyReservedFrom = null)
     {
+        ArgumentOutOfRangeException.ThrowIfNegative(padding);
         var stream = new FileStream(path, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
-        stream.SetLength(DataStart);
-        return new VaultFile(stream, new Superblock(0, 0, 0, 0, 0, DataStart));
+        try
+        {
+            long end = DataStart + padding;
+            stream.SetLength(end);
+            stream.Position = KeyAreaStart;
+            var buffer = new byte[1 << 20];
+            for (long position = KeyAreaStart; position < end;)
+            {
+                int count = (int)Math.Min(buffer.Length, end - position);
+                if (copyReservedFrom is null)
+                    RandomNumberGenerator.Fill(buffer.AsSpan(0, count));
+                else
+                    copyReservedFrom.ReadAt(position, buffer.AsSpan(0, count));
+                stream.Write(buffer, 0, count);
+                position += count;
+            }
+            return new VaultFile(stream, new Superblock(0, 0, 0, 0, 0, end));
+        }
+        catch
+        {
+            stream.Dispose();
+            File.Delete(path);
+            throw;
+        }
     }
 
     /// <exception cref="VaultException">Not a vault, damaged, or open for writing elsewhere.</exception>
@@ -102,6 +133,30 @@ sealed class VaultFile : IDisposable
             stream.Dispose();
             throw;
         }
+    }
+
+    /// <summary>Reads raw bytes of the key area or padding.</summary>
+    public void ReadAt(long offset, Span<byte> buffer)
+    {
+        CheckReserved(offset, buffer.Length);
+        _stream.Position = offset;
+        _stream.ReadExactly(buffer);
+    }
+
+    /// <summary>Overwrites raw bytes of the key area or padding in place; call <see cref="Flush"/> to make them durable.</summary>
+    public void WriteAt(long offset, ReadOnlySpan<byte> data)
+    {
+        CheckReserved(offset, data.Length);
+        _stream.Position = offset;
+        _stream.Write(data);
+    }
+
+    public void Flush() => _stream.Flush(flushToDisk: true);
+
+    void CheckReserved(long offset, int length)
+    {
+        if (offset < KeyAreaStart || offset + length > Math.Max(_current.End, DataStart))
+            throw new VaultException("A reserved area points outside the vault file.");
     }
 
     public byte[] ReadHeader()
@@ -187,6 +242,8 @@ sealed class VaultFile : IDisposable
             && sb.IndexOffset >= DataStart && sb.IndexLength > 0 && sb.IndexOffset + sb.IndexLength <= sb.End;
         return sane ? sb : null;
     }
+
+    void IRecordStore.Commit(Action<Stream> writeIndex) => Commit(null, writeIndex);
 
     readonly record struct Superblock(long Generation, long HeaderOffset, long HeaderLength, long IndexOffset, long IndexLength, long End)
     {

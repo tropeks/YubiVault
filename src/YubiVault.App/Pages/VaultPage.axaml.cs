@@ -24,7 +24,8 @@ public partial class VaultPage : UserControl
         if (vault is null)
             return; // designer
         VaultName.Text = Path.GetFileNameWithoutExtension(vault.FilePath);
-        VaultLocation.Text = vault.FilePath;
+        VaultLocation.Text = vault.IsHidden ? Strings.HiddenVault + "  ·  " + vault.FilePath : vault.FilePath;
+        KeysButton.IsVisible = !vault.IsHidden; // its keys are fixed, and listing them would give it away
         AddHandler(DragDrop.DragOverEvent, OnDragOver);
         AddHandler(DragDrop.DropEvent, OnDrop);
         Refresh();
@@ -43,6 +44,8 @@ public partial class VaultPage : UserControl
         FolderText.Text = _folder.Length == 0 ? Strings.AllFiles : _folder.Replace("/", "  ›  ");
         UpButton.IsEnabled = _folder.Length > 0;
         StatusText.Text = Localization.Format(Strings.StatusFiles, _vault.Entries.Count, Format.Size(_vault.Entries.Sum(e => e.Size)));
+        if (_vault.HiddenFreeBytes is long free)
+            StatusText.Text += "  ·  " + Localization.Format(Strings.StatusHiddenFree, Format.Size(free), Format.Size(_vault.HiddenCapacity!.Value));
         int minutes = _main.Settings.AutoLockMinutes;
         AutoLockText.Text = minutes > 0 ? Localization.Format(Strings.AutoLockAfter, minutes) : Strings.AutoLockOff;
         UpdateButtons();

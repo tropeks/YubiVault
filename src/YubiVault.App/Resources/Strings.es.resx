@@ -381,4 +381,49 @@ Si mueves YubiVault, vuelve a hacer clic en esta opción desde la nueva ubicaci�
   <data name="UnexpectedError" xml:space="preserve">
     <value>Error inesperado</value>
   </data>
+  <data name="OpenHiddenVault" xml:space="preserve">
+    <value>Abrir bóveda oculta</value>
+  </data>
+  <data name="OpenNormalVault" xml:space="preserve">
+    <value>Abrir la bóveda normal</value>
+  </data>
+  <data name="UnlockHintHidden" xml:space="preserve">
+    <value>Escribe la contraseña de la bóveda oculta. Después tu llave de seguridad pedirá su PIN y un toque.</value>
+  </data>
+  <data name="UnlockHintHiddenRecovery" xml:space="preserve">
+    <value>Escribe el código de recuperación propio de la bóveda oculta.</value>
+  </data>
+  <data name="HiddenPassword" xml:space="preserve">
+    <value>Contraseña de la bóveda oculta</value>
+  </data>
+  <data name="HiddenVault" xml:space="preserve">
+    <value>Bóveda oculta</value>
+  </data>
+  <data name="StatusHiddenFree" xml:space="preserve">
+    <value>{0} libres de {1}</value>
+  </data>
+  <data name="CreateHiddenVault" xml:space="preserve">
+    <value>Crear bóveda oculta</value>
+  </data>
+  <data name="HiddenVaultIntro" xml:space="preserve">
+    <value>Una bóveda oculta vive dentro del archivo de esta bóveda, en un espacio que parece relleno aleatorio. Sin su contraseña nadie puede saber que existe, ni siquiera quien abra esta bóveda. Se abre con su propia contraseña y tu llave de seguridad, o con su propio código de recuperación.</value>
+  </data>
+  <data name="HiddenVaultWarning" xml:space="preserve">
+    <value>Esto reemplaza cualquier bóveda oculta que ya exista en este archivo, y su tamaño no se puede cambiar después. Quien guarde copias antiguas del archivo, como el historial de versiones de una nube, puede ver que el relleno cambió.</value>
+  </data>
+  <data name="HiddenVaultSize" xml:space="preserve">
+    <value>Tamaño (MB)</value>
+  </data>
+  <data name="PasswordTooShort" xml:space="preserve">
+    <value>Usa al menos 8 caracteres.</value>
+  </data>
+  <data name="CreatingHiddenVault" xml:space="preserve">
+    <value>Creando la bóveda oculta...</value>
+  </data>
+  <data name="HiddenVaultCreated" xml:space="preserve">
+    <value>La bóveda oculta está lista. Para abrirla, elige esta bóveda en la pantalla de inicio y usa “Abrir bóveda oculta”.</value>
+  </data>
+  <data name="InvalidSize" xml:space="preserve">
+    <value>Escribe un tamaño de al menos 1 MB.</value>
+  </data>
 </root>

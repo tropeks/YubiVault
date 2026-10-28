@@ -6,12 +6,18 @@ namespace YubiVault.Core;
 public sealed class VaultHeader
 {
     public const string FormatName = "YubiVault";
-    public const int CurrentVersion = 1;
+    public const int CurrentVersion = 2;
+
+    /// <summary>Version 1 had no random key area and no padding.</summary>
+    public const int MinVersion = 1;
 
     [JsonPropertyName("format")] public string Format { get; set; } = FormatName;
     [JsonPropertyName("version")] public int Version { get; set; } = CurrentVersion;
     [JsonPropertyName("vaultId")] public byte[] VaultId { get; set; } = [];
     [JsonPropertyName("slots")] public List<KeySlot> Slots { get; set; } = [];
+
+    /// <summary>Bytes of random padding before the first record (version 2). A hidden vault may live in it.</summary>
+    [JsonPropertyName("padding")] public long Padding { get; set; }
 }
 
 public static class KeySlotType
