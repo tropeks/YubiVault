@@ -135,9 +135,19 @@ sealed class StartPage : UserControl
         return Ui.Card(row, 0);
     }
 
-    /// <summary>Where the vault lives, when the document's address tells (local folders): "Download", "Documents/Work"; otherwise empty.</summary>
+    /// <summary>Where the vault lives: the cloud service ("Google Drive"), or the local folder ("Download", "Documents/Work"); otherwise empty.</summary>
     static string Location(VaultDocument document)
     {
+        // Cloud providers have opaque document ids; name the service instead of a folder.
+        string? cloud = Uri.TryCreate(document.Uri, UriKind.Absolute, out var parsed) ? parsed.Host.ToLowerInvariant() switch
+        {
+            "com.google.android.apps.docs.storage" => "Google Drive",
+            "com.microsoft.skydrive.content.storageaccessprovider" => "OneDrive",
+            "com.dropbox.product.android.dbapp.document_provider.documents" => "Dropbox",
+            _ => null,
+        } : null;
+        if (cloud is not null)
+            return cloud;
         try
         {
             string uri = Uri.UnescapeDataString(document.Uri);
