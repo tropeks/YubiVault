@@ -156,8 +156,12 @@ public sealed class Ctap2Session
         if ((flags & 0x40) != 0)
         {
             offset += 16; // AAGUID
+            if (authData.Length < offset + 2)
+                throw new CtapException("The security key sent truncated authenticator data.");
             int length = BinaryPrimitives.ReadUInt16BigEndian(authData.AsSpan(offset));
             offset += 2;
+            if (length > authData.Length - offset)
+                throw new CtapException("The security key sent truncated authenticator data.");
             credentialId = authData[offset..(offset + length)];
             offset += length;
             var (_, keyLength) = Cbor.DecodeFirst(authData.AsMemory(offset));

@@ -108,6 +108,10 @@ public sealed class AndroidPlatform : IPlatform
     {
         if (intent?.Action != Intent.ActionView || intent.Data is not { } uri)
             return;
+        // Only documents another app grants through a content provider; never a raw path, which could
+        // point another app's request at this app's own files.
+        if (uri.Scheme != ContentResolver.SchemeContent)
+            return;
         // Usually a temporary grant only; it lasts while the activity lives.
         TryTakePersistablePermission(uri, read: true, write: (intent.Flags & ActivityFlags.GrantWriteUriPermission) != 0);
         var document = new VaultDocument(uri.ToString()!, DisplayName(uri) ?? "Vault.yvault");
@@ -257,6 +261,8 @@ public sealed class AndroidPlatform : IPlatform
     /// <summary>Android turns reader mode off when the activity pauses; turn it back on while we wait.</summary>
     internal void OnResumed()
     {
+        if (_clipboardClearPending)
+            ClearSensitiveClip();
         lock (_waitLock)
         {
             if (_keyWaiter is null)
@@ -587,14 +593,42 @@ public sealed class AndroidPlatform : IPlatform
 
     // ---- Clipboard ----
 
+    const string SensitiveClipLabel = "YubiVault";
+
+    /// <summary>How long a copied recovery code stays on the clipboard.</summary>
+    const int SensitiveClipMilliseconds = 60_000;
+
+    bool _clipboardClearPending;
+
+    ClipboardManager Clipboard => (ClipboardManager)Context.GetSystemService(Context.ClipboardService)!;
+
     public void CopySensitiveText(string text)
     {
-        var clipboard = (ClipboardManager)Context.GetSystemService(Context.ClipboardService)!;
-        var clip = ClipData.NewPlainText("YubiVault", text)!;
+        var clip = ClipData.NewPlainText(SensitiveClipLabel, text)!;
         // Keeps the code out of the clipboard preview (Android 13+), and older keyboards' suggestions.
         var extras = new PersistableBundle();
         extras.PutBoolean("android.content.extra.IS_SENSITIVE", true);
         clip.Description!.Extras = extras;
-        clipboard.PrimaryClip = clip;
+        Clipboard.PrimaryClip = clip;
+        _clipboardClearPending = true;
+        new Handler(Looper.MainLooper!).PostDelayed(ClearSensitiveClip, SensitiveClipMilliseconds);
+    }
+
+    /// <summary>
+    /// Removes the recovery code from the clipboard if it is still there. Apps in the background cannot
+    /// see the clipboard, so then it waits for the app to come back (see <see cref="OnResumed"/>).
+    /// </summary>
+    void ClearSensitiveClip()
+    {
+        if (!_clipboardClearPending || !_activity.HasWindowFocus)
+            return;
+        _clipboardClearPending = false;
+        var clipboard = Clipboard;
+        if (clipboard.PrimaryClipDescription?.Label != SensitiveClipLabel)
+            return; // something else was copied since
+        if (OperatingSystem.IsAndroidVersionAtLeast(28))
+            clipboard.ClearPrimaryClip();
+        else
+            clipboard.PrimaryClip = ClipData.NewPlainText("", "");
     }
 }

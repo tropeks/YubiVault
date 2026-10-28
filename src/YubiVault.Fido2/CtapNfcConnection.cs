@@ -12,6 +12,12 @@ public sealed class CtapNfcConnection : ICtapConnection
     static readonly byte[] SelectFido = [0x00, 0xA4, 0x04, 0x00, 0x08, 0xA0, 0x00, 0x00, 0x06, 0x47, 0x2F, 0x00, 0x01, 0x00];
     const byte InsCtapMsg = 0x10, InsGetResponse = 0x11;
 
+    /// <summary>How long the key may stay busy (0x9100) before giving up: user presence over NFC is the tap itself.</summary>
+    const int MaxPolls = 300; // 30 s at 100 ms
+
+    /// <summary>Largest response accepted; CTAP2 messages are far smaller.</summary>
+    const int MaxResponseSize = 1 << 16;
+
     readonly IApduChannel _card;
 
     public CtapNfcConnection(IApduChannel card)
@@ -23,6 +29,8 @@ public sealed class CtapNfcConnection : ICtapConnection
     }
 
     public bool IsNfc => true;
+
+    internal TimeSpan PollInterval { get; init; } = TimeSpan.FromMilliseconds(100);
 
     public Action<bool>? TouchNotifier { get; set; }
 
@@ -40,10 +48,12 @@ public sealed class CtapNfcConnection : ICtapConnection
         int rest = request.Length - offset;
         var (data, sw) = Exchange([0x80, InsCtapMsg, 0x00, 0x00, (byte)rest, .. request.AsSpan(offset, rest), 0x00]);
         // 0x9100: the key is still working (for example waiting for user presence); poll it.
-        while (sw == 0x9100)
+        for (int polls = 0; sw == 0x9100; polls++)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            Thread.Sleep(100);
+            if (polls == MaxPolls)
+                throw new CtapException("The security key stopped responding.");
+            Thread.Sleep(PollInterval);
             (data, sw) = Exchange([0x80, InsGetResponse, 0x00, 0x00, 0x00]);
         }
         if (sw != 0x9000)
@@ -62,6 +72,8 @@ public sealed class CtapNfcConnection : ICtapConnection
                 throw new CtapException("The security key sent a truncated NFC response.");
             int sw = (response[^2] << 8) | response[^1];
             buffer.AddRange(response.AsSpan(0, response.Length - 2));
+            if (buffer.Count > MaxResponseSize)
+                throw new CtapException("The security key sent an oversized NFC response.");
             if ((sw >> 8) != 0x61)
                 return (buffer.ToArray(), sw);
             response = _card.Transceive([0x00, 0xC0, 0x00, 0x00, (byte)(sw & 0xFF)]);

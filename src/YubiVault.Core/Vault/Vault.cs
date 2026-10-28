@@ -20,6 +20,10 @@ public sealed class Vault : IDisposable
     /// <summary>Saves compact the file by themselves once this much (and a quarter of it) is unused.</summary>
     const long MinWasteToCompact = 1 << 20;
 
+    /// <summary>Most key slots a vault holds; each one may cost an Argon2id derivation or a touch when opening.</summary>
+    public const int MaxSlots = 16;
+
+    /// <summary>Index context of hidden vaults, and of normal vaults written before the index was bound to the header.</summary>
     static readonly byte[] IndexContext = "index"u8.ToArray();
     static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
@@ -214,7 +218,9 @@ public sealed class Vault : IDisposable
         {
             var header = ReadHeader(file);
             vault = new Vault(path, file, header, unwrapMasterKey(header), [], options ?? VaultOptions.Default);
-            vault._entries = vault.ReadIndex();
+            vault._entries = vault.ReadIndex(out bool legacy);
+            if (legacy)
+                vault.Save(); // rewrites the index bound to the header
             return vault;
         }
         catch
@@ -369,7 +375,7 @@ public sealed class Vault : IDisposable
                 HiddenSlots.PasswordPayload(credentialId, fido2Salt, kek, hiddenKey, _header.VaultId), _header.VaultId);
             HiddenSlots.Write(_file, recoverySlot, recoveryKey, HiddenSlots.RecoveryPayload(hiddenKey), _header.VaultId);
             using var store = HiddenStore.Create(_file, VaultFile.DataStart, size, hiddenKey);
-            store.Commit(output => WriteIndex([], output, hiddenKey));
+            store.Commit(output => WriteIndex([], output, hiddenKey, IndexContext));
             return RecoveryCode.Format(code);
         }
         finally
@@ -448,8 +454,15 @@ public sealed class Vault : IDisposable
         SaveHeader();
     }
 
+    void ThrowIfSlotsFull()
+    {
+        if (_header.Slots.Count >= MaxSlots)
+            throw new VaultException($"A vault holds at most {MaxSlots} keys; remove one first.");
+    }
+
     KeySlot AddYubiKeySlot(IChallengeResponder yubiKey, string? password)
     {
+        ThrowIfSlotsFull();
         if (yubiKey.SerialNumber is int serial && _header.Slots.Any(s => s.Serial == serial))
             throw new VaultException($"The YubiKey {serial} is already registered in this vault.");
         var slot = new KeySlot
@@ -473,6 +486,7 @@ public sealed class Vault : IDisposable
 
     KeySlot AddFido2Slot(IFido2Authenticator securityKey)
     {
+        ThrowIfSlotsFull();
         var slot = new KeySlot
         {
             Id = NewSlotId("k"),
@@ -767,6 +781,8 @@ public sealed class Vault : IDisposable
         if (header.Padding < 0 || header.Padding > file.End - VaultFile.DataStart || (header.Version < 2 && header.Padding != 0)
             || header.Slots is null || header.Slots.Contains(null!))
             throw new VaultException("The vault header is damaged.");
+        if (header.Slots.Count > MaxSlots || header.Slots.Count(s => s.Type == KeySlotType.Recovery) > 1)
+            throw new VaultException($"The vault header lists more key slots than a vault can hold ({MaxSlots}, one recovery code).");
         if (header.Slots.Any(s => s.Argon2id is not null && !KeyWrap.IsAcceptable(s.Argon2id)))
             throw new VaultException("The vault header asks for Argon2id settings outside the supported range "
                 + $"({KeyWrap.MinArgon2MemoryKiB / 1024} MiB to {KeyWrap.MaxArgon2MemoryKiB / 1024} MiB, "
@@ -794,16 +810,30 @@ public sealed class Vault : IDisposable
 
     byte[] SerializeHeader() => JsonSerializer.SerializeToUtf8Bytes(_header, JsonOptions);
 
-    List<VaultEntry> ReadIndex()
+    /// <summary>
+    /// Context of a normal vault's index. The header is not encrypted, so the fields the vault trusts
+    /// when rewriting itself (version and padding) are bound to the index: changing them makes it fail to decrypt.
+    /// </summary>
+    byte[] CurrentIndexContext => _hidden is null
+        ? Encoding.UTF8.GetBytes($"index|{Convert.ToBase64String(_header.VaultId)}|{_header.Version}|{_header.Padding}")
+        : IndexContext;
+
+    /// <param name="legacy">True if the index was written before it was bound to the header.</param>
+    List<VaultEntry> ReadIndex(out bool legacy)
     {
+        legacy = false;
         try
         {
-            using var input = Store.OpenIndex();
-            using var plain = new MemoryStream();
-            CascadeCipher.Decrypt(input, plain, _masterKey, IndexContext);
-            var entries = JsonSerializer.Deserialize<List<VaultEntry>>(plain.GetBuffer().AsSpan(0, (int)plain.Length)) ?? [];
-            CryptographicOperations.ZeroMemory(plain.GetBuffer());
-            return entries;
+            try
+            {
+                return DecryptIndex(CurrentIndexContext);
+            }
+            catch (AuthenticationTagMismatchException) when (_hidden is null)
+            {
+                var entries = DecryptIndex(IndexContext);
+                legacy = true;
+                return entries;
+            }
         }
         catch (Exception e)
         {
@@ -811,15 +841,33 @@ public sealed class Vault : IDisposable
         }
     }
 
-    void WriteIndex(List<VaultEntry> entries, Stream output) => WriteIndex(entries, output, _masterKey);
+    List<VaultEntry> ReadIndex() => ReadIndex(out _);
 
-    void WriteIndex(List<VaultEntry> entries, Stream output, byte[] masterKey)
+    List<VaultEntry> DecryptIndex(byte[] context)
+    {
+        using var input = Store.OpenIndex();
+        // Sized for the whole index up front, so no partial copy of the plaintext is left behind by a resize.
+        using var plain = new MemoryStream(checked((int)input.Length));
+        try
+        {
+            CascadeCipher.Decrypt(input, plain, _masterKey, context);
+            return JsonSerializer.Deserialize<List<VaultEntry>>(plain.GetBuffer().AsSpan(0, (int)plain.Length)) ?? [];
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(plain.GetBuffer());
+        }
+    }
+
+    void WriteIndex(List<VaultEntry> entries, Stream output) => WriteIndex(entries, output, _masterKey, CurrentIndexContext);
+
+    void WriteIndex(List<VaultEntry> entries, Stream output, byte[] masterKey, byte[] context)
     {
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(entries);
         try
         {
             using var input = new MemoryStream(json, writable: false);
-            CascadeCipher.Encrypt(input, output, masterKey, IndexContext, _options.ChunkSizeLog2);
+            CascadeCipher.Encrypt(input, output, masterKey, context, _options.ChunkSizeLog2);
         }
         finally
         {
