@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ConnectKeyTitle" xml:space="preserve">
+    <value>আপনার সিকিউরিটি কী সংযুক্ত করুন</value>
+  </data>
+  <data name="ConnectKeyDetail" xml:space="preserve">
+    <value>কী-টি ফোনের USB পোর্টে লাগান, অথবা ফোনের পিছনে সমানভাবে ধরে রাখুন।</value>
+  </data>
+  <data name="ConnectKeyDetailUsb" xml:space="preserve">
+    <value>কী-টি ফোনের USB পোর্টে লাগান (USB-C, অথবা OTG অ্যাডাপ্টার দিয়ে)।</value>
+  </data>
+  <data name="KeepHolding" xml:space="preserve">
+    <value>কী-টি ফোনের সাথে ধরে রাখুন...</value>
+  </data>
+  <data name="KeyWorking" xml:space="preserve">
+    <value>আপনার সিকিউরিটি কী-এর সাথে যোগাযোগ হচ্ছে...</value>
+  </data>
+  <data name="UnlockHintMobile" xml:space="preserve">
+    <value>আনলক-এ ট্যাপ করুন এবং কী-এর PIN লিখুন। তারপর কী লাগান বা ফোনের কাছে ধরুন, আর কী জ্বলতে-নিভতে থাকলে সেটি স্পর্শ করুন।</value>
+  </data>
+  <data name="OtpNotSupported" xml:space="preserve">
+    <value>এই ভল্টটি YubiKey-এর OTP স্লট দিয়ে খোলে, যা ফোন ব্যবহার করতে পারে না। রিকভারি কোড ব্যবহার করুন, অথবা একটি কম্পিউটারে এই ভল্টে একটি FIDO2 সিকিউরিটি কী নিবন্ধন করুন।</value>
+  </data>
+  <data name="EmptyFolder" xml:space="preserve">
+    <value>এই ফোল্ডারটি খালি। এখানে ফাইল এনক্রিপ্ট করতে ফাইল যোগ করুন-এ ট্যাপ করুন।</value>
+  </data>
+  <data name="CreateIntroMobile" xml:space="preserve">
+    <value>একটি ভল্ট হলো একটি মাত্র .yvault ফাইল। এরপর আপনি বেছে নেবেন কোথায় সেভ করবেন: ফোনে, মেমরি কার্ডে বা ক্লাউড ফোল্ডারে। বাইরে থেকে কেউ নাম, আকার বা বিষয়বস্তু দেখতে পায় না।</value>
+  </data>
+  <data name="OpeningVault" xml:space="preserve">
+    <value>ভল্ট খোলা হচ্ছে...</value>
+  </data>
+  <data name="SavingVault" xml:space="preserve">
+    <value>ভল্ট সেভ করা হচ্ছে...</value>
+  </data>
+  <data name="CouldNotSave" xml:space="preserve">
+    <value>ভল্টটি সেভ করা যায়নি। আপনার পরিবর্তনগুলো এই ফোনে রাখা আছে; আবার চেষ্টা করতে ভল্টটি লক করুন।</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>ক্লিপবোর্ডে কপি করা হয়েছে।</value>
+  </data>
+  <data name="FileSaved" xml:space="preserve">
+    <value>ফাইল সেভ করা হয়েছে।</value>
+  </data>
+  <data name="SaveToDevice" xml:space="preserve">
+    <value>ডিভাইসে সেভ করুন</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>খুলুন</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>আরও বিকল্প</value>
+  </data>
+  <data name="RemoveFromList" xml:space="preserve">
+    <value>তালিকা থেকে সরান</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>থিম</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>ডার্ক</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>লাইট</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>ফোনের মতো</value>
+  </data>
+</root>

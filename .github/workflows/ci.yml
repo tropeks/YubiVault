@@ -16,5 +16,27 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
+      # The Yubico SDK's native shims, used by the PIN protocol cross-check, link against libpcsclite.
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libpcsclite1
       - run: dotnet build --configuration Release
       - run: dotnet test --configuration Release --no-build
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: dotnet workload install android
+      # The runner image ships an Android SDK in $ANDROID_HOME. The APK is debug-signed, for testing.
+      - run: dotnet publish src/YubiVault.Android -c Release -p:AndroidSdkDirectory=$ANDROID_HOME -o out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YubiVault-android
+          path: out/*-Signed.apk

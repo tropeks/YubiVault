@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="ConnectKeyTitle" xml:space="preserve">
+    <value>連接安全金鑰</value>
+  </data>
+  <data name="ConnectKeyDetail" xml:space="preserve">
+    <value>將金鑰插入手機的 USB 連接埠，或將它平貼在手機背面。</value>
+  </data>
+  <data name="ConnectKeyDetailUsb" xml:space="preserve">
+    <value>將金鑰插入手機的 USB 連接埠（USB-C，或使用 OTG 轉接頭）。</value>
+  </data>
+  <data name="KeepHolding" xml:space="preserve">
+    <value>請讓金鑰保持貼在手機上...</value>
+  </data>
+  <data name="KeyWorking" xml:space="preserve">
+    <value>正在與安全金鑰通訊...</value>
+  </data>
+  <data name="UnlockHintMobile" xml:space="preserve">
+    <value>點選「解鎖」並輸入金鑰的 PIN。接著插入金鑰或將它貼近手機，金鑰閃爍時請觸碰它。</value>
+  </data>
+  <data name="OtpNotSupported" xml:space="preserve">
+    <value>此保險庫使用 YubiKey 的 OTP 插槽開啟，手機無法使用。請使用復原碼，或在電腦上為此保險庫註冊一把 FIDO2 安全金鑰。</value>
+  </data>
+  <data name="EmptyFolder" xml:space="preserve">
+    <value>此資料夾是空的。點選「新增檔案」即可將檔案加密放到這裡。</value>
+  </data>
+  <data name="CreateIntroMobile" xml:space="preserve">
+    <value>保險庫是單一的 .yvault 檔案。接下來選擇儲存位置：手機、記憶卡或雲端資料夾。從外部看不到名稱、大小或內容。</value>
+  </data>
+  <data name="OpeningVault" xml:space="preserve">
+    <value>正在開啟保險庫...</value>
+  </data>
+  <data name="SavingVault" xml:space="preserve">
+    <value>正在儲存保險庫...</value>
+  </data>
+  <data name="CouldNotSave" xml:space="preserve">
+    <value>無法儲存保險庫。你的變更仍保留在這支手機上；鎖定保險庫即可重試。</value>
+  </data>
+  <data name="Copied" xml:space="preserve">
+    <value>已複製到剪貼簿。</value>
+  </data>
+  <data name="FileSaved" xml:space="preserve">
+    <value>檔案已儲存。</value>
+  </data>
+  <data name="SaveToDevice" xml:space="preserve">
+    <value>儲存到裝置</value>
+  </data>
+  <data name="Open" xml:space="preserve">
+    <value>開啟</value>
+  </data>
+  <data name="More" xml:space="preserve">
+    <value>更多選項</value>
+  </data>
+  <data name="RemoveFromList" xml:space="preserve">
+    <value>從清單中移除</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>主題</value>
+  </data>
+  <data name="ThemeDark" xml:space="preserve">
+    <value>深色</value>
+  </data>
+  <data name="ThemeLight" xml:space="preserve">
+    <value>淺色</value>
+  </data>
+  <data name="ThemeSystem" xml:space="preserve">
+    <value>跟隨手機</value>
+  </data>
+</root>
