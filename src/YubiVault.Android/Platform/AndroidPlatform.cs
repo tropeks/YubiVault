@@ -100,9 +100,12 @@ public sealed class AndroidPlatform : IPlatform
         using var registration = cancellationToken.Register(() => waiter.TrySetCanceled(cancellationToken));
         EnableReaderMode();
         var usb = Task.Run(() => UsbSearch(waiter, stop.Token), stop.Token);
+        ICtapConnection? connection = null;
         try
         {
-            return await waiter.Task;
+            connection = await waiter.Task;
+            // Turning reader mode off drops the tag, so it stays on until the NFC exchange is over.
+            return connection.IsNfc ? new ReaderModeConnection(this, connection) : connection;
         }
         finally
         {
@@ -112,7 +115,8 @@ public sealed class AndroidPlatform : IPlatform
                 if (_keyWaiter == waiter)
                     _keyWaiter = null;
             }
-            DisableReaderMode();
+            if (connection is not { IsNfc: true })
+                DisableReaderMode();
             try
             {
                 await usb;
@@ -121,6 +125,31 @@ public sealed class AndroidPlatform : IPlatform
             {
                 // The search was stopped or the device failed; the result above is what counts.
             }
+        }
+    }
+
+    /// <summary>An NFC key connection that turns reader mode off once it is closed (unless a new wait has begun).</summary>
+    sealed class ReaderModeConnection(AndroidPlatform platform, ICtapConnection inner) : ICtapConnection
+    {
+        public bool IsNfc => true;
+
+        public Action<bool>? TouchNotifier
+        {
+            get => inner.TouchNotifier;
+            set => inner.TouchNotifier = value;
+        }
+
+        public byte[] SendCbor(byte[] request, CancellationToken cancellationToken) => inner.SendCbor(request, cancellationToken);
+
+        public void Dispose()
+        {
+            inner.Dispose();
+            lock (platform._waitLock)
+            {
+                if (platform._keyWaiter is not null)
+                    return;
+            }
+            platform.DisableReaderMode();
         }
     }
 
