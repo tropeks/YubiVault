@@ -80,8 +80,8 @@ public partial class MainView : UserControl
         _topLevel.BackRequested += OnBackRequested;
         if (_topLevel.InsetsManager is { } insets)
         {
-            Root.Margin = insets.SafeAreaPadding;
-            insets.SafeAreaChanged += (_, args) => Root.Margin = args.SafeAreaPadding;
+            ApplySafeArea(insets.SafeAreaPadding);
+            insets.SafeAreaChanged += (_, args) => ApplySafeArea(args.SafeAreaPadding);
         }
     }
 
@@ -107,8 +107,32 @@ public partial class MainView : UserControl
 
     // ---- Cards over the page ----
 
+    Thickness _safeArea;
+
+    /// <summary>
+    /// Keeps pages and notices clear of the status and navigation bars, while the scrim and the
+    /// bottom sheet reach the screen edges so no strip of another color shows around them.
+    /// </summary>
+    void ApplySafeArea(Thickness safeArea)
+    {
+        _safeArea = safeArea;
+        PageHost.Margin = safeArea;
+        Toast.Margin = new Thickness(24, 0, 24, 96 + safeArea.Bottom);
+        foreach (var (card, _) in _overlays)
+            FitToSafeArea(card);
+    }
+
+    void FitToSafeArea(Control card)
+    {
+        if (card is Border { VerticalAlignment: VerticalAlignment.Bottom } sheet)
+            sheet.Padding = new Thickness(24, 12, 24, 24 + _safeArea.Bottom);
+        else
+            card.Margin = new Thickness(24 + _safeArea.Left, 24 + _safeArea.Top, 24 + _safeArea.Right, 24 + _safeArea.Bottom);
+    }
+
     void PushOverlay(Control card, Action? onBack)
     {
+        FitToSafeArea(card);
         if (_overlays.Count > 0)
             _overlays[^1].Card.IsVisible = false;
         _overlays.Add((card, onBack));
