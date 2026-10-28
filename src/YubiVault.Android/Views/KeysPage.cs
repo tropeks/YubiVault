@@ -63,24 +63,20 @@ sealed class KeysPage : UserControl, IBackHandler
             },
         };
         var row = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), MinHeight = 56 };
-        row.Children.Add(new PathIcon
-        {
-            Data = slot.Type == KeySlotType.Recovery ? Ui.LockIcon : Ui.KeyIcon,
-            Width = 24,
-            Height = 24,
-            Margin = new Thickness(4, 0, 14, 0),
-        });
+        var badge = Ui.IconBadge(slot.Type == KeySlotType.Recovery ? Ui.LockIcon : Ui.KeyIcon, 44);
+        badge.VerticalAlignment = VerticalAlignment.Center;
+        badge.Margin = new Thickness(0, 0, 14, 0);
+        row.Children.Add(badge);
         Grid.SetColumn(text, 1);
         row.Children.Add(text);
         if (slot.Type != KeySlotType.Recovery)
         {
-            var remove = new Button { Content = Strings.Remove, MinHeight = Ui.TouchSize, VerticalAlignment = VerticalAlignment.Center };
-            remove.Click += (_, _) => Remove(slot, label);
+            var remove = Ui.TextButton(Strings.Remove, () => Remove(slot, label));
+            remove.VerticalAlignment = VerticalAlignment.Center;
             Grid.SetColumn(remove, 2);
             row.Children.Add(remove);
         }
-        return new Border { Child = row, Padding = new Thickness(8), CornerRadius = new CornerRadius(8) }
-            .WithBackground("SystemControlBackgroundBaseLowBrush");
+        return Ui.Card(row, 12);
     }
 
     async Task Guard(Func<Task> step)

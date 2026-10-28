@@ -9,7 +9,7 @@ namespace YubiVault.Android.Views;
 sealed class CreatePage : UserControl, IBackHandler
 {
     readonly MainView _main;
-    readonly TextBox _name = new() { MinHeight = Ui.TouchSize, FontSize = 16 };
+    readonly TextBox _name = new();
     readonly TextBlock _error = Ui.Error();
     bool _busy;
 
@@ -21,13 +21,13 @@ sealed class CreatePage : UserControl, IBackHandler
         var notice = new Border
         {
             Padding = new Avalonia.Thickness(14),
-            CornerRadius = new Avalonia.CornerRadius(8),
+            CornerRadius = new Avalonia.CornerRadius(16),
             Child = new StackPanel
             {
                 Spacing = 6,
                 Children = { Ui.Text(Strings.RecoveryNoticeTitle, 15, FontWeight.SemiBold), Ui.Hint(Strings.RecoveryNoticeText) },
             },
-        }.WithBackground("SystemControlBackgroundBaseLowBrush");
+        }.WithBackground("AppSurfaceBrush");
 
         Content = Ui.Page(
             Ui.TopBar(Strings.CreateTitle, null, () => OnBack()),

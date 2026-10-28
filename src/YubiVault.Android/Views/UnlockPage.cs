@@ -12,7 +12,7 @@ sealed class UnlockPage : UserControl, IBackHandler
     readonly VaultDocument _document;
     readonly TextBlock _hint = Ui.Hint("");
     readonly TextBlock _error = Ui.Error();
-    readonly TextBox _recoveryInput = new() { MinHeight = Ui.TouchSize, FontSize = 16, FontFamily = "monospace", IsVisible = false };
+    readonly TextBox _recoveryInput = new() { FontFamily = "monospace", IsVisible = false, HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center };
     readonly Button _unlock;
     readonly Button _toggle;
     string? _workingPath;
@@ -31,12 +31,19 @@ sealed class UnlockPage : UserControl, IBackHandler
                 Unlock();
         };
         _unlock = Ui.Button(Strings.Unlock, Unlock, accent: true, icon: Ui.KeyIcon);
-        _toggle = Ui.Button(Strings.UseRecoveryCode, () => SetRecoveryMode(!_recoveryMode));
-        _toggle.Background = Avalonia.Media.Brushes.Transparent;
+        _toggle = Ui.TextButton(Strings.UseRecoveryCode, () => SetRecoveryMode(!_recoveryMode));
 
-        Content = Ui.Page(
-            Ui.TopBar(Path.GetFileNameWithoutExtension(document.DisplayName), document.DisplayName, () => OnBack()),
-            Ui.Column(_hint, _recoveryInput, _error, _unlock, _toggle));
+        var badge = Ui.IconBadge(Ui.ShieldLockIcon, 112);
+        badge.Margin = new Avalonia.Thickness(0, 8, 0, 4);
+        var name = Ui.Text(Path.GetFileNameWithoutExtension(document.DisplayName), 26, Avalonia.Media.FontWeight.Bold);
+        name.TextAlignment = Avalonia.Media.TextAlignment.Center;
+        var file = Ui.Hint(document.DisplayName);
+        file.TextAlignment = Avalonia.Media.TextAlignment.Center;
+        file.Margin = new Avalonia.Thickness(0, -10, 0, 8);
+        _hint.TextAlignment = Avalonia.Media.TextAlignment.Center;
+        var column = Ui.Column(badge, name, file, _hint, _recoveryInput, _error, _unlock, _toggle);
+        column.MaxWidth = 560;
+        Content = Ui.Page(Ui.TopBar("", null, () => OnBack()), column);
         SetRecoveryMode(false);
         AttachedToVisualTree += (_, _) => _ = PrepareAsync();
     }
@@ -93,7 +100,7 @@ sealed class UnlockPage : UserControl, IBackHandler
         _recoveryInput.IsVisible = on;
         _recoveryInput.Text = "";
         _toggle.IsVisible = _hasFido2;
-        _toggle.Content = on ? Strings.UseKeyInstead : Strings.UseRecoveryCode;
+        _toggle.Content = Ui.ButtonText(on ? Strings.UseKeyInstead : Strings.UseRecoveryCode);
         _hint.Text = on
             ? (_hasFido2 ? Strings.UnlockHintRecovery : MobileStrings.OtpNotSupported + "\n\n" + Strings.UnlockHintRecovery)
             : MobileStrings.UnlockHintMobile;

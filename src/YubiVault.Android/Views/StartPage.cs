@@ -13,7 +13,7 @@ namespace YubiVault.Android.Views;
 sealed class StartPage : UserControl
 {
     readonly MainView _main;
-    readonly StackPanel _recent = new() { Spacing = 4 };
+    readonly StackPanel _recent = new() { Spacing = 10 };
     readonly TextBlock _recentHeader = Ui.Text(Strings.RecentVaults, 16, FontWeight.SemiBold);
 
     public StartPage(MainView main)
@@ -22,22 +22,24 @@ sealed class StartPage : UserControl
         var logo = new Image
         {
             Source = new Bitmap(AssetLoader.Open(new Uri("avares://YubiVault.Android/Assets/yubivault.png"))),
-            Width = 88,
-            Height = 88,
+            Width = 96,
+            Height = 96,
             HorizontalAlignment = HorizontalAlignment.Center,
-            Margin = new Thickness(0, 24, 0, 0),
+            Margin = new Thickness(0, 40, 0, 4),
         };
-        var name = new TextBlock { Text = "YubiVault", FontSize = 28, FontWeight = FontWeight.SemiBold, HorizontalAlignment = HorizontalAlignment.Center };
+        var name = new TextBlock { Text = "YubiVault", FontSize = 32, FontWeight = FontWeight.Bold, HorizontalAlignment = HorizontalAlignment.Center };
         var tagline = Ui.Hint(Strings.AppTagline);
         tagline.TextAlignment = TextAlignment.Center;
+        tagline.Margin = new Thickness(12, 0, 12, 16);
 
+        _recentHeader.Margin = new Thickness(4, 20, 0, 0);
         var content = Ui.Column(
             logo, name, tagline,
             Ui.Button(Strings.OpenVault, OpenVault, accent: true, icon: Ui.LockIcon),
             Ui.Button(Strings.CreateVault, () => _main.Show(new CreatePage(_main)), icon: Ui.PlusIcon),
             _recentHeader,
             _recent);
-        _recentHeader.Margin = new Thickness(0, 12, 0, 0);
+        content.MaxWidth = 560;
         Content = new ScrollViewer { Content = content };
         LoadRecent();
     }
@@ -53,26 +55,40 @@ sealed class StartPage : UserControl
 
     Control RecentRow(VaultDocument document)
     {
-        var open = new Button
+        var texts = new StackPanel
         {
-            Content = new StackPanel
+            VerticalAlignment = VerticalAlignment.Center,
+            Children =
             {
-                Orientation = Orientation.Horizontal,
-                Spacing = 12,
-                Children =
+                new TextBlock
                 {
-                    new PathIcon { Data = Ui.LockIcon, Width = 20, Height = 20 },
-                    new TextBlock { Text = document.DisplayName, VerticalAlignment = VerticalAlignment.Center, TextTrimming = TextTrimming.CharacterEllipsis },
+                    Text = Path.GetFileNameWithoutExtension(document.DisplayName),
+                    FontSize = 16,
+                    FontWeight = FontWeight.SemiBold,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
                 },
             },
-            MinHeight = Ui.TouchSize,
+        };
+        string location = Location(document);
+        if (location.Length > 0)
+            texts.Children.Add(new TextBlock { Text = location, FontSize = 13, Opacity = 0.65, TextTrimming = TextTrimming.CharacterEllipsis });
+        var badge = Ui.IconBadge(Ui.LockIcon, 44);
+        badge.VerticalAlignment = VerticalAlignment.Center;
+        var inner = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), ColumnSpacing = 14, Children = { badge, texts } };
+        Grid.SetColumn(texts, 1);
+        var open = new Button
+        {
+            Content = inner,
+            MinHeight = 64,
+            Padding = new Thickness(12, 8),
             HorizontalAlignment = HorizontalAlignment.Stretch,
-            HorizontalContentAlignment = HorizontalAlignment.Left,
-            Background = Brushes.Transparent,
+            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+            Classes = { "flat" },
         };
         open.Click += (_, _) => _main.Show(new UnlockPage(_main, document));
 
         var more = Ui.IconButton(Ui.MoreIcon, MobileStrings.More);
+        more.VerticalAlignment = VerticalAlignment.Center;
         var remove = new MenuItem { Header = MobileStrings.RemoveFromList };
         remove.Click += (_, _) =>
         {
@@ -81,11 +97,28 @@ sealed class StartPage : UserControl
         };
         more.Flyout = new MenuFlyout { Items = { remove } };
 
-        var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+        var row = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), Margin = new Thickness(0, 0, 4, 0) };
         row.Children.Add(open);
         Grid.SetColumn(more, 1);
         row.Children.Add(more);
-        return row;
+        return Ui.Card(row, 0);
+    }
+
+    /// <summary>Where the vault lives, when the document's address tells (local folders): "Download", "Documents/Work"; otherwise empty.</summary>
+    static string Location(VaultDocument document)
+    {
+        try
+        {
+            string uri = Uri.UnescapeDataString(document.Uri);
+            int colon = uri.LastIndexOf(':');
+            int slash = uri.LastIndexOf('/');
+            if (colon > uri.IndexOf("/document/", StringComparison.Ordinal) && colon < slash)
+                return uri[(colon + 1)..slash];
+        }
+        catch (UriFormatException)
+        {
+        }
+        return "";
     }
 
     async void OpenVault()

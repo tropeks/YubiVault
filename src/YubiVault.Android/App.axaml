@@ -3,7 +3,107 @@
              x:Class="YubiVault.Android.App"
              RequestedThemeVariant="Default">
     <!-- Light or dark mode and the accent color follow the phone's settings. -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <!-- Material-style surfaces: the page, cards on it, and raised cards (sheets and dialogs). -->
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#F6F7FA" />
+                    <SolidColorBrush x:Key="AppSurfaceBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="AppSurfaceHighBrush" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="AppOutlineBrush" Color="#1F000000" />
+                    <SolidColorBrush x:Key="AppScrimBrush" Color="#66000000" />
+                    <SolidColorBrush x:Key="AppTonalBrush" Color="{DynamicResource SystemAccentColor}" Opacity="0.14" />
+                    <SolidColorBrush x:Key="AppTonalPressedBrush" Color="{DynamicResource SystemAccentColor}" Opacity="0.24" />
+                    <SolidColorBrush x:Key="AppOnTonalBrush" Color="{DynamicResource SystemAccentColorDark2}" />
+                    <SolidColorBrush x:Key="AppToastBrush" Color="#F0303236" />
+                    <SolidColorBrush x:Key="AppOnToastBrush" Color="#F2F3F5" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#111317" />
+                    <SolidColorBrush x:Key="AppSurfaceBrush" Color="#1B1E24" />
+                    <SolidColorBrush x:Key="AppSurfaceHighBrush" Color="#24282F" />
+                    <SolidColorBrush x:Key="AppOutlineBrush" Color="#24FFFFFF" />
+                    <SolidColorBrush x:Key="AppScrimBrush" Color="#99000000" />
+                    <SolidColorBrush x:Key="AppTonalBrush" Color="{DynamicResource SystemAccentColor}" Opacity="0.22" />
+                    <SolidColorBrush x:Key="AppTonalPressedBrush" Color="{DynamicResource SystemAccentColor}" Opacity="0.34" />
+                    <SolidColorBrush x:Key="AppOnTonalBrush" Color="{DynamicResource SystemAccentColorLight2}" />
+                    <SolidColorBrush x:Key="AppToastBrush" Color="#F0E4E6EB" />
+                    <SolidColorBrush x:Key="AppOnToastBrush" Color="#1B1E24" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
+
+        <!-- Buttons: pill shapes, filled for the main action ("accent"), tonal by default, text-only for links. -->
+        <Style Selector="Button">
+            <Setter Property="CornerRadius" Value="24" />
+            <Setter Property="Padding" Value="20,10" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+        <Style Selector="Button.tonal">
+            <Setter Property="Background" Value="{DynamicResource AppTonalBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppOnTonalBrush}" />
+        </Style>
+        <Style Selector="Button.tonal:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AppTonalPressedBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppOnTonalBrush}" />
+        </Style>
+        <Style Selector="Button.tonal:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AppTonalPressedBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppOnTonalBrush}" />
+        </Style>
+        <Style Selector="Button.text">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="{DynamicResource AppOnTonalBrush}" />
+        </Style>
+        <Style Selector="Button.text:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AppTonalBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppOnTonalBrush}" />
+        </Style>
+        <Style Selector="Button.text:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AppTonalPressedBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource AppOnTonalBrush}" />
+        </Style>
+        <!-- Flat list rows and icon buttons: no fill until touched. -->
+        <Style Selector="Button.flat">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="CornerRadius" Value="16" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Padding" Value="8" />
+        </Style>
+        <Style Selector="Button.flat:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AppTonalBrush}" />
+        </Style>
+        <Style Selector="Button.flat:pressed /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource AppTonalPressedBrush}" />
+        </Style>
+        <Style Selector="Button.icon">
+            <Setter Property="CornerRadius" Value="24" />
+        </Style>
+
+        <!-- Text fields: taller, rounded, with a clear outline. -->
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="MinHeight" Value="52" />
+            <Setter Property="Padding" Value="14,14" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource AppSurfaceBrush}" />
+            <Setter Property="CornerRadius" Value="16" />
+        </Style>
+        <Style Selector="ProgressBar">
+            <Setter Property="CornerRadius" Value="2" />
+        </Style>
+        <Style Selector="MenuFlyoutPresenter">
+            <Setter Property="CornerRadius" Value="12" />
+        </Style>
     </Application.Styles>
 </Application>

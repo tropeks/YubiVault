@@ -44,7 +44,7 @@ sealed class VaultPage : UserControl, IBackHandler
 {
     readonly MainView _main;
     readonly VaultSession _session;
-    readonly StackPanel _list = new() { Margin = new Thickness(8, 0, 8, 8) };
+    readonly StackPanel _list = new() { Margin = new Thickness(8, 0, 8, 104), Spacing = 2 };
     readonly TextBlock _status = Ui.Hint("");
     readonly ContentControl _topBar = new();
     string _folder = "";
@@ -54,17 +54,36 @@ sealed class VaultPage : UserControl, IBackHandler
     {
         _main = main;
         _session = session;
-        _status.Margin = new Thickness(16, 4);
-        var footer = new StackPanel
-        {
-            Spacing = 4,
-            Margin = new Thickness(0, 0, 0, 12),
-            Children = { _status },
-        };
+        _status.Margin = new Thickness(20, 0, 20, 8);
+        _status.FontSize = 13;
+
+        // An extended floating action button, raised over the list in the bottom corner.
         var add = Ui.Button(Strings.AddFiles, AddFiles, accent: true, icon: Ui.PlusIcon);
-        add.Margin = new Thickness(16, 0);
-        footer.Children.Add(add);
-        Content = Ui.Page(_topBar, _list, footer);
+        add.HorizontalAlignment = HorizontalAlignment.Stretch;
+        add.MinHeight = 56;
+        add.CornerRadius = new CornerRadius(16);
+        add.Padding = new Thickness(20, 0, 24, 0);
+        var fab = new Border
+        {
+            Child = add,
+            CornerRadius = new CornerRadius(16),
+            BoxShadow = BoxShadows.Parse("0 6 18 0 #40000000"),
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Margin = new Thickness(16, 16, 20, 24),
+        };
+
+        var list = new StackPanel { Children = { _status, _list } };
+        var scroller = new ScrollViewer
+        {
+            Content = list,
+            HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled,
+        };
+        var dock = new DockPanel();
+        DockPanel.SetDock(_topBar, Dock.Top);
+        dock.Children.Add(_topBar);
+        dock.Children.Add(new Panel { Children = { scroller, fab } });
+        Content = dock;
         Refresh();
     }
 
@@ -102,9 +121,9 @@ sealed class VaultPage : UserControl, IBackHandler
         if (items.Count == 0)
         {
             var empty = Ui.Hint(MobileStrings.EmptyFolder);
-            empty.Margin = new Thickness(8, 32);
             empty.TextAlignment = TextAlignment.Center;
-            _list.Children.Add(empty);
+            var badge = Ui.IconBadge(Ui.FolderIcon, 96);
+            _list.Children.Add(new StackPanel { Spacing = 16, Margin = new Thickness(24, 64, 24, 0), Children = { badge, empty } });
         }
         foreach (var item in items)
             _list.Children.Add(Row(item));
@@ -116,30 +135,41 @@ sealed class VaultPage : UserControl, IBackHandler
         string details = item.IsFolder
             ? Ui.Size(item.Size)
             : Ui.Size(item.Size) + " · " + item.ModifiedUtc.ToLocalTime().ToString("g");
+        Control badge;
+        if (item.IsFolder)
+            badge = Ui.IconBadge(Ui.FolderIcon, 44);
+        else
+        {
+            var (icon, color) = Ui.FileKind(item.Name);
+            badge = Ui.ColoredBadge(icon, color);
+        }
+        badge.VerticalAlignment = VerticalAlignment.Center;
         var open = new Button
         {
             Content = new Grid
             {
                 ColumnDefinitions = new ColumnDefinitions("Auto,*"),
+                ColumnSpacing = 16,
                 Children =
                 {
-                    new PathIcon { Data = item.IsFolder ? Ui.FolderIcon : Ui.FileIcon, Width = 26, Height = 26, Margin = new Thickness(4, 0, 14, 0) },
+                    badge,
                     Column1(new StackPanel
                     {
                         VerticalAlignment = VerticalAlignment.Center,
+                        Spacing = 2,
                         Children =
                         {
-                            new TextBlock { Text = item.Name, FontSize = 16, TextTrimming = TextTrimming.CharacterEllipsis },
-                            new TextBlock { Text = details, FontSize = 13, Opacity = 0.7 },
+                            new TextBlock { Text = item.Name, FontSize = 16, FontWeight = FontWeight.Medium, TextTrimming = TextTrimming.CharacterEllipsis },
+                            new TextBlock { Text = details, FontSize = 13, Opacity = 0.65, TextTrimming = TextTrimming.CharacterEllipsis },
                         },
                     }),
                 },
             },
-            MinHeight = 56,
+            MinHeight = 64,
+            Padding = new Thickness(12, 8),
             HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Stretch,
-            Background = Brushes.Transparent,
-            BorderThickness = new Thickness(0),
+            Classes = { "flat" },
         };
         open.Click += (_, _) =>
         {

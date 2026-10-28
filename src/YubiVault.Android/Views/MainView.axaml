@@ -1,15 +1,16 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="YubiVault.Android.Views.MainView"
-             Background="{DynamicResource SystemControlBackgroundAltHighBrush}">
-    <!-- One page at a time; dialogs and progress cards stack on top; short notices float at the bottom. -->
+             Background="{DynamicResource AppBackgroundBrush}">
+    <!-- One page at a time; dialogs and sheets stack on top over a scrim; short notices float at the bottom. -->
     <Panel x:Name="Root">
         <ContentControl x:Name="PageHost" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
-        <Panel x:Name="OverlayHost" IsVisible="False" Background="#99000000" />
+        <Panel x:Name="OverlayHost" IsVisible="False" Background="{DynamicResource AppScrimBrush}" />
         <Border x:Name="Toast" IsVisible="False" IsHitTestVisible="False"
-                HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="24,0,24,32"
-                Padding="16,10" CornerRadius="20" Background="#E0303030">
-            <TextBlock x:Name="ToastText" Foreground="White" FontSize="14" TextWrapping="Wrap" />
+                HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="24,0,24,96"
+                Padding="18,12" CornerRadius="12" Background="{DynamicResource AppToastBrush}"
+                BoxShadow="0 4 16 0 #40000000">
+            <TextBlock x:Name="ToastText" Foreground="{DynamicResource AppOnToastBrush}" FontSize="14" TextWrapping="Wrap" />
         </Border>
     </Panel>
 </UserControl>

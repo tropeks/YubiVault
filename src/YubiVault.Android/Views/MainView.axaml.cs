@@ -3,6 +3,9 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using YubiVault.Android.Platform;
 using YubiVault.Android.Resources;
@@ -126,22 +129,53 @@ public partial class MainView : UserControl
             OverlayHost.IsVisible = false;
     }
 
+    /// <summary>A dialog card in the middle of the screen.</summary>
     static Border Card(params Control[] children)
     {
-        var panel = new StackPanel { Spacing = 14 };
+        var panel = new StackPanel { Spacing = 16 };
         foreach (var child in children)
             panel.Children.Add(child);
         return new Border
         {
             Child = panel,
-            Padding = new Thickness(20),
-            Margin = new Thickness(20),
-            CornerRadius = new CornerRadius(12),
-            MaxWidth = 460,
+            Padding = new Thickness(24),
+            Margin = new Thickness(24),
+            CornerRadius = new CornerRadius(28),
+            MaxWidth = 480,
             VerticalAlignment = VerticalAlignment.Center,
             HorizontalAlignment = HorizontalAlignment.Stretch,
-        }.WithBackground("SystemControlBackgroundAltHighBrush");
+            BoxShadow = BoxShadows.Parse("0 8 32 0 #40000000"),
+        }.WithBackground("AppSurfaceHighBrush");
     }
+
+    /// <summary>A sheet that rises from the bottom edge, for what the user does with the security key.</summary>
+    static Border Sheet(params Control[] children)
+    {
+        var panel = new StackPanel { Spacing = 14 };
+        panel.Children.Add(new Border
+        {
+            Width = 32,
+            Height = 4,
+            CornerRadius = new CornerRadius(2),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 0, 0, 8),
+            Opacity = 0.4,
+        }.WithBackground("SystemControlForegroundBaseMediumBrush"));
+        foreach (var child in children)
+            panel.Children.Add(child);
+        return new Border
+        {
+            Child = panel,
+            Padding = new Thickness(24, 12, 24, 24),
+            CornerRadius = new CornerRadius(28, 28, 0, 0),
+            MaxWidth = 560,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            BoxShadow = BoxShadows.Parse("0 -4 24 0 #30000000"),
+        }.WithBackground("AppSurfaceHighBrush");
+    }
+
+    static TextBlock DialogTitle(string text) => Ui.Text(text, 22, FontWeight.SemiBold);
 
     static StackPanel ButtonRow(params Button[] buttons)
     {
@@ -149,11 +183,16 @@ public partial class MainView : UserControl
         foreach (var button in buttons)
         {
             button.HorizontalAlignment = HorizontalAlignment.Right;
-            button.MinWidth = 96;
+            button.MinWidth = 88;
+            button.MinHeight = Ui.TouchSize;
             row.Children.Add(button);
         }
         return row;
     }
+
+    /// <summary>A small status card: a line of text over an indeterminate progress bar.</summary>
+    static Border ProgressCard(string status) =>
+        Card(Ui.Text(status, 16, FontWeight.SemiBold), new ProgressBar { IsIndeterminate = true, MinHeight = 4 });
 
     internal Task AlertAsync(string title, string message)
     {
@@ -164,7 +203,7 @@ public partial class MainView : UserControl
             PopOverlay(card!);
             done.TrySetResult();
         }
-        card = Card(Ui.Text(title, 18, FontWeight.SemiBold), Ui.Text(message), ButtonRow(Ui.Button(Strings.OK, Close, accent: true)));
+        card = Card(DialogTitle(title), Ui.Text(message, opacity: 0.85), ButtonRow(Ui.Button(Strings.OK, Close, accent: true)));
         PushOverlay(card, Close);
         return done.Task;
     }
@@ -182,9 +221,9 @@ public partial class MainView : UserControl
         }
         var children = new List<Control>();
         if (title is not null)
-            children.Add(Ui.Text(title, 18, FontWeight.SemiBold));
-        children.Add(Ui.Text(message));
-        children.Add(ButtonRow(Ui.Button(Strings.Cancel, () => Close(false)), Ui.Button(yes ?? Strings.OK, () => Close(true), accent: true)));
+            children.Add(DialogTitle(title));
+        children.Add(Ui.Text(message, opacity: 0.85));
+        children.Add(ButtonRow(Ui.TextButton(Strings.Cancel, () => Close(false)), Ui.Button(yes ?? Strings.OK, () => Close(true), accent: true)));
         card = Card([.. children]);
         PushOverlay(card, () => Close(false));
         return done.Task;
@@ -194,7 +233,7 @@ public partial class MainView : UserControl
     internal Task<string?> PromptAsync(string title, string message, string initial = "", bool secret = false, string? error = null)
     {
         var done = new TaskCompletionSource<string?>();
-        var input = new TextBox { Text = initial, MinHeight = Ui.TouchSize, FontSize = 16 };
+        var input = new TextBox { Text = initial };
         if (secret)
             input.PasswordChar = '•';
         Border? card = null;
@@ -211,11 +250,11 @@ public partial class MainView : UserControl
         var errorText = Ui.Error();
         Ui.ShowError(errorText, error);
         card = Card(
-            Ui.Text(title, 18, FontWeight.SemiBold),
-            Ui.Text(message),
+            DialogTitle(title),
+            Ui.Text(message, opacity: 0.85),
             errorText,
             input,
-            ButtonRow(Ui.Button(Strings.Cancel, () => Close(null)), Ui.Button(Strings.OK, () =>
+            ButtonRow(Ui.TextButton(Strings.Cancel, () => Close(null)), Ui.Button(Strings.OK, () =>
             {
                 if (!string.IsNullOrEmpty(input.Text))
                     Close(input.Text);
@@ -232,7 +271,7 @@ public partial class MainView : UserControl
     /// <summary>Runs <paramref name="work"/> off the UI thread behind a progress card.</summary>
     internal async Task<T> RunAsync<T>(string status, Func<T> work)
     {
-        var card = Card(Ui.Text(status), new ProgressBar { IsIndeterminate = true });
+        var card = ProgressCard(status);
         PushOverlay(card, null);
         try
         {
@@ -253,7 +292,7 @@ public partial class MainView : UserControl
     /// <summary>Awaits asynchronous <paramref name="work"/> (platform file copies) behind a progress card.</summary>
     internal async Task<T> RunAsync<T>(string status, Func<Task<T>> work)
     {
-        var card = Card(Ui.Text(status), new ProgressBar { IsIndeterminate = true });
+        var card = ProgressCard(status);
         PushOverlay(card, null);
         try
         {
@@ -267,7 +306,7 @@ public partial class MainView : UserControl
 
     internal async Task RunAsync(string status, Func<Task> work)
     {
-        var card = Card(Ui.Text(status), new ProgressBar { IsIndeterminate = true });
+        var card = ProgressCard(status);
         PushOverlay(card, null);
         try
         {
@@ -301,31 +340,55 @@ public partial class MainView : UserControl
     internal async Task<(bool Done, T Result)> WithSecurityKeyAsync<T>(string status, Func<IFido2Authenticator, T> work)
     {
         using var cancel = new CancellationTokenSource();
-        var title = Ui.Text(status, 18, FontWeight.SemiBold);
-        var detail = Ui.Text("");
-        var card = Card(title, detail, new ProgressBar { IsIndeterminate = true },
-            ButtonRow(Ui.Button(Strings.Cancel, cancel.Cancel)));
+        var title = Ui.Text(status, 22, FontWeight.SemiBold);
+        title.TextAlignment = TextAlignment.Center;
+        var detail = Ui.Text("", opacity: 0.8);
+        detail.TextAlignment = TextAlignment.Center;
+        var badge = Ui.IconBadge(Platform.NfcAvailable ? Ui.NfcIcon : Ui.UsbIcon, 88);
+        // A soft ring that breathes around the icon while the app waits on the key.
+        var halo = new Border { Width = 128, Height = 128, CornerRadius = new CornerRadius(64), HorizontalAlignment = HorizontalAlignment.Center }
+            .WithBackground("AppTonalBrush");
+        var icon = new Panel { Width = 128, Height = 128, HorizontalAlignment = HorizontalAlignment.Center, Children = { halo, badge } };
+        badge.VerticalAlignment = VerticalAlignment.Center;
+        var cancelButton = Ui.TextButton(Strings.Cancel, cancel.Cancel);
+        var card = Sheet(icon, title, detail, new ProgressBar { IsIndeterminate = true, MinHeight = 4, Margin = new Thickness(24, 4) }, cancelButton);
+        var pulse = new Animation
+        {
+            Duration = TimeSpan.FromSeconds(1.4),
+            IterationCount = IterationCount.Infinite,
+            PlaybackDirection = PlaybackDirection.Alternate,
+            Easing = new SineEaseInOut(),
+            Children =
+            {
+                new KeyFrame { Cue = new Cue(0), Setters = { new Setter(OpacityProperty, 0.25) } },
+                new KeyFrame { Cue = new Cue(1), Setters = { new Setter(OpacityProperty, 1.0) } },
+            },
+        };
         bool shown = false, finished = false;
 
-        // Called from the worker thread; the card appears on the first update.
-        void Update(string heading, string text) => Dispatcher.UIThread.Post(() =>
+        // Called from the worker thread; the sheet appears on the first update.
+        void Update(string heading, string text, Geometry? glyph = null) => Dispatcher.UIThread.Post(() =>
         {
             if (finished)
                 return;
             title.Text = heading;
             detail.Text = text;
+            if (glyph is not null && badge.Child is PathIcon path)
+                path.Data = glyph;
             if (!shown)
             {
                 shown = true;
                 PushOverlay(card, cancel.Cancel);
+                _ = pulse.RunAsync(halo, cancel.Token);
             }
         });
 
         var key = new CtapSecurityKey(token =>
         {
-            Update(MobileStrings.ConnectKeyTitle, Platform.NfcAvailable ? MobileStrings.ConnectKeyDetail : MobileStrings.ConnectKeyDetailUsb);
+            Update(MobileStrings.ConnectKeyTitle, Platform.NfcAvailable ? MobileStrings.ConnectKeyDetail : MobileStrings.ConnectKeyDetailUsb,
+                Platform.NfcAvailable ? Ui.NfcIcon : Ui.UsbIcon);
             var connection = Platform.ConnectKeyAsync(token).GetAwaiter().GetResult();
-            Update(status, connection.IsNfc ? MobileStrings.KeepHolding : MobileStrings.KeyWorking);
+            Update(status, connection.IsNfc ? MobileStrings.KeepHolding : MobileStrings.KeyWorking, connection.IsNfc ? Ui.NfcIcon : Ui.KeyIcon);
             return connection;
         })
         {
@@ -339,7 +402,7 @@ public partial class MainView : UserControl
                 return pin;
             },
             TouchNotifier = waiting => Update(waiting ? Strings.TouchKeyTitle : status,
-                waiting ? Strings.TouchKeyDetail : MobileStrings.KeyWorking),
+                waiting ? Strings.TouchKeyDetail : MobileStrings.KeyWorking, waiting ? Ui.TouchIcon : Ui.KeyIcon),
         };
 
         try
@@ -353,6 +416,7 @@ public partial class MainView : UserControl
         finally
         {
             finished = true;
+            cancel.Cancel(); // also stops the pulse
             if (shown)
                 PopOverlay(card);
         }

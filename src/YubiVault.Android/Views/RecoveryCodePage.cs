@@ -23,8 +23,8 @@ sealed class RecoveryCodePage : UserControl, IBackHandler
         {
             Child = codeText,
             Padding = new Thickness(16),
-            CornerRadius = new CornerRadius(8),
-        }.WithBackground("SystemControlBackgroundBaseLowBrush");
+            CornerRadius = new CornerRadius(16),
+        }.WithBackground("AppSurfaceBrush");
 
         var continueButton = Ui.Button(Strings.Continue, onContinue, accent: true);
         continueButton.IsEnabled = false;
