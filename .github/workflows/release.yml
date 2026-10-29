@@ -190,6 +190,10 @@ jobs:
           if [ -z "$UPDATE_SIGNING_KEY" ]; then
             echo "::error::The UPDATE_SIGNING_KEY secret is not set." && exit 1
           fi
+          case "$UPDATE_SIGNING_KEY" in
+            *"-----BEGIN PRIVATE KEY-----"*) ;;
+            *) echo "::error::UPDATE_SIGNING_KEY must hold the PEM file's contents, starting with -----BEGIN PRIVATE KEY-----." && exit 1 ;;
+          esac
           key="$RUNNER_TEMP/update-signing-key.pem"
           printf '%s\n' "$UPDATE_SIGNING_KEY" > "$key"
           openssl pkeyutl -sign -inkey "$key" -rawin -in SHA256SUMS.txt -out SHA256SUMS.txt.sig
