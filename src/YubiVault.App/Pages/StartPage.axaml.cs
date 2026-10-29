@@ -26,7 +26,7 @@ public partial class StartPage : UserControl
         InitializeComponent();
         if (main is null)
             return; // designer
-        var recent = main.Settings.RecentVaults.Where(File.Exists).ToList();
+        var recent = main.Settings.RecentVaults.Where(File.Exists).Select(p => new RecentVault(p)).ToList();
         RecentList.ItemsSource = recent;
         RecentHeader.IsVisible = recent.Count > 0;
         AssociateButton.IsVisible = FileAssociation.IsSupported && !FileAssociation.IsRegistered;
@@ -101,9 +101,9 @@ public partial class StartPage : UserControl
 
     void OnCreateVault(object? sender, RoutedEventArgs e) => _main.ShowCreate();
 
-    void OnRecentClick(object? sender, RoutedEventArgs e)
+    void OnRecentSelected(object? sender, SelectionChangedEventArgs e)
     {
-        if (sender is Control { Tag: string path })
+        if (RecentList.SelectedItem is RecentVault { Path: var path } && path != _vaultFile)
             SelectVault(path);
     }
 
@@ -158,6 +158,8 @@ public partial class StartPage : UserControl
             : !_fido2 ? Strings.UnlockHintOtp
             : Keys.SystemAsksForPin ? Strings.UnlockHintFido2Windows : Strings.UnlockHintFido2;
         UnlockPanel.IsVisible = true;
+        NoVaultState.IsVisible = false;
+        RecentList.SelectedItem = RecentList.Items.OfType<RecentVault>().FirstOrDefault(r => r.Path == path);
         (needsPassword ? PasswordInput : (Control)UnlockButton).Focus();
     }
 
@@ -260,4 +262,12 @@ public partial class StartPage : UserControl
         ErrorBar.Message = message;
         ErrorBar.IsOpen = true;
     }
+}
+
+/// <summary>A vault in the recent list: its name, and the folder it is in.</summary>
+public sealed class RecentVault(string path)
+{
+    public string Path { get; } = path;
+    public string Name { get; } = System.IO.Path.GetFileNameWithoutExtension(path);
+    public string Folder { get; } = System.IO.Path.GetDirectoryName(path) ?? "";
 }

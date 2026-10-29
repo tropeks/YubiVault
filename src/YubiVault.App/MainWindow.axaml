@@ -3,26 +3,65 @@
         xmlns:ui="using:FluentAvalonia.UI.Controls"
         x:Class="YubiVault.App.MainWindow"
         Title="YubiVault" Icon="/Assets/yubivault.ico"
-        Width="980" Height="660" MinWidth="720" MinHeight="480"
+        Width="1000" Height="680" MinWidth="760" MinHeight="520"
         WindowStartupLocation="CenterScreen">
+    <Window.Styles>
+        <!-- The touch prompt pulses so it is clear the key is waiting. -->
+        <Style Selector="Ellipse#TouchPulse">
+            <Style.Animations>
+                <Animation Duration="0:0:1.6" IterationCount="Infinite" Easing="CubicEaseOut">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="Opacity" Value="0.55" />
+                        <Setter Property="ScaleTransform.ScaleX" Value="0.7" />
+                        <Setter Property="ScaleTransform.ScaleY" Value="0.7" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="Opacity" Value="0" />
+                        <Setter Property="ScaleTransform.ScaleX" Value="1.25" />
+                        <Setter Property="ScaleTransform.ScaleY" Value="1.25" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+    </Window.Styles>
+
     <Panel>
-        <ContentControl x:Name="Host" />
+        <DockPanel>
+            <!-- Our own title bar on Windows and macOS, drawn on the window's Mica or vibrancy surface. -->
+            <Panel x:Name="TitleBar" DockPanel.Dock="Top" Height="40" IsVisible="False" IsHitTestVisible="False">
+                <StackPanel x:Name="TitleContent" Orientation="Horizontal" Spacing="10" Margin="16,0"
+                            VerticalAlignment="Center">
+                    <Image Source="/Assets/yubivault.png" Width="16" Height="16" />
+                    <TextBlock Text="YubiVault" FontSize="12" VerticalAlignment="Center" />
+                </StackPanel>
+            </Panel>
+            <ContentControl x:Name="Host" />
+        </DockPanel>
 
         <!-- Busy overlay: shown while the vault works or waits for a touch. -->
-        <Panel x:Name="BusyOverlay" IsVisible="False" Background="#99000000">
-            <Border HorizontalAlignment="Center" VerticalAlignment="Center" Padding="32,28" CornerRadius="8"
-                    MinWidth="320" MaxWidth="460" BorderThickness="1"
-                    Background="{DynamicResource SolidBackgroundFillColorBaseBrush}"
-                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
-                <StackPanel Spacing="12">
-                    <ui:SymbolIcon x:Name="TouchIcon" Symbol="TouchPointer" FontSize="48" HorizontalAlignment="Center"
-                                   IsVisible="False" Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
-                    <ui:ProgressRing x:Name="BusyRing" IsIndeterminate="True" Width="40" Height="40"
+        <Panel x:Name="BusyOverlay" IsVisible="False" Background="{DynamicResource SmokeFillColorDefaultBrush}">
+            <Border Classes="raised" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="36,32"
+                    MinWidth="340" MaxWidth="460">
+                <StackPanel Spacing="14">
+                    <Panel x:Name="TouchIcon" Width="96" Height="96" HorizontalAlignment="Center" IsVisible="False">
+                        <Ellipse x:Name="TouchPulse" RenderTransformOrigin="50%,50%">
+                            <Ellipse.Fill>
+                                <SolidColorBrush Color="{DynamicResource SystemAccentColor}" Opacity="0.35" />
+                            </Ellipse.Fill>
+                            <Ellipse.RenderTransform>
+                                <ScaleTransform />
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Border Classes="tile" Width="72" Height="72" CornerRadius="36">
+                            <PathIcon Data="{StaticResource SecurityKeyIcon}" Width="34" Height="34" />
+                        </Border>
+                    </Panel>
+                    <ui:ProgressRing x:Name="BusyRing" IsIndeterminate="True" Width="44" Height="44"
                                      HorizontalAlignment="Center" />
-                    <TextBlock x:Name="BusyTitle" FontSize="16" FontWeight="SemiBold" TextAlignment="Center"
+                    <TextBlock x:Name="BusyTitle" FontSize="17" FontWeight="SemiBold" TextAlignment="Center"
                                TextWrapping="Wrap" />
-                    <TextBlock x:Name="BusyDetail" TextAlignment="Center" TextWrapping="Wrap" MaxHeight="40"
-                               TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                    <TextBlock x:Name="BusyDetail" Classes="body" TextAlignment="Center" MaxHeight="40"
+                               TextTrimming="CharacterEllipsis" />
                 </StackPanel>
             </Border>
         </Panel>

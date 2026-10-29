@@ -6,6 +6,7 @@
     <!-- Light or dark mode and the accent color follow the system. -->
     <Application.Styles>
         <sty:FluentAvaloniaTheme PreferSystemTheme="True" PreferUserAccentColor="True" />
+        <StyleInclude Source="/Styles.axaml" />
     </Application.Styles>
     <Application.Resources>
         <ResourceDictionary>

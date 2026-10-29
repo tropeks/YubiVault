@@ -2,104 +2,145 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:r="using:YubiVault.App.Resources"
+             xmlns:p="using:YubiVault.App.Pages"
              x:Class="YubiVault.App.Pages.StartPage">
-    <DockPanel>
-    <!-- A newer signed release: one click downloads, checks and installs it, then restarts. -->
-    <ui:InfoBar x:Name="UpdateBar" DockPanel.Dock="Top" Severity="Informational" IsClosable="True" Margin="40,16,40,0">
-        <ui:InfoBar.ActionButton>
-            <Button Classes="accent" Content="{x:Static r:Strings.UpdateInstall}" Click="OnInstallUpdate" />
-        </ui:InfoBar.ActionButton>
-        <HyperlinkButton Content="{x:Static r:Strings.UpdateWhatsNew}" Padding="0" Margin="0,0,0,8" Click="OnWhatsNew" />
-    </ui:InfoBar>
-    <Grid Margin="40,24,40,32" ColumnDefinitions="*,40,*">
-        <!-- Left: brand and actions -->
-        <StackPanel Grid.Column="0" VerticalAlignment="Center" MaxWidth="440">
-            <Image Source="/Assets/yubivault.png" Width="64" Height="64" HorizontalAlignment="Left" />
-            <TextBlock Text="YubiVault" FontSize="32" FontWeight="SemiBold" Margin="0,12,0,0" />
-            <TextBlock Margin="0,6,0,24" TextWrapping="Wrap" FontSize="14"
-                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" Text="{x:Static r:Strings.AppTagline}" />
-
-            <Button Classes="accent" HorizontalAlignment="Stretch" Padding="12,10" Click="OnOpenVault">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <ui:SymbolIcon Symbol="OpenFolder" />
-                    <TextBlock Text="{x:Static r:Strings.OpenVault}" />
+    <Grid ColumnDefinitions="360,*">
+        <!-- Left: brand, actions and recent vaults, on the window's own surface -->
+        <DockPanel Margin="28,8,20,16">
+            <Button DockPanel.Dock="Bottom" Classes="toolbar" Margin="-10,8,0,0" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <ui:SymbolIcon Symbol="Settings" FontSize="18" />
+                    <TextBlock Text="{x:Static r:Strings.Settings}" VerticalAlignment="Center" />
                 </StackPanel>
-            </Button>
-            <Button HorizontalAlignment="Stretch" Padding="12,10" Margin="0,8,0,0" Click="OnCreateVault">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <ui:SymbolIcon Symbol="NewFolder" />
-                    <TextBlock Text="{x:Static r:Strings.CreateVault}" />
-                </StackPanel>
-            </Button>
-
-            <TextBlock x:Name="RecentHeader" Text="{x:Static r:Strings.RecentVaults}" Margin="0,28,0,8"
-                       FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-            <ItemsControl x:Name="RecentList">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="x:String">
-                        <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Margin="0,0,0,6"
-                                Padding="12,8" Tag="{Binding}" Click="OnRecentClick">
+                <Button.Flyout>
+                    <Flyout Placement="TopEdgeAlignedLeft">
+                        <StackPanel Spacing="12" MinWidth="280" Margin="4">
+                            <TextBlock Text="{x:Static r:Strings.Settings}" Classes="subtitle" />
                             <StackPanel Orientation="Horizontal" Spacing="10">
-                                <PathIcon Data="{StaticResource LockClosedIcon}" Width="16" Height="16" />
-                                <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" MaxWidth="360" />
+                                <ui:SymbolIcon Symbol="Globe" FontSize="18" VerticalAlignment="Center" />
+                                <ComboBox x:Name="LanguageCombo" MinWidth="230" SelectionChanged="OnLanguageChanged" />
                             </StackPanel>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                            <CheckBox x:Name="UpdatesCheck" Content="{x:Static r:Strings.CheckForUpdates}"
+                                      IsCheckedChanged="OnUpdatesCheckChanged" />
+                            <HyperlinkButton x:Name="AssociateButton" Padding="0" Click="OnAssociate"
+                                             Content="{x:Static r:Strings.AssociateFiles}" />
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
 
-            <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,20,0,0">
-                <HyperlinkButton x:Name="AssociateButton" Padding="0" Click="OnAssociate"
-                                    Content="{x:Static r:Strings.AssociateFiles}" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
-                <ui:SymbolIcon Symbol="Globe" VerticalAlignment="Center" />
-                <ComboBox x:Name="LanguageCombo" MinWidth="200" SelectionChanged="OnLanguageChanged" />
-            </StackPanel>
-            <CheckBox x:Name="UpdatesCheck" Margin="0,8,0,0" Content="{x:Static r:Strings.CheckForUpdates}"
-                      IsCheckedChanged="OnUpdatesCheckChanged" />
-        </StackPanel>
+            <StackPanel DockPanel.Dock="Top">
+                <Image Source="/Assets/yubivault.png" Width="60" Height="60" HorizontalAlignment="Left" />
+                <TextBlock Text="YubiVault" Classes="display" Margin="0,14,0,0" />
+                <TextBlock Classes="body" Margin="0,6,0,12" Text="{x:Static r:Strings.AppTagline}" />
+                <WrapPanel>
+                    <Border Classes="chip"><TextBlock Text="AES-256-GCM" /></Border>
+                    <Border Classes="chip"><TextBlock Text="XChaCha20-Poly1305" /></Border>
+                    <Border Classes="chip"><TextBlock Text="FIDO2" /></Border>
+                </WrapPanel>
 
-        <!-- Right: unlock panel for the chosen vault -->
-        <Border x:Name="UnlockPanel" Grid.Column="2" VerticalAlignment="Center" IsVisible="False"
-                Padding="28" CornerRadius="8" BorderThickness="1"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <PathIcon Data="{StaticResource LockClosedIcon}" Width="26" Height="26"
-                              Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
-                    <TextBlock x:Name="VaultName" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis" />
-                </StackPanel>
-                <TextBlock x:Name="VaultLocation" Margin="0,6,0,20" TextTrimming="CharacterEllipsis"
-                           Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
-
-                <TextBlock x:Name="UnlockHint" TextWrapping="Wrap" Margin="0,0,0,16"
-                           Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-
-                <TextBox x:Name="PasswordInput" Watermark="{x:Static r:Strings.Password}" PasswordChar="●"
-                         Classes="revealPasswordButton" Margin="0,0,0,12" IsVisible="False" KeyDown="OnUnlockKeyDown" />
-
-                <TextBox x:Name="RecoveryInput" Watermark="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX"
-                         FontFamily="Consolas, Menlo, DejaVu Sans Mono, monospace" Margin="0,0,0,12"
-                         IsVisible="False" KeyDown="OnUnlockKeyDown" />
-
-                <Button x:Name="UnlockButton" Classes="accent" HorizontalAlignment="Stretch" Padding="12,10"
-                        Click="OnUnlock">
-                    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
-                        <PathIcon Data="{StaticResource LockOpenIcon}" Width="16" Height="16" />
-                        <TextBlock Text="{x:Static r:Strings.Unlock}" />
+                <Button Classes="accent large" HorizontalAlignment="Stretch" Margin="0,18,0,0" Click="OnOpenVault">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <ui:SymbolIcon Symbol="OpenFolder" FontSize="18" />
+                        <TextBlock Text="{x:Static r:Strings.OpenVault}" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button Classes="large" HorizontalAlignment="Stretch" Margin="0,8,0,0" Click="OnCreateVault">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <ui:SymbolIcon Symbol="NewFolder" FontSize="18" />
+                        <TextBlock Text="{x:Static r:Strings.CreateVault}" VerticalAlignment="Center" />
                     </StackPanel>
                 </Button>
 
-                <HyperlinkButton x:Name="RecoveryToggle" Margin="0,12,0,0" Padding="0" Click="OnToggleRecovery" />
-                <HyperlinkButton x:Name="HiddenToggle" Margin="0,8,0,0" Padding="0" Click="OnToggleHidden" />
-
-                <ui:InfoBar x:Name="ErrorBar" Severity="Error" IsClosable="True" Margin="0,16,0,0"
-                            Title="{x:Static r:Strings.CouldNotOpen}" />
+                <TextBlock x:Name="RecentHeader" Text="{x:Static r:Strings.RecentVaults}" Classes="header"
+                           Margin="0,24,0,6" />
             </StackPanel>
+
+            <ListBox x:Name="RecentList" Classes="rows" Margin="-4,0" Background="Transparent"
+                     SelectionChanged="OnRecentSelected">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="p:RecentVault">
+                        <Grid ColumnDefinitions="Auto,*" ToolTip.Tip="{Binding Path}">
+                            <Border Classes="tile" Width="34" Height="34" CornerRadius="8">
+                                <PathIcon Data="{StaticResource LockClosedIcon}" Width="16" Height="16" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding Folder}" Classes="caption" TextTrimming="PathSegmentEllipsis" />
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <!-- Right: the chosen vault's unlock card, on a content layer -->
+        <Border Grid.Column="1" Classes="layer">
+            <DockPanel>
+                <!-- A newer signed release: one click downloads, checks and installs it, then restarts. -->
+                <ui:InfoBar x:Name="UpdateBar" DockPanel.Dock="Top" Severity="Informational" IsClosable="True"
+                            Margin="24,20,24,0">
+                    <ui:InfoBar.ActionButton>
+                        <Button Classes="accent" Content="{x:Static r:Strings.UpdateInstall}" Click="OnInstallUpdate" />
+                    </ui:InfoBar.ActionButton>
+                    <HyperlinkButton Content="{x:Static r:Strings.UpdateWhatsNew}" Padding="0" Margin="0,0,0,8"
+                                     Click="OnWhatsNew" />
+                </ui:InfoBar>
+
+                <ScrollViewer>
+                    <Panel Margin="32,24">
+                        <StackPanel x:Name="NoVaultState" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    MaxWidth="340" Spacing="8">
+                            <Border Classes="tile" Width="88" Height="88" CornerRadius="44" Margin="0,0,0,10"
+                                    HorizontalAlignment="Center">
+                                <PathIcon Data="{StaticResource SecurityKeyIcon}" Width="40" Height="40" />
+                            </Border>
+                            <TextBlock Text="{x:Static r:Strings.PickVaultTitle}" Classes="title" TextAlignment="Center"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Text="{x:Static r:Strings.PickVaultDetail}" Classes="body" TextAlignment="Center" />
+                        </StackPanel>
+
+                        <Border x:Name="UnlockPanel" Classes="card" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Width="420" Padding="32,28" IsVisible="False">
+                            <StackPanel>
+                                <Border Classes="tile" Width="64" Height="64" CornerRadius="32" HorizontalAlignment="Center">
+                                    <PathIcon Data="{StaticResource LockClosedIcon}" Width="28" Height="28" />
+                                </Border>
+                                <TextBlock x:Name="VaultName" Classes="title" Margin="0,14,0,0" TextAlignment="Center"
+                                           TextTrimming="CharacterEllipsis" />
+                                <TextBlock x:Name="VaultLocation" Classes="caption" Margin="0,4,0,18" TextAlignment="Center"
+                                           TextTrimming="PathSegmentEllipsis" />
+
+                                <TextBlock x:Name="UnlockHint" Classes="body" TextAlignment="Center" Margin="0,0,0,18" />
+
+                                <TextBox x:Name="PasswordInput" Watermark="{x:Static r:Strings.Password}" PasswordChar="●"
+                                         Classes="revealPasswordButton" Margin="0,0,0,12" IsVisible="False"
+                                         KeyDown="OnUnlockKeyDown" />
+
+                                <TextBox x:Name="RecoveryInput" Watermark="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX"
+                                         FontFamily="Consolas, Menlo, DejaVu Sans Mono, monospace" Margin="0,0,0,12"
+                                         IsVisible="False" KeyDown="OnUnlockKeyDown" />
+
+                                <Button x:Name="UnlockButton" Classes="accent large" HorizontalAlignment="Stretch"
+                                        Click="OnUnlock">
+                                    <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                                        <PathIcon Data="{StaticResource LockOpenIcon}" Width="16" Height="16" />
+                                        <TextBlock Text="{x:Static r:Strings.Unlock}" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+
+                                <HyperlinkButton x:Name="RecoveryToggle" Margin="0,14,0,0" Padding="4,2"
+                                                 HorizontalAlignment="Center" Click="OnToggleRecovery" />
+                                <HyperlinkButton x:Name="HiddenToggle" Margin="0,2,0,0" Padding="4,2"
+                                                 HorizontalAlignment="Center" Click="OnToggleHidden" />
+
+                                <ui:InfoBar x:Name="ErrorBar" Severity="Error" IsClosable="True" Margin="0,16,0,0"
+                                            Title="{x:Static r:Strings.CouldNotOpen}" />
+                            </StackPanel>
+                        </Border>
+                    </Panel>
+                </ScrollViewer>
+            </DockPanel>
         </Border>
     </Grid>
-    </DockPanel>
 </UserControl>

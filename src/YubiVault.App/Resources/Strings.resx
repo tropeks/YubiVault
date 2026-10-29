@@ -475,4 +475,13 @@ Replace existing files?</value>
   <data name="UpdateReopen" xml:space="preserve">
     <value>YubiVault was updated to {0}. Open it again to use the new version.</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="PickVaultTitle" xml:space="preserve">
+    <value>Choose a vault to unlock</value>
+  </data>
+  <data name="PickVaultDetail" xml:space="preserve">
+    <value>Open a .yvault file, pick one of your recent vaults or create a new one.</value>
+  </data>
 </root>

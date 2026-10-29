@@ -28,6 +28,7 @@ public partial class VaultPage : UserControl
         KeysButton.IsVisible = !vault.IsHidden; // its keys are fixed, and listing them would give it away
         AddHandler(DragDrop.DragOverEvent, OnDragOver);
         AddHandler(DragDrop.DropEvent, OnDrop);
+        AddHandler(DragDrop.DragLeaveEvent, (_, _) => DropOverlay.IsVisible = false);
         Refresh();
     }
 
@@ -41,7 +42,7 @@ public partial class VaultPage : UserControl
 
         ItemsList.ItemsSource = VaultItem.ListFolder(_vault.Entries, _folder);
         EmptyState.IsVisible = _vault.Entries.Count == 0;
-        FolderText.Text = _folder.Length == 0 ? Strings.AllFiles : _folder.Replace("/", "  ›  ");
+        Breadcrumbs.ItemsSource = Breadcrumb.For(_folder);
         UpButton.IsEnabled = _folder.Length > 0;
         StatusText.Text = Localization.Format(Strings.StatusFiles, _vault.Entries.Count, Format.Size(_vault.Entries.Sum(e => e.Size)));
         if (_vault.HiddenFreeBytes is long free)
@@ -65,6 +66,15 @@ public partial class VaultPage : UserControl
     {
         _folder = VaultPath.Parent(_folder);
         Refresh();
+    }
+
+    void OnBreadcrumb(object? sender, RoutedEventArgs e)
+    {
+        if (sender is Control { Tag: string folder })
+        {
+            _folder = folder;
+            Refresh();
+        }
     }
 
     void OnLock(object? sender, RoutedEventArgs e) => _main.Lock();
@@ -96,12 +106,15 @@ public partial class VaultPage : UserControl
 
     void OnDragOver(object? sender, DragEventArgs e)
     {
-        e.DragEffects = e.Data.Contains(DataFormats.Files) ? DragDropEffects.Copy : DragDropEffects.None;
+        bool files = e.Data.Contains(DataFormats.Files);
+        e.DragEffects = files ? DragDropEffects.Copy : DragDropEffects.None;
+        DropOverlay.IsVisible = files;
         e.Handled = true;
     }
 
     async void OnDrop(object? sender, DragEventArgs e)
     {
+        DropOverlay.IsVisible = false;
         if (e.Data.GetFiles() is { } items)
             await AddAsync(LocalPaths(items));
     }
@@ -239,4 +252,23 @@ public partial class VaultPage : UserControl
     }
 
     void ShowInfo(string message) => StatusText.Text = message;
+}
+
+/// <summary>One step of the path shown above the list: "All files", then each folder down to the current one.</summary>
+public sealed class Breadcrumb
+{
+    public required string Name { get; init; }
+    public required string Path { get; init; }
+    public bool IsFirst { get; init; }
+    public bool IsLast { get; init; }
+    public Avalonia.Media.FontWeight Weight => IsLast ? Avalonia.Media.FontWeight.SemiBold : Avalonia.Media.FontWeight.Normal;
+
+    public static List<Breadcrumb> For(string folder)
+    {
+        var parts = folder.Length == 0 ? [] : folder.Split('/');
+        var crumbs = new List<Breadcrumb> { new() { Name = Strings.AllFiles, Path = "", IsFirst = true, IsLast = parts.Length == 0 } };
+        for (int i = 0; i < parts.Length; i++)
+            crumbs.Add(new() { Name = parts[i], Path = string.Join('/', parts[..(i + 1)]), IsLast = i == parts.Length - 1 });
+        return crumbs;
+    }
 }
