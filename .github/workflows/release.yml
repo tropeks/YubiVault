@@ -31,6 +31,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
+      # The Yubico SDK's native shims, used by the PIN protocol cross-check, link against libpcsclite.
+      - run: sudo apt-get update && sudo apt-get install -y libpcsclite1
       - run: dotnet test -c Release
 
   windows:
