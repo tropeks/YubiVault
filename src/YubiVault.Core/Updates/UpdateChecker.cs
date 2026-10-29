@@ -96,7 +96,7 @@ public sealed class UpdateChecker
             if (assets.TryGetValue(name, out var url))
                 files[name] = new UpdateFile(name, url, hash);
         }
-        string versionText = newest.Release.TagName[1..];
+        string versionText = VersionText(newest.Release.TagName);
         return new UpdateRelease(newest.Version, versionText, newest.Release.HtmlUrl, files);
     }
 
@@ -155,13 +155,16 @@ public sealed class UpdateChecker
         return data.Length <= MaxChecksumsSize ? data : throw new UpdateException("The checksum list is unexpectedly large.");
     }
 
-    /// <summary>"v1.2.3" → 1.2.3. Anything else (pre-release suffixes, other tags) is not an update.</summary>
+    /// <summary>The version as the release workflow writes it in file names: the tag without a leading "v".</summary>
+    static string VersionText(string tag) => tag.StartsWith('v') ? tag[1..] : tag;
+
+    /// <summary>"v1.2.3" or "1.2.3" → 1.2.3. Anything else (pre-release suffixes, other tags) is not an update.</summary>
     public static bool TryParseTag(string? tag, out Version version)
     {
         version = new Version();
-        if (tag is not { Length: > 1 } || tag[0] != 'v')
+        if (string.IsNullOrEmpty(tag))
             return false;
-        string[] parts = tag[1..].Split('.');
+        string[] parts = VersionText(tag).Split('.');
         if (parts.Length != 3)
             return false;
         int[] numbers = new int[3];

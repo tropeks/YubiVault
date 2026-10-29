@@ -13,6 +13,7 @@ public class UpdateCheckerTests
     [Theory]
     [InlineData("v1.2.3", 1, 2, 3)]
     [InlineData("v0.10.0", 0, 10, 0)]
+    [InlineData("0.2.1", 0, 2, 1)]
     public void ParsesReleaseTags(string tag, int major, int minor, int patch)
     {
         Assert.True(UpdateChecker.TryParseTag(tag, out var version));
@@ -20,7 +21,6 @@ public class UpdateCheckerTests
     }
 
     [Theory]
-    [InlineData("1.2.3")]
     [InlineData("v1.2")]
     [InlineData("v1.2.3-beta")]
     [InlineData("v1.02.3")]
