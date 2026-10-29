@@ -444,4 +444,7 @@
   <data name="CheckForUpdates" xml:space="preserve">
     <value>अपडेट अपने-आप जाँचें</value>
   </data>
+  <data name="UpdateReopen" xml:space="preserve">
+    <value>YubiVault को संस्करण {0} में अपडेट किया गया। नया संस्करण इस्तेमाल करने के लिए इसे फिर से खोलें।</value>
+  </data>
 </root>

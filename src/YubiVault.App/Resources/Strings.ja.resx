@@ -444,4 +444,7 @@ YubiVault を移動した場合は、新しい場所からもう一度この項�
   <data name="CheckForUpdates" xml:space="preserve">
     <value>アップデートを自動的に確認する</value>
   </data>
+  <data name="UpdateReopen" xml:space="preserve">
+    <value>YubiVault はバージョン {0} に更新されました。新しいバージョンを使うには、もう一度開いてください。</value>
+  </data>
 </root>

@@ -444,4 +444,7 @@
   <data name="CheckForUpdates" xml:space="preserve">
     <value>التحقق من التحديثات تلقائيًا</value>
   </data>
+  <data name="UpdateReopen" xml:space="preserve">
+    <value>تم تحديث YubiVault إلى الإصدار {0}. افتحه مرة أخرى لاستخدام الإصدار الجديد.</value>
+  </data>
 </root>

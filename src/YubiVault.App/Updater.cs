@@ -138,13 +138,31 @@ static class Updater
         }
     }
 
-    /// <summary>Starts the updated app. The caller then closes this one.</summary>
-    public static void Restart()
+    /// <summary>
+    /// Starts the updated app; the caller then closes this one. Right after it is written, the new program
+    /// can stay locked for a few seconds while the antivirus scans it, so this retries for a while.
+    /// </summary>
+    /// <returns>Null once started; otherwise why it could not be, and the user opens it again by hand.</returns>
+    public static async Task<string?> RestartAsync()
     {
-        if (Install == Kind.MacApp)
-            Process.Start("open", ["-n", MacBundle]);
-        else
-            Process.Start(new ProcessStartInfo(ExePath) { UseShellExecute = false });
+        string? error = null;
+        for (int attempt = 0; attempt < 10; attempt++)
+        {
+            try
+            {
+                if (Install == Kind.MacApp)
+                    Process.Start("open", ["-n", MacBundle]);
+                else
+                    Process.Start(new ProcessStartInfo(ExePath) { UseShellExecute = false });
+                return null;
+            }
+            catch (Exception e) when (e is System.ComponentModel.Win32Exception or IOException or InvalidOperationException)
+            {
+                error = e.Message;
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+        }
+        return error;
     }
 
     /// <summary>
