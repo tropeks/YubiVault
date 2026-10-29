@@ -27,6 +27,7 @@ public partial class MainWindow : Window
     {
         Settings = settings;
         InitializeComponent();
+        SetUpChrome();
         ApplyFlowDirection();
         ShowStart(vaultFile);
         Updater.CleanUp();
@@ -50,6 +51,53 @@ public partial class MainWindow : Window
     }
 
     public AppSettings Settings { get; }
+
+    // ---- Window surface ----
+
+    /// <summary>
+    /// On Windows and macOS the content runs up into the title bar, over Mica (Windows 11) or vibrancy (macOS)
+    /// like the system's own apps. Linux keeps its window manager's title bar and a plain background.
+    /// </summary>
+    void SetUpChrome()
+    {
+        // The version shows at the top on every system: in our title bar, or in the system's on Linux.
+        var version = typeof(MainWindow).Assembly.GetName().Version ?? new Version(0, 0, 0);
+        VersionText.Text = $"v{version.Major}.{version.Minor}.{Math.Max(version.Build, 0)}";
+        Title = "YubiVault " + VersionText.Text;
+        if (OperatingSystem.IsWindows() || OperatingSystem.IsMacOS())
+        {
+            ExtendClientAreaToDecorationsHint = true;
+            TitleBar.IsVisible = true;
+            if (OperatingSystem.IsMacOS())
+            {
+                // The traffic lights sit on the left; the title is centred and has no icon, as on the Mac.
+                TitleBar.Height = 32;
+                TitleContent.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
+                TitleContent.Children[0].IsVisible = false;
+            }
+            ExtendClientAreaTitleBarHeightHint = TitleBar.Height;
+            TransparencyLevelHint = OperatingSystem.IsWindows()
+                ? [WindowTransparencyLevel.Mica]
+                : [WindowTransparencyLevel.AcrylicBlur];
+        }
+        UpdateBackground();
+    }
+
+    protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+    {
+        base.OnPropertyChanged(change);
+        if (change.Property == ActualTransparencyLevelProperty)
+            UpdateBackground();
+    }
+
+    // The system's material shows through a transparent background; without one, the theme's solid color.
+    void UpdateBackground()
+    {
+        if (ActualTransparencyLevel == WindowTransparencyLevel.None)
+            ClearValue(BackgroundProperty);
+        else
+            Background = Brushes.Transparent;
+    }
     public TempFiles TempFiles { get; } = new();
 
     // ---- Updates ----

@@ -447,4 +447,13 @@
   <data name="UpdateReopen" xml:space="preserve">
     <value>YubiVault обновлён до версии {0}. Откройте его снова, чтобы использовать новую версию.</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
+  <data name="PickVaultTitle" xml:space="preserve">
+    <value>Выберите хранилище для разблокировки</value>
+  </data>
+  <data name="PickVaultDetail" xml:space="preserve">
+    <value>Откройте файл .yvault, выберите одно из недавних хранилищ или создайте новое.</value>
+  </data>
 </root>

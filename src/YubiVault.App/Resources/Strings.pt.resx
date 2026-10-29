@@ -447,4 +447,13 @@ Substituir os arquivos existentes?</value>
   <data name="UpdateReopen" xml:space="preserve">
     <value>O YubiVault foi atualizado para a versão {0}. Abra-o de novo para usar a nova versão.</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Configurações</value>
+  </data>
+  <data name="PickVaultTitle" xml:space="preserve">
+    <value>Escolha um cofre para desbloquear</value>
+  </data>
+  <data name="PickVaultDetail" xml:space="preserve">
+    <value>Abra um arquivo .yvault, escolha um dos cofres recentes ou crie um novo.</value>
+  </data>
 </root>

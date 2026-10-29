@@ -447,4 +447,13 @@ Si mueves YubiVault, vuelve a hacer clic en esta opción desde la nueva ubicaci�
   <data name="UpdateReopen" xml:space="preserve">
     <value>YubiVault se actualizó a la versión {0}. Ábrelo de nuevo para usar la nueva versión.</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Configuración</value>
+  </data>
+  <data name="PickVaultTitle" xml:space="preserve">
+    <value>Elige una bóveda para desbloquear</value>
+  </data>
+  <data name="PickVaultDetail" xml:space="preserve">
+    <value>Abre un archivo .yvault, elige una de tus bóvedas recientes o crea una nueva.</value>
+  </data>
 </root>

@@ -447,4 +447,13 @@
   <data name="UpdateReopen" xml:space="preserve">
     <value>YubiVault 已更新至 {0} 版。請重新開啟以使用新版本。</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="PickVaultTitle" xml:space="preserve">
+    <value>選擇要解鎖的保險庫</value>
+  </data>
+  <data name="PickVaultDetail" xml:space="preserve">
+    <value>開啟 .yvault 檔案，從最近的保險庫中選擇一個，或建立新的保險庫。</value>
+  </data>
 </root>

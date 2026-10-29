@@ -447,4 +447,13 @@ YubiVault を移動した場合は、新しい場所からもう一度この項�
   <data name="UpdateReopen" xml:space="preserve">
     <value>YubiVault はバージョン {0} に更新されました。新しいバージョンを使うには、もう一度開いてください。</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="PickVaultTitle" xml:space="preserve">
+    <value>ロックを解除する金庫を選択</value>
+  </data>
+  <data name="PickVaultDetail" xml:space="preserve">
+    <value>.yvault ファイルを開くか、最近使った金庫を選ぶか、新しく作成してください。</value>
+  </data>
 </root>

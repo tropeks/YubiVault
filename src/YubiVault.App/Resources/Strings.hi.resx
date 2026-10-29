@@ -447,4 +447,13 @@
   <data name="UpdateReopen" xml:space="preserve">
     <value>YubiVault को संस्करण {0} में अपडेट किया गया। नया संस्करण इस्तेमाल करने के लिए इसे फिर से खोलें।</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>सेटिंग्स</value>
+  </data>
+  <data name="PickVaultTitle" xml:space="preserve">
+    <value>अनलॉक करने के लिए वॉल्ट चुनें</value>
+  </data>
+  <data name="PickVaultDetail" xml:space="preserve">
+    <value>.yvault फ़ाइल खोलें, अपने हाल के वॉल्ट में से एक चुनें या नया बनाएँ।</value>
+  </data>
 </root>
