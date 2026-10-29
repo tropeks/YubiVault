@@ -12,7 +12,7 @@ Set these once under **Settings → Secrets and variables → Actions**. The rel
 | Secret | What it is |
 | --- | --- |
 | `UPDATE_SIGNING_KEY` | The Ed25519 private key that signs `SHA256SUMS.txt`, in PEM form (`-----BEGIN PRIVATE KEY-----` …). Its public half is built into the apps (`UpdateChecker.ReleasePublicKey`) and kept in [update-public-key.pem](update-public-key.pem). |
-| `ANDROID_KEYSTORE_BASE64` | The Android release keystore (PKCS#12, alias `yubivault`), base64-encoded on one line. |
+| `ANDROID_KEYSTORE_BASE64` | The Android release keystore (PKCS#12, alias `yubivault`), base64-encoded. On Windows, `[Convert]::ToBase64String([IO.File]::ReadAllBytes("$PWD\yubivault-release.keystore")) \| Set-Clipboard` puts it on the clipboard; on Linux or macOS, `base64 < yubivault-release.keystore`. |
 | `ANDROID_KEYSTORE_PASSWORD` | The password of that keystore and of its key. |
 
 Keep an offline copy of both keys. If the update key is lost, installed apps stop accepting updates until

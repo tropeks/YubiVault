@@ -146,8 +146,13 @@ jobs:
           IFS=. read -r major minor patch <<< "$version"
           # The version code only ever grows: 1.2.3 → 10203.
           code=$((major * 10000 + minor * 100 + patch))
+          # A line break pasted after the password is not part of it (apksigner would reject it).
+          export ANDROID_KEYSTORE_PASSWORD="$(printf '%s' "$ANDROID_KEYSTORE_PASSWORD" | tr -d '\r\n')"
           keystore="$RUNNER_TEMP/release.keystore"
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$keystore"
+          # Spaces and line breaks picked up when pasting the secret are not part of the key.
+          if ! printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d ' \r\n\t' | base64 -d > "$keystore"; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 is not valid base64 (see docs/releasing.md)." && exit 1
+          fi
           dotnet publish src/YubiVault.Android -c Release -p:AndroidSdkDirectory=$ANDROID_HOME \
             -p:ApplicationDisplayVersion=$version -p:ApplicationVersion=$code \
             -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$keystore" -p:AndroidSigningKeyAlias=yubivault \
@@ -185,6 +190,10 @@ jobs:
           if [ -z "$UPDATE_SIGNING_KEY" ]; then
             echo "::error::The UPDATE_SIGNING_KEY secret is not set." && exit 1
           fi
+          case "$UPDATE_SIGNING_KEY" in
+            *"-----BEGIN PRIVATE KEY-----"*) ;;
+            *) echo "::error::UPDATE_SIGNING_KEY must hold the PEM file's contents, starting with -----BEGIN PRIVATE KEY-----." && exit 1 ;;
+          esac
           key="$RUNNER_TEMP/update-signing-key.pem"
           printf '%s\n' "$UPDATE_SIGNING_KEY" > "$key"
           openssl pkeyutl -sign -inkey "$key" -rawin -in SHA256SUMS.txt -out SHA256SUMS.txt.sig
