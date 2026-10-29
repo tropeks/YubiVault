@@ -40,17 +40,18 @@ static class FileAssociation
         : OperatingSystem.IsLinux() ? IsRegisteredLinux()
         : true;
 
-    public static void Register()
+    /// <summary>Registers this executable, or <paramref name="exe"/> (on Windows, after an update renamed it).</summary>
+    public static void Register(string? exe = null)
     {
         if (OperatingSystem.IsWindows())
-            RegisterWindows();
+            RegisterWindows(exe ?? ExePath);
         else if (OperatingSystem.IsLinux())
             RegisterLinux();
     }
 
     // ---- Windows ----
 
-    static string WindowsOpenCommand => $"\"{ExePath}\" \"%1\"";
+    static string WindowsOpenCommand(string exe) => $"\"{exe}\" \"%1\"";
 
     static string WindowsFileIconPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "YubiVault", "yubivault-file.ico");
@@ -63,11 +64,11 @@ static class FileAssociation
         using var icon = Registry.CurrentUser.OpenSubKey(ClassesKey + ProgId + @"\DefaultIcon");
         return extension?.GetValue(null) as string == ProgId
             && icon?.GetValue(null) as string == WindowsFileIconPath && File.Exists(WindowsFileIconPath)
-            && string.Equals(command?.GetValue(null) as string, WindowsOpenCommand, StringComparison.OrdinalIgnoreCase);
+            && string.Equals(command?.GetValue(null) as string, WindowsOpenCommand(ExePath), StringComparison.OrdinalIgnoreCase);
     }
 
     [SupportedOSPlatform("windows")]
-    static void RegisterWindows()
+    static void RegisterWindows(string exe)
     {
         CopyAsset("yubivault-file.ico", WindowsFileIconPath);
         using (var extension = Registry.CurrentUser.CreateSubKey(ClassesKey + Vault.FileExtension))
@@ -78,7 +79,7 @@ static class FileAssociation
             using (var icon = progId.CreateSubKey("DefaultIcon"))
                 icon.SetValue(null, WindowsFileIconPath);
             using (var command = progId.CreateSubKey(@"shell\open\command"))
-                command.SetValue(null, WindowsOpenCommand);
+                command.SetValue(null, WindowsOpenCommand(exe));
         }
         SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, IntPtr.Zero, IntPtr.Zero);
     }
