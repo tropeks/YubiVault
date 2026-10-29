@@ -36,7 +36,7 @@ public partial class App : Application
             Dispatcher.UIThread.UnhandledException += (_, e) =>
             {
                 e.Handled = true;
-                _ = Dialogs.AlertAsync(window, YubiVault.App.Resources.Strings.UnexpectedError, e.Exception.Message);
+                _ = Dialogs.AlertAsync(window, YubiVault.App.Resources.Strings.UnexpectedError, Dialogs.Describe(e.Exception));
             };
         }
         base.OnFrameworkInitializationCompleted();

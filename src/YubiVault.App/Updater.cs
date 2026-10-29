@@ -156,9 +156,9 @@ static class Updater
                     Process.Start(new ProcessStartInfo(ExePath) { UseShellExecute = false });
                 return null;
             }
-            catch (Exception e) when (e is System.ComponentModel.Win32Exception or IOException or InvalidOperationException)
+            catch (Exception e)
             {
-                error = e.Message;
+                error = Dialogs.Describe(e);
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
         }

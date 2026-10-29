@@ -92,7 +92,7 @@ public partial class MainWindow : Window
         catch (Exception e)
         {
             // Whatever went wrong, the running copy is still in place (or was put back).
-            await Dialogs.AlertAsync(this, Strings.UpdateFailed, e.Message);
+            await Dialogs.AlertAsync(this, Strings.UpdateFailed, Dialogs.Describe(e));
             return;
         }
         if (await Updater.RestartAsync() is { } error)
