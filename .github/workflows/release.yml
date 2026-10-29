@@ -147,7 +147,10 @@ jobs:
           # The version code only ever grows: 1.2.3 → 10203.
           code=$((major * 10000 + minor * 100 + patch))
           keystore="$RUNNER_TEMP/release.keystore"
-          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$keystore"
+          # Spaces and line breaks picked up when pasting the secret are not part of the key.
+          if ! printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d ' \r\n\t' | base64 -d > "$keystore"; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 is not valid base64 (see docs/releasing.md)." && exit 1
+          fi
           dotnet publish src/YubiVault.Android -c Release -p:AndroidSdkDirectory=$ANDROID_HOME \
             -p:ApplicationDisplayVersion=$version -p:ApplicationVersion=$code \
             -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$keystore" -p:AndroidSigningKeyAlias=yubivault \
