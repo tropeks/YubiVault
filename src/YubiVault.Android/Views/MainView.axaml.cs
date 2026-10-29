@@ -94,9 +94,9 @@ public partial class MainView : UserControl
             await RunAsync(Strings.UpdateDownloading, () => _updates.DownloadAsync(file, apk));
             Platform.InstallPackage(apk);
         }
-        catch (Exception e) when (e is HttpRequestException or TaskCanceledException or UpdateException or IOException
-                                      or UnauthorizedAccessException or Java.Lang.Exception)
+        catch (Exception e)
         {
+            // The installed app is untouched until the system installer runs.
             await AlertAsync(Strings.UpdateFailed, e.Message);
         }
     }

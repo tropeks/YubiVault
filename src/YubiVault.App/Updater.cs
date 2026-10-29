@@ -30,6 +30,13 @@ static class Updater
 
     static string ExePath => Environment.ProcessPath ?? "";
 
+    /// <summary>The program to start after an update; the Windows .exe changes name with the version.</summary>
+    static string _restartPath = "";
+
+    /// <summary>The portable Windows .exe as released, e.g. YubiVault-1.2.3-win-x64.exe.</summary>
+    static readonly System.Text.RegularExpressions.Regex VersionedExe =
+        new(@"^YubiVault-\d+\.\d+\.\d+-win-x64\.exe$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
     /// <summary>The bundle around the running macOS executable (…/YubiVault.app).</summary>
     static string MacBundle => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(ExePath)!, "..", ".."));
 
@@ -77,6 +84,12 @@ static class Updater
             if (Install is Kind.WindowsExe or Kind.LinuxBinary)
             {
                 File.Delete(ExePath + OldSuffix);
+                // An update to a renamed .exe leaves the previous version's name behind.
+                foreach (string old in Directory.EnumerateFiles(Path.GetDirectoryName(ExePath)!, "YubiVault-*-win-x64.exe" + OldSuffix))
+                {
+                    if (VersionedExe.IsMatch(Path.GetFileNameWithoutExtension(old)))
+                        File.Delete(old);
+                }
                 File.Delete(Path.Combine(Path.GetDirectoryName(ExePath)!, CliName + OldSuffix));
             }
             else if (Install == Kind.MacApp)
@@ -100,6 +113,7 @@ static class Updater
     /// </summary>
     public static async Task InstallAsync(UpdateChecker checker, UpdateFile file, IProgress<double> progress)
     {
+        _restartPath = ExePath;
         string work = Directory.CreateTempSubdirectory("yubivault-update-").FullName;
         try
         {
@@ -108,7 +122,7 @@ static class Updater
             switch (Install)
             {
                 case Kind.WindowsExe:
-                    ReplaceFile(download, ExePath);
+                    InstallWindowsExe(download, file.Name);
                     break;
                 case Kind.LinuxBinary:
                     InstallFromTarball(download, work);
@@ -138,13 +152,70 @@ static class Updater
         }
     }
 
-    /// <summary>Starts the updated app. The caller then closes this one.</summary>
-    public static void Restart()
+    /// <summary>
+    /// Starts the updated app; the caller then closes this one. Right after it is written, the new program
+    /// can stay locked for a few seconds while the antivirus scans it, so this retries for a while.
+    /// </summary>
+    /// <returns>Null once started; otherwise why it could not be, and the user opens it again by hand.</returns>
+    public static async Task<string?> RestartAsync()
     {
-        if (Install == Kind.MacApp)
-            Process.Start("open", ["-n", MacBundle]);
-        else
-            Process.Start(new ProcessStartInfo(ExePath) { UseShellExecute = false });
+        string? error = null;
+        for (int attempt = 0; attempt < 10; attempt++)
+        {
+            try
+            {
+                if (Install == Kind.MacApp)
+                    Process.Start("open", ["-n", MacBundle]);
+                else
+                    Process.Start(new ProcessStartInfo(_restartPath) { UseShellExecute = false });
+                return null;
+            }
+            catch (Exception e)
+            {
+                error = Dialogs.Describe(e);
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+        }
+        return error;
+    }
+
+    /// <summary>
+    /// Installs the new .exe. Kept under its released name (YubiVault-1.2.3-win-x64.exe), the file
+    /// takes the new version's name, so the name never shows an old version; .yvault files that opened
+    /// with the old one now open with the new one. A copy the user renamed keeps its name.
+    /// </summary>
+    static void InstallWindowsExe(string download, string releasedName)
+    {
+        string current = ExePath;
+        if (!VersionedExe.IsMatch(Path.GetFileName(current)))
+        {
+            ReplaceFile(download, current);
+            return;
+        }
+        string target = Path.Combine(Path.GetDirectoryName(current)!, releasedName);
+        if (string.Equals(target, current, StringComparison.OrdinalIgnoreCase))
+        {
+            ReplaceFile(download, current);
+            return;
+        }
+        bool associated = FileAssociation.IsRegistered;
+        string staged = target + ".new";
+        File.Copy(download, staged, overwrite: true);
+        File.Move(staged, target, overwrite: true);
+        // The running program can't be deleted, but it can be renamed; the next start removes it.
+        File.Move(current, current + OldSuffix, overwrite: true);
+        _restartPath = target;
+        if (associated)
+        {
+            try
+            {
+                FileAssociation.Register(target);
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or System.Security.SecurityException)
+            {
+                // The new version offers to associate the files again.
+            }
+        }
     }
 
     /// <summary>

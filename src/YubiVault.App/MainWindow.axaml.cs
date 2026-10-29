@@ -89,14 +89,14 @@ public partial class MainWindow : Window
             await RunAsync(Strings.UpdateDownloading, () => Updater.InstallAsync(_updates, file,
                 new Progress<double>(p => progress.Report($"{p:P0}"))).GetAwaiter().GetResult());
         }
-        catch (Exception e) when (e is HttpRequestException or TaskCanceledException or UpdateException or IOException
-                                      or UnauthorizedAccessException or InvalidDataException or InvalidOperationException
-                                      or System.ComponentModel.Win32Exception)
+        catch (Exception e)
         {
-            await Dialogs.AlertAsync(this, Strings.UpdateFailed, e.Message);
+            // Whatever went wrong, the running copy is still in place (or was put back).
+            await Dialogs.AlertAsync(this, Strings.UpdateFailed, Dialogs.Describe(e));
             return;
         }
-        Updater.Restart();
+        if (await Updater.RestartAsync() is { } error)
+            await Dialogs.AlertAsync(this, "YubiVault", Localization.Format(Strings.UpdateReopen, release.VersionText) + "\n\n" + error);
         Close();
     }
 

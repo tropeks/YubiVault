@@ -472,4 +472,7 @@ Replace existing files?</value>
   <data name="CheckForUpdates" xml:space="preserve">
     <value>Check for updates automatically</value>
   </data>
+  <data name="UpdateReopen" xml:space="preserve">
+    <value>YubiVault was updated to {0}. Open it again to use the new version.</value>
+  </data>
 </root>

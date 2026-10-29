@@ -16,6 +16,18 @@ static class Dialogs
     /// <summary>Closes the dialog that is showing, if any (e.g. when the vault locks).</summary>
     public static void CloseAll() => _open?.Hide();
 
+    /// <summary>
+    /// What to tell the user about <paramref name="e"/>: its message, and, when that says nothing,
+    /// its type and code, so a report still shows what went wrong.
+    /// </summary>
+    public static string Describe(Exception e)
+    {
+        var inner = e is AggregateException { InnerException: { } first } ? first : e;
+        string message = inner.Message.Trim();
+        string what = $"{inner.GetType().Name} (0x{inner.HResult:X8})";
+        return message.Length == 0 ? what : $"{message}\n\n{what}";
+    }
+
     public static Task AlertAsync(TopLevel owner, string title, string message) =>
         ShowAsync(owner, new ContentDialog
         {

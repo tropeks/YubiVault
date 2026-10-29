@@ -444,4 +444,7 @@ Substituir os arquivos existentes?</value>
   <data name="CheckForUpdates" xml:space="preserve">
     <value>Procurar atualizações automaticamente</value>
   </data>
+  <data name="UpdateReopen" xml:space="preserve">
+    <value>O YubiVault foi atualizado para a versão {0}. Abra-o de novo para usar a nova versão.</value>
+  </data>
 </root>

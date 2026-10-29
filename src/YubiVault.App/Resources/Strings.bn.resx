@@ -444,4 +444,7 @@ YubiVault অন্য জায়গায় সরালে, নতুন �
   <data name="CheckForUpdates" xml:space="preserve">
     <value>স্বয়ংক্রিয়ভাবে আপডেট খুঁজুন</value>
   </data>
+  <data name="UpdateReopen" xml:space="preserve">
+    <value>YubiVault সংস্করণ {0}-এ আপডেট হয়েছে। নতুন সংস্করণ ব্যবহার করতে এটি আবার খুলুন।</value>
+  </data>
 </root>

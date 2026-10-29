@@ -444,4 +444,7 @@ Si mueves YubiVault, vuelve a hacer clic en esta opción desde la nueva ubicaci�
   <data name="CheckForUpdates" xml:space="preserve">
     <value>Buscar actualizaciones automáticamente</value>
   </data>
+  <data name="UpdateReopen" xml:space="preserve">
+    <value>YubiVault se actualizó a la versión {0}. Ábrelo de nuevo para usar la nueva versión.</value>
+  </data>
 </root>
