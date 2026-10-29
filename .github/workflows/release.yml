@@ -146,6 +146,8 @@ jobs:
           IFS=. read -r major minor patch <<< "$version"
           # The version code only ever grows: 1.2.3 → 10203.
           code=$((major * 10000 + minor * 100 + patch))
+          # A line break pasted after the password is not part of it (apksigner would reject it).
+          export ANDROID_KEYSTORE_PASSWORD="$(printf '%s' "$ANDROID_KEYSTORE_PASSWORD" | tr -d '\r\n')"
           keystore="$RUNNER_TEMP/release.keystore"
           # Spaces and line breaks picked up when pasting the secret are not part of the key.
           if ! printf '%s' "$ANDROID_KEYSTORE_BASE64" | tr -d ' \r\n\t' | base64 -d > "$keystore"; then
