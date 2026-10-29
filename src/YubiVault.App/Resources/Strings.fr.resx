@@ -447,4 +447,13 @@ Remplacer les fichiers existants ?</value>
   <data name="UpdateReopen" xml:space="preserve">
     <value>YubiVault a été mis à jour vers la version {0}. Rouvrez-le pour utiliser la nouvelle version.</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Paramètres</value>
+  </data>
+  <data name="PickVaultTitle" xml:space="preserve">
+    <value>Choisissez un coffre à déverrouiller</value>
+  </data>
+  <data name="PickVaultDetail" xml:space="preserve">
+    <value>Ouvrez un fichier .yvault, choisissez l’un de vos coffres récents ou créez-en un nouveau.</value>
+  </data>
 </root>

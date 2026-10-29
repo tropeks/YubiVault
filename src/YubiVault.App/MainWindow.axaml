@@ -27,12 +27,16 @@
 
     <Panel>
         <DockPanel>
-            <!-- Our own title bar on Windows and macOS, drawn on the window's Mica or vibrancy surface. -->
-            <Panel x:Name="TitleBar" DockPanel.Dock="Top" Height="40" IsVisible="False" IsHitTestVisible="False">
+            <!-- Our own title bar on Windows and macOS, drawn on the window's Mica or vibrancy surface. It stays
+                 left-to-right: the system's window buttons do not move in right-to-left languages. -->
+            <Panel x:Name="TitleBar" DockPanel.Dock="Top" Height="40" IsVisible="False" IsHitTestVisible="False"
+                   FlowDirection="LeftToRight">
                 <StackPanel x:Name="TitleContent" Orientation="Horizontal" Spacing="10" Margin="16,0"
                             VerticalAlignment="Center">
                     <Image Source="/Assets/yubivault.png" Width="16" Height="16" />
                     <TextBlock Text="YubiVault" FontSize="12" VerticalAlignment="Center" />
+                    <TextBlock x:Name="VersionText" FontSize="12" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
                 </StackPanel>
             </Panel>
             <ContentControl x:Name="Host" />

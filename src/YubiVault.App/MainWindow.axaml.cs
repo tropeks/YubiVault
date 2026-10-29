@@ -60,6 +60,10 @@ public partial class MainWindow : Window
     /// </summary>
     void SetUpChrome()
     {
+        // The version shows at the top on every system: in our title bar, or in the system's on Linux.
+        var version = typeof(MainWindow).Assembly.GetName().Version ?? new Version(0, 0, 0);
+        VersionText.Text = $"v{version.Major}.{version.Minor}.{Math.Max(version.Build, 0)}";
+        Title = "YubiVault " + VersionText.Text;
         if (OperatingSystem.IsWindows() || OperatingSystem.IsMacOS())
         {
             ExtendClientAreaToDecorationsHint = true;

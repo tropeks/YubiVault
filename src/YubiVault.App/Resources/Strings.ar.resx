@@ -447,4 +447,13 @@
   <data name="UpdateReopen" xml:space="preserve">
     <value>تم تحديث YubiVault إلى الإصدار {0}. افتحه مرة أخرى لاستخدام الإصدار الجديد.</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>الإعدادات</value>
+  </data>
+  <data name="PickVaultTitle" xml:space="preserve">
+    <value>اختر خزنة لفتحها</value>
+  </data>
+  <data name="PickVaultDetail" xml:space="preserve">
+    <value>افتح ملف .yvault أو اختر إحدى خزائنك الأخيرة أو أنشئ خزنة جديدة.</value>
+  </data>
 </root>

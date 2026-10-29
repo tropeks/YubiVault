@@ -447,4 +447,13 @@ YubiVault অন্য জায়গায় সরালে, নতুন �
   <data name="UpdateReopen" xml:space="preserve">
     <value>YubiVault সংস্করণ {0}-এ আপডেট হয়েছে। নতুন সংস্করণ ব্যবহার করতে এটি আবার খুলুন।</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>সেটিংস</value>
+  </data>
+  <data name="PickVaultTitle" xml:space="preserve">
+    <value>আনলক করার জন্য একটি ভল্ট বেছে নিন</value>
+  </data>
+  <data name="PickVaultDetail" xml:space="preserve">
+    <value>একটি .yvault ফাইল খুলুন, সাম্প্রতিক ভল্টগুলোর একটি বেছে নিন অথবা নতুন একটি তৈরি করুন।</value>
+  </data>
 </root>

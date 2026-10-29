@@ -4,85 +4,95 @@
              xmlns:r="using:YubiVault.App.Resources"
              xmlns:p="using:YubiVault.App.Pages"
              x:Class="YubiVault.App.Pages.KeysPage">
-    <Grid Margin="24,16,24,20" RowDefinitions="Auto,Auto,*,Auto,Auto,Auto">
-        <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,0,0,12">
-            <Button Classes="transparent" Padding="6" Click="OnBack" ToolTip.Tip="{x:Static r:Strings.Back}">
-                <ui:SymbolIcon Symbol="Back" />
+    <DockPanel>
+        <Grid DockPanel.Dock="Top" Margin="16,4,24,14" ColumnDefinitions="Auto,Auto,*">
+            <Button Classes="toolbar" Padding="8" VerticalAlignment="Center" Click="OnBack"
+                    ToolTip.Tip="{x:Static r:Strings.Back}">
+                <ui:SymbolIcon Symbol="Back" FontSize="16" />
             </Button>
-            <PathIcon Data="{StaticResource KeyIcon}" Width="22" Height="22" VerticalAlignment="Center"
-                      Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}" />
-            <TextBlock Text="{x:Static r:Strings.KeysTitle}" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
-        </StackPanel>
+            <Border Grid.Column="1" Classes="tile" Width="44" Height="44" Margin="8,0,0,0">
+                <PathIcon Data="{StaticResource KeyIcon}" Width="22" Height="22" />
+            </Border>
+            <StackPanel Grid.Column="2" Margin="14,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="{x:Static r:Strings.KeysTitle}" Classes="title" />
+                <TextBlock Classes="caption" TextWrapping="Wrap" Text="{x:Static r:Strings.KeysIntro}" />
+            </StackPanel>
+        </Grid>
 
-        <TextBlock Grid.Row="1" TextWrapping="Wrap" Margin="0,0,0,12" Text="{x:Static r:Strings.KeysIntro}"
-                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+        <Border Classes="layer" BorderThickness="0,1,0,0" CornerRadius="0">
+            <Grid Margin="16,16,16,16" RowDefinitions="*,Auto,Auto,Auto">
+                <Border Classes="card">
+                    <Grid RowDefinitions="Auto,Auto,*">
+                        <Grid Margin="20,10,20,8" ColumnDefinitions="*,150,110">
+                            <TextBlock Text="{x:Static r:Strings.ColumnKey}" Classes="header" Margin="40,0,0,0" />
+                            <TextBlock Grid.Column="1" Text="{x:Static r:Strings.ColumnType}" Classes="header" />
+                            <TextBlock Grid.Column="2" Text="{x:Static r:Strings.ColumnAdded}" Classes="header" />
+                        </Grid>
+                        <Rectangle Grid.Row="1" Height="1" Fill="{DynamicResource DividerStrokeColorDefaultBrush}" />
+                        <ListBox x:Name="SlotsList" Grid.Row="2" Classes="rows" Background="Transparent" Padding="0,4"
+                                 SelectionMode="Single" SelectionChanged="OnSelectionChanged">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="p:SlotRow">
+                                    <Grid ColumnDefinitions="*,150,110" Margin="4,0,0,0">
+                                        <StackPanel Orientation="Horizontal" Spacing="12">
+                                            <Border Classes="tile" Width="28" Height="28" CornerRadius="6">
+                                                <PathIcon Data="{StaticResource KeyIcon}" Width="16" Height="16" />
+                                            </Border>
+                                            <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding Kind}" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Added}" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
 
-        <Border Grid.Row="2" CornerRadius="8" BorderThickness="1"
-                Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}">
-            <Grid RowDefinitions="Auto,*">
-                <Grid Margin="16,8,16,6" ColumnDefinitions="*,150,110">
-                    <TextBlock Text="{x:Static r:Strings.ColumnKey}" FontWeight="SemiBold"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                    <TextBlock Grid.Column="1" Text="{x:Static r:Strings.ColumnType}" FontWeight="SemiBold"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                    <TextBlock Grid.Column="2" Text="{x:Static r:Strings.ColumnAdded}" FontWeight="SemiBold"
-                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                </Grid>
-                <ListBox x:Name="SlotsList" Grid.Row="1" Background="Transparent" SelectionMode="Single"
-                         SelectionChanged="OnSelectionChanged">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="p:SlotRow">
-                            <Grid ColumnDefinitions="*,150,110">
-                                <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" />
-                                <TextBlock Grid.Column="1" Text="{Binding Kind}" />
-                                <TextBlock Grid.Column="2" Text="{Binding Added}" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                <WrapPanel Grid.Row="1" Margin="0,12,0,0">
+                    <Button Margin="0,0,8,8" Click="OnAddSecurityKey">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ui:SymbolIcon Symbol="Add" />
+                            <TextBlock Text="{x:Static r:Strings.AddSecurityKey}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Margin="0,0,8,8" Click="OnAddOtpKey">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ui:SymbolIcon Symbol="Add" />
+                            <TextBlock Text="{x:Static r:Strings.AddOtpKey}" />
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="RemoveButton" Margin="0,0,8,8" IsEnabled="False" Click="OnRemove">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ui:SymbolIcon Symbol="Delete" />
+                            <TextBlock Text="{x:Static r:Strings.Remove}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Margin="0,0,8,8" Click="OnNewRecoveryCode">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <ui:SymbolIcon Symbol="Permissions" />
+                            <TextBlock Text="{x:Static r:Strings.NewRecoveryCode}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Margin="0,0,8,8" Click="OnCreateHiddenVault">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <PathIcon Data="{StaticResource LockClosedIcon}" Width="16" Height="16" />
+                            <TextBlock Text="{x:Static r:Strings.CreateHiddenVault}" />
+                        </StackPanel>
+                    </Button>
+                </WrapPanel>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,0" Spacing="10">
+                    <TextBlock Text="{x:Static r:Strings.LockAfter}" VerticalAlignment="Center" />
+                    <ComboBox x:Name="AutoLockCombo" MinWidth="160" SelectionChanged="OnAutoLockChanged" />
+                </StackPanel>
+
+                <ui:InfoBar x:Name="ErrorBar" Grid.Row="3" Severity="Error" IsClosable="True" Margin="0,12,0,0"
+                            Title="{x:Static r:Strings.ErrorTitle}" />
             </Grid>
         </Border>
-
-        <WrapPanel Grid.Row="3" Margin="0,12,0,0">
-            <Button Margin="0,0,8,8" Click="OnAddSecurityKey">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <ui:SymbolIcon Symbol="Add" />
-                    <TextBlock Text="{x:Static r:Strings.AddSecurityKey}" />
-                </StackPanel>
-            </Button>
-            <Button Margin="0,0,8,8" Click="OnAddOtpKey">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <ui:SymbolIcon Symbol="Add" />
-                    <TextBlock Text="{x:Static r:Strings.AddOtpKey}" />
-                </StackPanel>
-            </Button>
-            <Button x:Name="RemoveButton" Margin="0,0,8,8" IsEnabled="False" Click="OnRemove">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <ui:SymbolIcon Symbol="Delete" />
-                    <TextBlock Text="{x:Static r:Strings.Remove}" />
-                </StackPanel>
-            </Button>
-            <Button Margin="0,0,8,8" Click="OnNewRecoveryCode">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <ui:SymbolIcon Symbol="Permissions" />
-                    <TextBlock Text="{x:Static r:Strings.NewRecoveryCode}" />
-                </StackPanel>
-            </Button>
-            <Button Margin="0,0,8,8" Click="OnCreateHiddenVault">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <PathIcon Data="{StaticResource LockClosedIcon}" Width="16" Height="16" />
-                    <TextBlock Text="{x:Static r:Strings.CreateHiddenVault}" />
-                </StackPanel>
-            </Button>
-        </WrapPanel>
-
-        <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,8,0,0" Spacing="10">
-            <TextBlock Text="{x:Static r:Strings.LockAfter}" VerticalAlignment="Center" />
-            <ComboBox x:Name="AutoLockCombo" MinWidth="160" SelectionChanged="OnAutoLockChanged" />
-        </StackPanel>
-
-        <ui:InfoBar x:Name="ErrorBar" Grid.Row="5" Severity="Error" IsClosable="True" Margin="0,12,0,0"
-                    Title="{x:Static r:Strings.ErrorTitle}" />
-    </Grid>
+    </DockPanel>
 </UserControl>
