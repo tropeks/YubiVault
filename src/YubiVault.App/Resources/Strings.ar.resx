@@ -426,4 +426,22 @@
   <data name="InvalidSize" xml:space="preserve">
     <value>أدخل حجماً لا يقل عن 1 ميغابايت.</value>
   </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>يتوفر YubiVault {0}.</value>
+  </data>
+  <data name="UpdateInstall" xml:space="preserve">
+    <value>حدِّث الآن</value>
+  </data>
+  <data name="UpdateWhatsNew" xml:space="preserve">
+    <value>ما الجديد</value>
+  </data>
+  <data name="UpdateDownloading" xml:space="preserve">
+    <value>جارٍ تنزيل التحديث…</value>
+  </data>
+  <data name="UpdateFailed" xml:space="preserve">
+    <value>تعذّر تثبيت التحديث</value>
+  </data>
+  <data name="CheckForUpdates" xml:space="preserve">
+    <value>التحقق من التحديثات تلقائيًا</value>
+  </data>
 </root>

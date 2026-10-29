@@ -3,6 +3,9 @@
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
     <uses-feature android:name="android.hardware.nfc" android:required="false" />
     <uses-permission android:name="android.permission.NFC" />
+    <!-- Only to look for and download signed updates from GitHub Releases; vaults never leave the phone through the app. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <application android:label="YubiVault" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher_round" android:allowBackup="false">
         <provider android:name="androidx.core.content.FileProvider"
                   android:authorities="io.github.tropeks.yubivault.files"

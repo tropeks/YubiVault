@@ -426,4 +426,22 @@ Si mueves YubiVault, vuelve a hacer clic en esta opción desde la nueva ubicaci�
   <data name="InvalidSize" xml:space="preserve">
     <value>Escribe un tamaño de al menos 1 MB.</value>
   </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>YubiVault {0} está disponible.</value>
+  </data>
+  <data name="UpdateInstall" xml:space="preserve">
+    <value>Actualizar ahora</value>
+  </data>
+  <data name="UpdateWhatsNew" xml:space="preserve">
+    <value>Novedades</value>
+  </data>
+  <data name="UpdateDownloading" xml:space="preserve">
+    <value>Descargando la actualización…</value>
+  </data>
+  <data name="UpdateFailed" xml:space="preserve">
+    <value>No se pudo instalar la actualización</value>
+  </data>
+  <data name="CheckForUpdates" xml:space="preserve">
+    <value>Buscar actualizaciones automáticamente</value>
+  </data>
 </root>

@@ -11,6 +11,7 @@ using YubiVault.Android.Platform;
 using YubiVault.Android.Resources;
 using YubiVault.Core;
 using YubiVault.Core.Keys;
+using YubiVault.Core.Updates;
 using YubiVault.Fido2;
 
 namespace YubiVault.Android.Views;
@@ -46,6 +47,57 @@ public partial class MainView : UserControl
                 OpenFromOtherApp(document);
             android.Backgrounded += OnBackgrounded;
             android.Foregrounded += OnForegrounded;
+        }
+        if (UpdateSetting.CheckAutomatically)
+            _ = CheckForUpdateAsync();
+    }
+
+    // ---- Updates ----
+
+    readonly UpdateChecker _updates = new(UpdateChecker.CreateHttpClient());
+
+    /// <summary>A newer signed release with an APK, once the start-up check found one.</summary>
+    internal UpdateRelease? AvailableUpdate { get; private set; }
+
+    static string ApkName(UpdateRelease release) => $"YubiVault-{release.VersionText}-android.apk";
+
+    async Task CheckForUpdateAsync()
+    {
+        try
+        {
+            var release = await _updates.FindNewerAsync(Platform.AppVersion);
+            if (release is null || !release.Files.ContainsKey(ApkName(release)))
+                return;
+            AvailableUpdate = release;
+            if (PageHost.Content is StartPage start)
+                start.ShowUpdate(release);
+        }
+        catch (Exception e) when (e is HttpRequestException or TaskCanceledException or UpdateException
+                                      or System.Text.Json.JsonException)
+        {
+            // Offline, rate-limited or a release without a valid signature: simply no update offered.
+            System.Diagnostics.Debug.WriteLine($"Update check: {e.Message}");
+        }
+    }
+
+    /// <summary>Downloads and verifies the APK, then hands it to the system installer.</summary>
+    internal async Task InstallUpdateAsync()
+    {
+        if (AvailableUpdate is not { } release || !release.Files.TryGetValue(ApkName(release), out var file))
+            return;
+        try
+        {
+            string folder = Platform.UpdateFolder;
+            foreach (string old in Directory.GetFiles(folder))
+                File.Delete(old);
+            string apk = Path.Combine(folder, file.Name);
+            await RunAsync(Strings.UpdateDownloading, () => _updates.DownloadAsync(file, apk));
+            Platform.InstallPackage(apk);
+        }
+        catch (Exception e) when (e is HttpRequestException or TaskCanceledException or UpdateException or IOException
+                                      or UnauthorizedAccessException or Java.Lang.Exception)
+        {
+            await AlertAsync(Strings.UpdateFailed, e.Message);
         }
     }
 

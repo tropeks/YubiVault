@@ -27,6 +27,7 @@ On the desktop each download is a single self-contained program: no installation
 - **Locks itself.** After a few minutes without use, when you lock Windows, and on Android as soon as you leave the app. Decrypted copies of opened files are wiped.
 - **Works like a folder.** Drag files and folders in, double-click to open, extract, rename and delete. `.yvault` files open with YubiVault from Explorer, Finder or the Linux file manager.
 - **Android.** Opens and creates vaults on the phone or on Google Drive, OneDrive and Dropbox, and writes changes straight back. Remembers recent vaults, with a dark or light look and a language choice on the start page.
+- **Signed updates in one click.** At start-up the app looks for a newer release on GitHub and offers it. One click downloads it, checks the release's signature and installs it, then restarts: the portable `.exe` and the Linux binary replace themselves, `.deb` and `.rpm` go through the package tool (asking for the administrator password), the macOS app swaps its bundle, and Android opens the system installer. The check can be turned off on the start page.
 - **11 languages.** English, Chinese (Simplified and Traditional), Hindi, Spanish, French, Arabic, Bengali, Portuguese, Russian and Japanese, chosen automatically or by hand.
 
 <p align="center">
@@ -69,7 +70,7 @@ sudo udevadm control --reload && sudo udevadm trigger
 
 ### Android (preview)
 
-1. Install the APK. For now it is built by every CI run: open the latest successful run under [Actions](../../actions), download the `YubiVault-android` artifact and open the `.apk` on your phone (Android asks you to allow installing apps from that source).
+1. Download `YubiVault-<version>-android.apk` from [Releases](../../releases) on your phone and open it (Android asks you to allow installing apps from that source). Later versions are offered inside the app. If you installed a test build from a CI run before, uninstall it first: those are signed with a different key.
 2. Tap **Open a vault...** and pick a `.yvault` file from the phone, Google Drive, OneDrive or Dropbox, or **Create a new vault...**.
 3. Tap **Unlock**, type the key's PIN, then hold the key flat against the back of the phone, or plug it into the USB port and touch it when it blinks.
 
@@ -81,6 +82,7 @@ The app is not on Google Play yet.
 - **YubiKey 5 OTP mode (optional, desktop).** YubiKey 5 keys can instead use HMAC-SHA1 challenge-response (slot 2), optionally combined with a password.
 - **Key wrapping.** The vault's master key is wrapped once for each security key and once for the recovery code, so keys can be added or removed without re-encrypting anything.
 - **Layered encryption.** Every file goes through AES-256-GCM and then XChaCha20-Poly1305, with independent keys derived by HKDF-SHA256. A future break in one algorithm is not enough to expose your data.
+- **Updates.** Each release carries `SHA256SUMS.txt` and an Ed25519 signature of it, `SHA256SUMS.txt.sig`, made with the project's release key. The apps hold the public key and install only a file whose hash is in a correctly signed list, under a name that carries the new version, so a hacked GitHub account or download mirror cannot push a modified or older build. You can check a download by hand with `openssl pkeyutl -verify -pubin -inkey docs/update-public-key.pem -rawin -in SHA256SUMS.txt -sigfile SHA256SUMS.txt.sig`.
 - **Hidden vault.** It lives in random padding that every vault file can carry, so without its password a vault with a hidden vault looks like one without. This protects against someone who sees one copy of the file, not against someone who compares copies over time, such as a cloud drive's version history.
 
 The file format is described in [docs/format.md](docs/format.md).
@@ -102,7 +104,8 @@ The file format is described in [docs/format.md](docs/format.md).
 5. [x] Windows, Linux and macOS (Avalonia), in 11 languages, with `.deb`, `.rpm` and macOS `.app` packages
 6. [x] Android app, with FIDO2 over NFC and USB
 7. [x] Hidden vaults
-8. [ ] Android APK on Releases, then Google Play
+8. [x] Signed one-click updates on every platform, and the Android APK on Releases
+9. [ ] Google Play
 
 ## Built with
 

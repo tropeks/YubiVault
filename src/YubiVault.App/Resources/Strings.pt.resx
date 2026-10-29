@@ -426,4 +426,22 @@ Substituir os arquivos existentes?</value>
   <data name="InvalidSize" xml:space="preserve">
     <value>Digite um tamanho de pelo menos 1 MB.</value>
   </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>O YubiVault {0} está disponível.</value>
+  </data>
+  <data name="UpdateInstall" xml:space="preserve">
+    <value>Atualizar agora</value>
+  </data>
+  <data name="UpdateWhatsNew" xml:space="preserve">
+    <value>Novidades</value>
+  </data>
+  <data name="UpdateDownloading" xml:space="preserve">
+    <value>Baixando a atualização…</value>
+  </data>
+  <data name="UpdateFailed" xml:space="preserve">
+    <value>Não foi possível instalar a atualização</value>
+  </data>
+  <data name="CheckForUpdates" xml:space="preserve">
+    <value>Procurar atualizações automaticamente</value>
+  </data>
 </root>

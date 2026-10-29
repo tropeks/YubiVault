@@ -454,4 +454,22 @@ Replace existing files?</value>
   <data name="InvalidSize" xml:space="preserve">
     <value>Enter a size of at least 1 MB.</value>
   </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>YubiVault {0} is available.</value>
+  </data>
+  <data name="UpdateInstall" xml:space="preserve">
+    <value>Update now</value>
+  </data>
+  <data name="UpdateWhatsNew" xml:space="preserve">
+    <value>What's new</value>
+  </data>
+  <data name="UpdateDownloading" xml:space="preserve">
+    <value>Downloading the update…</value>
+  </data>
+  <data name="UpdateFailed" xml:space="preserve">
+    <value>The update could not be installed</value>
+  </data>
+  <data name="CheckForUpdates" xml:space="preserve">
+    <value>Check for updates automatically</value>
+  </data>
 </root>

@@ -28,6 +28,9 @@ public sealed class AppSettings
     /// <summary>The interface language, such as "pt" or "zh-Hans"; empty follows the system.</summary>
     public string Language { get; set; } = "";
 
+    /// <summary>Look for a newer signed release on GitHub when the app starts.</summary>
+    public bool CheckForUpdates { get; set; } = true;
+
     public static AppSettings Load()
     {
         try

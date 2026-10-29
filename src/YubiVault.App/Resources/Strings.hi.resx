@@ -426,4 +426,22 @@
   <data name="InvalidSize" xml:space="preserve">
     <value>कम से कम 1 MB का आकार लिखें।</value>
   </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>YubiVault {0} उपलब्ध है।</value>
+  </data>
+  <data name="UpdateInstall" xml:space="preserve">
+    <value>अभी अपडेट करें</value>
+  </data>
+  <data name="UpdateWhatsNew" xml:space="preserve">
+    <value>नया क्या है</value>
+  </data>
+  <data name="UpdateDownloading" xml:space="preserve">
+    <value>अपडेट डाउनलोड हो रहा है…</value>
+  </data>
+  <data name="UpdateFailed" xml:space="preserve">
+    <value>अपडेट इंस्टॉल नहीं हो सका</value>
+  </data>
+  <data name="CheckForUpdates" xml:space="preserve">
+    <value>अपडेट अपने-आप जाँचें</value>
+  </data>
 </root>

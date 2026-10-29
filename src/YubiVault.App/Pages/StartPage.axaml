@@ -3,6 +3,14 @@
              xmlns:ui="using:FluentAvalonia.UI.Controls"
              xmlns:r="using:YubiVault.App.Resources"
              x:Class="YubiVault.App.Pages.StartPage">
+    <DockPanel>
+    <!-- A newer signed release: one click downloads, checks and installs it, then restarts. -->
+    <ui:InfoBar x:Name="UpdateBar" DockPanel.Dock="Top" Severity="Informational" IsClosable="True" Margin="40,16,40,0">
+        <ui:InfoBar.ActionButton>
+            <Button Classes="accent" Content="{x:Static r:Strings.UpdateInstall}" Click="OnInstallUpdate" />
+        </ui:InfoBar.ActionButton>
+        <HyperlinkButton Content="{x:Static r:Strings.UpdateWhatsNew}" Padding="0" Margin="0,0,0,8" Click="OnWhatsNew" />
+    </ui:InfoBar>
     <Grid Margin="40,24,40,32" ColumnDefinitions="*,40,*">
         <!-- Left: brand and actions -->
         <StackPanel Grid.Column="0" VerticalAlignment="Center" MaxWidth="440">
@@ -48,6 +56,8 @@
                 <ui:SymbolIcon Symbol="Globe" VerticalAlignment="Center" />
                 <ComboBox x:Name="LanguageCombo" MinWidth="200" SelectionChanged="OnLanguageChanged" />
             </StackPanel>
+            <CheckBox x:Name="UpdatesCheck" Margin="0,8,0,0" Content="{x:Static r:Strings.CheckForUpdates}"
+                      IsCheckedChanged="OnUpdatesCheckChanged" />
         </StackPanel>
 
         <!-- Right: unlock panel for the chosen vault -->
@@ -91,4 +101,5 @@
             </StackPanel>
         </Border>
     </Grid>
+    </DockPanel>
 </UserControl>
