@@ -6,6 +6,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using YubiVault.Android.Platform;
 using YubiVault.Android.Resources;
+using YubiVault.Core.Updates;
 
 namespace YubiVault.Android.Views;
 
@@ -15,6 +16,7 @@ sealed class StartPage : UserControl
     readonly MainView _main;
     readonly StackPanel _recent = new() { Spacing = 10 };
     readonly TextBlock _recentHeader = Ui.Text(Strings.RecentVaults, 16, FontWeight.SemiBold);
+    readonly ContentControl _updateSlot = new();
 
     public StartPage(MainView main)
     {
@@ -35,6 +37,7 @@ sealed class StartPage : UserControl
         _recentHeader.Margin = new Thickness(4, 20, 0, 0);
         var content = Ui.Column(
             logo, name, tagline,
+            _updateSlot,
             Ui.Button(Strings.OpenVault, OpenVault, accent: true, icon: Ui.LockIcon),
             Ui.Button(Strings.CreateVault, () => _main.Show(new CreatePage(_main)), icon: Ui.PlusIcon),
             _recentHeader,
@@ -46,10 +49,52 @@ sealed class StartPage : UserControl
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(8),
-            Children = { LanguageButton(), ThemeButton() },
+            Children = { UpdatesButton(), LanguageButton(), ThemeButton() },
         };
         Content = new Panel { Children = { new ScrollViewer { Content = content }, settings } };
         LoadRecent();
+        ShowUpdate(main.AvailableUpdate);
+    }
+
+    /// <summary>A card offering <paramref name="release"/> above the main buttons (nothing when null).</summary>
+    public void ShowUpdate(UpdateRelease? release)
+    {
+        if (release is null)
+        {
+            _updateSlot.Content = null;
+            return;
+        }
+        var whatsNew = Ui.TextButton(Strings.UpdateWhatsNew, () => _main.Platform.OpenLink(release.PageUrl));
+        var title = Ui.Text(Ui.Format(Strings.UpdateAvailable, release.VersionText), 16, FontWeight.SemiBold);
+        var card = Ui.Card(new StackPanel
+        {
+            Spacing = 10,
+            Children =
+            {
+                title,
+                Ui.Button(Strings.UpdateInstall, () => _ = _main.InstallUpdateAsync(), accent: true, icon: Ui.UpdateIcon),
+                whatsNew,
+            },
+        });
+        card.Margin = new Thickness(0, 0, 0, 8);
+        _updateSlot.Content = card;
+    }
+
+    /// <summary>Top-right button with the "check for updates automatically" switch.</summary>
+    Button UpdatesButton()
+    {
+        var button = Ui.IconButton(Ui.UpdateIcon, Strings.CheckForUpdates);
+        var item = new MenuItem { Header = Strings.CheckForUpdates, ToggleType = MenuItemToggleType.CheckBox };
+        item.Click += (_, _) =>
+        {
+            UpdateSetting.CheckAutomatically = !UpdateSetting.CheckAutomatically;
+            if (!UpdateSetting.CheckAutomatically)
+                ShowUpdate(null);
+        };
+        var menu = new MenuFlyout { Items = { item } };
+        menu.Opening += (_, _) => item.IsChecked = UpdateSetting.CheckAutomatically;
+        button.Flyout = menu;
+        return button;
     }
 
     /// <summary>Top-right button with the language choice; the pages are rebuilt in the new language at once.</summary>

@@ -2,4 +2,6 @@
 <!-- Decrypted files shared with other apps while the vault is open (wiped when it locks). -->
 <paths>
     <cache-path name="decrypted" path="decrypted/" />
+    <!-- A downloaded update, handed to the system installer. -->
+    <cache-path name="updates" path="updates/" />
 </paths>

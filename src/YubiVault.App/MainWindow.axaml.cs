@@ -9,6 +9,7 @@ using Yubico.YubiKey;
 using YubiVault.App.Pages;
 using YubiVault.App.Resources;
 using YubiVault.Core;
+using YubiVault.Core.Updates;
 
 namespace YubiVault.App;
 
@@ -28,6 +29,9 @@ public partial class MainWindow : Window
         InitializeComponent();
         ApplyFlowDirection();
         ShowStart(vaultFile);
+        Updater.CleanUp();
+        if (settings.CheckForUpdates && Updater.IsSupported)
+            _ = CheckForUpdateAsync();
 
         AddHandler(KeyDownEvent, (_, _) => _lastActivityUtc = DateTime.UtcNow, RoutingStrategies.Tunnel, handledEventsToo: true);
         AddHandler(PointerMovedEvent, (_, _) => _lastActivityUtc = DateTime.UtcNow, RoutingStrategies.Tunnel, handledEventsToo: true);
@@ -47,6 +51,54 @@ public partial class MainWindow : Window
 
     public AppSettings Settings { get; }
     public TempFiles TempFiles { get; } = new();
+
+    // ---- Updates ----
+
+    readonly UpdateChecker _updates = new(UpdateChecker.CreateHttpClient());
+
+    /// <summary>A newer signed release this copy can install, once the start-up check found one.</summary>
+    public UpdateRelease? AvailableUpdate { get; private set; }
+
+    async Task CheckForUpdateAsync()
+    {
+        try
+        {
+            var release = await _updates.FindNewerAsync(Updater.CurrentVersion);
+            if (release is null || Updater.FileFor(release) is null)
+                return;
+            AvailableUpdate = release;
+            if (Host.Content is StartPage start)
+                start.ShowUpdate(release);
+        }
+        catch (Exception e) when (e is HttpRequestException or TaskCanceledException or UpdateException
+                                      or System.Text.Json.JsonException)
+        {
+            // Offline, rate-limited or a release without a valid signature: simply no update offered.
+            System.Diagnostics.Trace.WriteLine($"Update check: {e.Message}");
+        }
+    }
+
+    /// <summary>Downloads, verifies and installs the available update, then restarts into it.</summary>
+    public async void InstallUpdate()
+    {
+        if (AvailableUpdate is not { } release || Updater.FileFor(release) is not { } file)
+            return;
+        var progress = BusyProgress;
+        try
+        {
+            await RunAsync(Strings.UpdateDownloading, () => Updater.InstallAsync(_updates, file,
+                new Progress<double>(p => progress.Report($"{p:P0}"))).GetAwaiter().GetResult());
+        }
+        catch (Exception e) when (e is HttpRequestException or TaskCanceledException or UpdateException or IOException
+                                      or UnauthorizedAccessException or InvalidDataException or InvalidOperationException
+                                      or System.ComponentModel.Win32Exception)
+        {
+            await Dialogs.AlertAsync(this, Strings.UpdateFailed, e.Message);
+            return;
+        }
+        Updater.Restart();
+        Close();
+    }
 
     // ---- Navigation ----
 

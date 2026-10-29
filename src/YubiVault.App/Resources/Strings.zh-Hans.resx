@@ -426,4 +426,22 @@
   <data name="InvalidSize" xml:space="preserve">
     <value>请输入至少 1 MB 的大小。</value>
   </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>YubiVault {0} 已发布。</value>
+  </data>
+  <data name="UpdateInstall" xml:space="preserve">
+    <value>立即更新</value>
+  </data>
+  <data name="UpdateWhatsNew" xml:space="preserve">
+    <value>新功能</value>
+  </data>
+  <data name="UpdateDownloading" xml:space="preserve">
+    <value>正在下载更新…</value>
+  </data>
+  <data name="UpdateFailed" xml:space="preserve">
+    <value>无法安装更新</value>
+  </data>
+  <data name="CheckForUpdates" xml:space="preserve">
+    <value>自动检查更新</value>
+  </data>
 </root>

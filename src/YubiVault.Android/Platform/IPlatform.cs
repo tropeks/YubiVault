@@ -51,6 +51,18 @@ public interface IPlatform
     /// <summary>Private folder for decrypted temp files; wiped when the vault locks and at start-up.</summary>
     string TempFolder { get; }
 
+    /// <summary>The installed app's version (versionName), to compare with releases.</summary>
+    Version AppVersion { get; }
+
+    /// <summary>Private folder for downloaded updates; emptied before each download.</summary>
+    string UpdateFolder { get; }
+
+    /// <summary>Hands a downloaded, verified APK to the system installer, which asks the user to confirm.</summary>
+    void InstallPackage(string apkPath);
+
+    /// <summary>Opens a web page in the browser (release notes).</summary>
+    void OpenLink(string url);
+
     /// <summary>Copies text to the clipboard (the recovery code), marked sensitive so Android hides it.</summary>
     void CopySensitiveText(string text);
 }

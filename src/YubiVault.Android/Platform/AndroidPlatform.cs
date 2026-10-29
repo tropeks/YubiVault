@@ -600,6 +600,41 @@ public sealed class AndroidPlatform : IPlatform
 
     bool _clipboardClearPending;
 
+    public Version AppVersion
+    {
+        get
+        {
+            string? name = Context.PackageManager!.GetPackageInfo(Context.PackageName!, 0)!.VersionName;
+            return Version.TryParse(name, out var version) ? version : new Version(0, 0, 0);
+        }
+    }
+
+    public string UpdateFolder => Directory.CreateDirectory(Path.Combine(Context.CacheDir!.AbsolutePath, "updates")).FullName;
+
+    public void InstallPackage(string apkPath)
+    {
+        // Android shows its own "allow this source" step the first time, then the update prompt.
+        var uri = FileProvider.GetUriForFile(Context, FileProviderAuthority, new Java.IO.File(apkPath));
+        var intent = new Intent(Intent.ActionView)
+            .SetDataAndType(uri, "application/vnd.android.package-archive")
+            .AddFlags(ActivityFlags.GrantReadUriPermission);
+        _activity.StartActivity(intent);
+    }
+
+    public void OpenLink(string url)
+    {
+        if (!url.StartsWith("https://", StringComparison.Ordinal))
+            return;
+        try
+        {
+            _activity.StartActivity(new Intent(Intent.ActionView, AndroidUri.Parse(url)));
+        }
+        catch (ActivityNotFoundException)
+        {
+            // No browser: nothing to show the notes in.
+        }
+    }
+
     ClipboardManager Clipboard => (ClipboardManager)Context.GetSystemService(Context.ClipboardService)!;
 
     public void CopySensitiveText(string text)

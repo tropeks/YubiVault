@@ -5,6 +5,7 @@ using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using YubiVault.App.Resources;
 using YubiVault.Core;
+using YubiVault.Core.Updates;
 
 namespace YubiVault.App.Pages;
 
@@ -30,6 +31,9 @@ public partial class StartPage : UserControl
         RecentHeader.IsVisible = recent.Count > 0;
         AssociateButton.IsVisible = FileAssociation.IsSupported && !FileAssociation.IsRegistered;
         LoadLanguages();
+        UpdatesCheck.IsVisible = Updater.IsSupported;
+        UpdatesCheck.IsChecked = main.Settings.CheckForUpdates;
+        ShowUpdate(main.AvailableUpdate);
         if (vaultFile is not null)
             SelectVault(vaultFile);
     }
@@ -52,6 +56,32 @@ public partial class StartPage : UserControl
         string code = LanguageCombo.SelectedIndex == 0 ? "" : Localization.Languages[LanguageCombo.SelectedIndex - 1].Code;
         if (code != _main.Settings.Language)
             _main.ChangeLanguage(code);
+    }
+
+    /// <summary>Offers <paramref name="release"/> in the bar at the top (hidden when null).</summary>
+    public void ShowUpdate(UpdateRelease? release)
+    {
+        UpdateBar.IsOpen = release is not null;
+        if (release is not null)
+            UpdateBar.Title = Localization.Format(Strings.UpdateAvailable, release.VersionText);
+    }
+
+    void OnUpdatesCheckChanged(object? sender, RoutedEventArgs e)
+    {
+        if (_main is null || UpdatesCheck.IsChecked == _main.Settings.CheckForUpdates)
+            return;
+        _main.Settings.CheckForUpdates = UpdatesCheck.IsChecked == true;
+        _main.Settings.Save();
+        if (!_main.Settings.CheckForUpdates)
+            ShowUpdate(null);
+    }
+
+    void OnInstallUpdate(object? sender, RoutedEventArgs e) => _main.InstallUpdate();
+
+    void OnWhatsNew(object? sender, RoutedEventArgs e)
+    {
+        if (_main.AvailableUpdate is { } release)
+            _ = _main.Launcher.LaunchUriAsync(new Uri(release.PageUrl));
     }
 
     async void OnOpenVault(object? sender, RoutedEventArgs e)

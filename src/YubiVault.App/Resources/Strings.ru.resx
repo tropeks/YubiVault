@@ -426,4 +426,22 @@
   <data name="InvalidSize" xml:space="preserve">
     <value>Укажите размер не менее 1 МБ.</value>
   </data>
+  <data name="UpdateAvailable" xml:space="preserve">
+    <value>Доступна версия YubiVault {0}.</value>
+  </data>
+  <data name="UpdateInstall" xml:space="preserve">
+    <value>Обновить сейчас</value>
+  </data>
+  <data name="UpdateWhatsNew" xml:space="preserve">
+    <value>Что нового</value>
+  </data>
+  <data name="UpdateDownloading" xml:space="preserve">
+    <value>Загрузка обновления…</value>
+  </data>
+  <data name="UpdateFailed" xml:space="preserve">
+    <value>Не удалось установить обновление</value>
+  </data>
+  <data name="CheckForUpdates" xml:space="preserve">
+    <value>Автоматически проверять обновления</value>
+  </data>
 </root>
