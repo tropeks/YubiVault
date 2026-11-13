@@ -1,7 +1,8 @@
 # Releasing
 
 Pushing a `v*` tag (or publishing a release from the GitHub page) runs `.github/workflows/release.yml`,
-which builds every platform, signs the Android APK, and attaches everything to the release with
+which builds every platform, signs the Android APK and the Google Play bundle
+(`YubiVault-<version>-google-play.aab`, see [google-play.md](google-play.md)), and attaches everything to the release with
 `SHA256SUMS.txt` and its Ed25519 signature `SHA256SUMS.txt.sig`. The apps update only from releases
 whose checksum list carries that signature.
 

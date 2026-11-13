@@ -613,12 +613,17 @@ public sealed class AndroidPlatform : IPlatform
 
     public void InstallPackage(string apkPath)
     {
+#if PLAY_STORE
+        // The Google Play build may not install packages (and has no REQUEST_INSTALL_PACKAGES permission).
+        throw new NotSupportedException("Updates come from Google Play.");
+#else
         // Android shows its own "allow this source" step the first time, then the update prompt.
         var uri = FileProvider.GetUriForFile(Context, FileProviderAuthority, new Java.IO.File(apkPath));
         var intent = new Intent(Intent.ActionView)
             .SetDataAndType(uri, "application/vnd.android.package-archive")
             .AddFlags(ActivityFlags.GrantReadUriPermission);
         _activity.StartActivity(intent);
+#endif
     }
 
     public void OpenLink(string url)

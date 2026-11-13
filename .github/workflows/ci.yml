@@ -77,3 +77,18 @@ jobs:
         with:
           name: YubiVault-android
           path: out/*-Signed.apk
+
+      # The Google Play build: an .aab without the self-updater or the permissions it needs.
+      - name: Build the Google Play bundle
+        run: |
+          rm -rf src/YubiVault.Android/obj src/YubiVault.Android/bin
+          dotnet publish src/YubiVault.Android -c Release -p:AndroidSdkDirectory=$ANDROID_HOME -p:PlayStore=true -o play
+          manifest=$(find src/YubiVault.Android/obj -path '*/android/AndroidManifest.xml' | head -1)
+          cat "$manifest"
+          if grep -E 'permission.(INTERNET|REQUEST_INSTALL_PACKAGES)' "$manifest"; then
+            echo "::error::The Google Play build must not ask for INTERNET or REQUEST_INSTALL_PACKAGES." && exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: YubiVault-android-play
+          path: play/*-Signed.aab
