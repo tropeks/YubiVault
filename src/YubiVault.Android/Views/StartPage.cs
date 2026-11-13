@@ -49,8 +49,11 @@ sealed class StartPage : UserControl
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Top,
             Margin = new Thickness(8),
-            Children = { UpdatesButton(), LanguageButton(), ThemeButton() },
+            Children = { LanguageButton(), ThemeButton() },
         };
+        // Google Play updates its own copy, so only the GitHub build has the update switch.
+        if (!BuildInfo.IsPlayStore)
+            settings.Children.Insert(0, UpdatesButton());
         Content = new Panel { Children = { new ScrollViewer { Content = content }, settings } };
         LoadRecent();
         ShowUpdate(main.AvailableUpdate);

@@ -48,12 +48,20 @@ public partial class MainView : UserControl
             android.Backgrounded += OnBackgrounded;
             android.Foregrounded += OnForegrounded;
         }
+#if !PLAY_STORE
         if (UpdateSetting.CheckAutomatically)
             _ = CheckForUpdateAsync();
+#endif
     }
 
     // ---- Updates ----
+    // The Google Play build has none of this: Play updates the app itself and forbids apps that install their own updates.
 
+#if PLAY_STORE
+    internal UpdateRelease? AvailableUpdate => null;
+
+    internal Task InstallUpdateAsync() => Task.CompletedTask;
+#else
     readonly UpdateChecker _updates = new(UpdateChecker.CreateHttpClient());
 
     /// <summary>A newer signed release with an APK, once the start-up check found one.</summary>
@@ -100,6 +108,7 @@ public partial class MainView : UserControl
             await AlertAsync(Strings.UpdateFailed, e.Message);
         }
     }
+#endif
 
     void OpenFromOtherApp(VaultDocument document)
     {

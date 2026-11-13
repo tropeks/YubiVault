@@ -158,9 +158,18 @@ jobs:
             -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$keystore" -p:AndroidSigningKeyAlias=yubivault \
             -p:AndroidSigningStorePass=env:ANDROID_KEYSTORE_PASSWORD -p:AndroidSigningKeyPass=env:ANDROID_KEYSTORE_PASSWORD \
             -o out
-          rm -f "$keystore"
           mkdir upload
           cp out/*-Signed.apk "upload/YubiVault-$version-android.apk"
+          # The same version for Google Play: an .aab without the self-updater, signed with the same key
+          # (Play's upload key). Upload it in Play Console; phones never download it from here.
+          rm -rf src/YubiVault.Android/obj src/YubiVault.Android/bin
+          dotnet publish src/YubiVault.Android -c Release -p:AndroidSdkDirectory=$ANDROID_HOME -p:PlayStore=true \
+            -p:ApplicationDisplayVersion=$version -p:ApplicationVersion=$code \
+            -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$keystore" -p:AndroidSigningKeyAlias=yubivault \
+            -p:AndroidSigningStorePass=env:ANDROID_KEYSTORE_PASSWORD -p:AndroidSigningKeyPass=env:ANDROID_KEYSTORE_PASSWORD \
+            -o play
+          rm -f "$keystore"
+          cp play/*-Signed.aab "upload/YubiVault-$version-google-play.aab"
 
       - uses: actions/upload-artifact@v4
         with:

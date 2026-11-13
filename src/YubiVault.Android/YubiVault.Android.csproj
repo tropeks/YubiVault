@@ -24,6 +24,14 @@
     <AndroidEnableMarshalMethods>false</AndroidEnableMarshalMethods>
   </PropertyGroup>
 
+  <!-- Google Play build (dotnet publish -p:PlayStore=true): an .aab without the self-updater, which Play forbids,
+       and without the INTERNET and REQUEST_INSTALL_PACKAGES permissions that only the updater needs. -->
+  <PropertyGroup Condition="'$(PlayStore)' == 'true'">
+    <DefineConstants>$(DefineConstants);PLAY_STORE</DefineConstants>
+    <AndroidManifest>Properties\AndroidManifest.Play.xml</AndroidManifest>
+    <AndroidPackageFormat>aab</AndroidPackageFormat>
+  </PropertyGroup>
+
   <!-- Launcher icon: Resources/mipmap-* (adaptive, with a monochrome layer for themed icons). -->
   <ItemGroup>
     <AvaloniaResource Include="Assets\app-icon.png" />
